@@ -3,7 +3,7 @@ import SwiftUI
 
 struct YouScreen: View {
     var body: some View {
-        PendingScreen(title: "You", systemImage: "person.crop.circle")
+        PendingScreen(title: "You", systemImage: "person")
     }
 }
 

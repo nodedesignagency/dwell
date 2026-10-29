@@ -17,17 +17,43 @@ public struct Insight: Identifiable, Hashable, Sendable {
 
     public let id: String
     public var family: Family
+    /// A short label over the sentence, e.g. "Work hours". A label, not character: it never
+    /// changes with the dial.
+    public var topic: String?
     public var line: VoicedLine
     /// The one supporting number, e.g. "10h 12m". Data, never voiced.
     public var value: String?
+    /// A supporting chart, one bar per day. Empty when the number says it all.
+    public var week: [DayValue]
     public var isShareable: Bool
 
-    public init(id: String, family: Family, line: VoicedLine, value: String? = nil, isShareable: Bool = true) {
+    public init(
+        id: String,
+        family: Family,
+        topic: String? = nil,
+        line: VoicedLine,
+        value: String? = nil,
+        week: [DayValue] = [],
+        isShareable: Bool = true
+    ) {
         self.id = id
         self.family = family
+        self.topic = topic
         self.line = line
         self.value = value
+        self.week = week
         self.isShareable = isShareable
+    }
+}
+
+/// One number for one day, e.g. a bar in an insight's week chart.
+public struct DayValue: Hashable, Sendable {
+    public var day: DwellDay
+    public var value: TimeInterval
+
+    public init(day: DwellDay, value: TimeInterval) {
+        self.day = day
+        self.value = value
     }
 }
 

@@ -10,6 +10,10 @@ public protocol DwellRepository: Sendable {
     func day(_ day: DwellDay) async throws -> DaySnapshot
     func places() async throws -> [Place]
     func insights(for day: DwellDay) async throws -> [Insight]
+    /// The user tapped "Looks right" on a visit Dwell wasn't sure about.
+    func confirmVisit(_ id: VisitID) async throws
+    /// "Not useful": the insight leaves the deck and the engine learns from it.
+    func dismissInsight(_ id: Insight.ID) async throws
 }
 
 /// Serves `SampleData`. Used by previews, the simulator and the fictional demo.
@@ -31,4 +35,9 @@ public struct SampleRepository: DwellRepository {
     public func insights(for day: DwellDay) async throws -> [Insight] {
         day == SampleData.today ? SampleData.insights : []
     }
+
+    /// The sample week is fixed, so answers are not kept.
+    public func confirmVisit(_ id: VisitID) async throws {}
+
+    public func dismissInsight(_ id: Insight.ID) async throws {}
 }

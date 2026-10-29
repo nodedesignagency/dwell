@@ -4,22 +4,38 @@ import DwellCore
 import SwiftUI
 
 public enum Palette {
-    /// Screen background (placeholder)
+    /// Screen and sheet background; icon wells
     public static let background = Color("background", bundle: .module)
-    /// Cards and grouped rows (placeholder)
+    /// Cards
     public static let surface = Color("surface", bundle: .module)
     /// Sheets, cards on surface (placeholder)
     public static let surfaceRaised = Color("surfaceRaised", bundle: .module)
-    /// Body text and numbers (placeholder)
+    /// Body text and numbers
     public static let textPrimary = Color("textPrimary", bundle: .module)
-    /// Captions, labels, units (placeholder)
+    /// Captions, labels, units, times. Light is 3.5:1 on white: below AA for small text, see QUESTIONS.md
     public static let textSecondary = Color("textSecondary", bundle: .module)
-    /// Hairlines (placeholder)
+    /// Today's headline over the sunrise
+    public static let textOnHero = Color("textOnHero", bundle: .module)
+    /// Hairlines and dashed dividers
     public static let separator = Color("separator", bundle: .module)
-    /// Gaps on the day bar and timeline (placeholder)
+    /// Card edge; only drawn in dark, where shadows don't show
+    public static let cardStroke = Color("cardStroke", bundle: .module)
+    /// Unmapped time on the day bar; skeletons
     public static let gap = Color("gap", bundle: .module)
-    /// Tint, primary actions; also the app's AccentColor (placeholder)
+    /// Tint, primary actions, insight charts; also the app's AccentColor
     public static let accent = Color("accent", bundle: .module)
+    /// The live dot next to the timer
+    public static let live = Color("live", bundle: .module)
+    /// Tint of the Yours hero stat
+    public static let yours = Color("yours", bundle: .module)
+    /// The confirmation card
+    public static let inverseSurface = Color("inverseSurface", bundle: .module)
+    /// Text on inverseSurface
+    public static let inverseText = Color("inverseText", bundle: .module)
+    /// Controls over the sunrise (the day pill)
+    public static let glass = Color("glass", bundle: .module)
+    /// The chart fold bucket, Everything else. Not a category. (placeholder)
+    public static let everythingElse = Color("everythingElse", bundle: .module)
 }
 
 extension PlaceCategory {
@@ -35,6 +51,7 @@ public enum Space {
     public static let s: CGFloat = 8
     public static let m: CGFloat = 12
     public static let l: CGFloat = 16
+    public static let screen: CGFloat = 20
     public static let xl: CGFloat = 24
     public static let xxl: CGFloat = 32
     public static let xxxl: CGFloat = 48
@@ -42,7 +59,8 @@ public enum Space {
 
 public enum Radius {
     public static let s: CGFloat = 8
-    public static let m: CGFloat = 12
-    public static let l: CGFloat = 20
-    public static let xl: CGFloat = 28
+    public static let m: CGFloat = 13
+    public static let l: CGFloat = 16
+    public static let xl: CGFloat = 20
+    public static let xxl: CGFloat = 32
 }

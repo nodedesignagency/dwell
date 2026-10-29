@@ -11,6 +11,9 @@ extension EnvironmentValues {
 
     /// Pins the clock for previews and screenshots. `nil` means live time.
     @Entry public var fixedNow: Date? = nil
+
+    /// What the user has granted. The app sets it from the system; previews set each banner.
+    @Entry public var permissions: Permissions = .full
 }
 
 /// A sentence in the dial's voice. Re-renders the moment the dial moves.
@@ -24,6 +27,8 @@ public struct VoiceText: View {
 
     public var body: some View {
         Text(verbatim: line.text(for: dial))
+            .contentTransition(.opacity)
+            .motion(value: dial.stop)
     }
 }
 
@@ -33,17 +38,19 @@ extension View {
         environment(\.dial, Dial(stop))
             .environment(\.fixedNow, SampleData.now)
             .environment(\.repository, SampleRepository())
+            .environment(\.calendar, SampleData.calendar)
             .environment(\.timeZone, SampleData.calendar.timeZone)
     }
 }
 
 extension PlaceCategory {
-    /// Stand-in icons until the custom category icons arrive.
+    /// Flat glyphs for rows. Stand-ins until the design's icon set (Solar, bold duotone)
+    /// is exported; work, home and food & drink match its choices (Today design).
     public var placeholderSymbol: String {
         switch self {
-        case .work: "briefcase.fill"
+        case .work: "building.2.fill"
         case .home: "house.fill"
-        case .foodAndDrink: "fork.knife"
+        case .foodAndDrink: "cup.and.saucer.fill"
         case .shopping: "bag.fill"
         case .fitness: "figure.run"
         case .errands: "checklist"

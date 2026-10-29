@@ -85,31 +85,29 @@ public enum SampleData {
 
     // MARK: Voice, collectibles, coverage
 
-    /// Lines from the brief's copy deck (Appendix B). The first is the hero.
+    /// Today's deck, lines from the brief's copy deck (Appendix B). The first is the hero.
+    /// Only lines that hold on Monday 26 October: the 10h 12m record ("…today") lives in `records`.
     public static let insights: [Insight] = [
         Insight(
             id: "weekend-zero-work", family: .first,
+            topic: "Work hours", // [COPY NEEDED]
             line: VoicedLine(
                 peace: "A whole weekend to yourself. First since March 8.",
                 plain: "Zero work hours Sat–Sun. First since March 8.",
                 grind: "Zero work this weekend. Recharged or slacking? Monday decides."),
-            value: "0h"),
+            value: "0h",
+            week: lastWeek.map { DayValue(day: $0, value: snapshot(for: $0).totals(now: now)[.work] ?? 0) }),
         Insight(
             id: "new-cell-red-hook", family: .scratchProgress,
+            topic: "New places", // [COPY NEEDED]
             line: VoicedLine(
                 peace: "Somewhere new: Red Hook.",
                 plain: "New neighborhood: Red Hook. First time.",
                 grind: "Red Hook, uncovered. 3.2% of Brooklyn."),
             value: "3.2%"),
         Insight(
-            id: "longest-day", family: .record,
-            line: VoicedLine(
-                peace: "10h 12m today. That's a lot. Rest tomorrow.",
-                plain: "10h 12m at work. Lifetime record.",
-                grind: "10h 12m. New record. Nobody outworked you today."),
-            value: "10h 12m"),
-        Insight(
             id: "early-exit", family: .record,
+            topic: "Office hours", // [COPY NEEDED]
             line: VoicedLine(
                 peace: "Out by 5:52. The evening is yours.",
                 plain: "Office exit 5:52 PM. Earliest this week.",

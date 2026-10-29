@@ -5,7 +5,11 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 **Design:** ⬜ not designed yet · 🎨 designed (name the design) · 🔁 derived from another design (name it)
 **Built:** ⬜ not started · 🟡 in progress · ✅ done (all states, light and dark, large text, VoiceOver, Reduce Motion, dial variants)
 
-Counts: 13 onboarding, 7 first-week moments, 14 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 11 motion moments. Compare (social) is listed last and is not v1.
+Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
+
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81).
+
+Counts: 13 onboarding, 7 first-week moments, 15 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 11 motion moments. Compare (social) is listed last and is not v1.
 
 ## Cross-cutting (every screen)
 
@@ -56,20 +60,21 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 
 | ID | Element | States and contents | Design | Built |
 | --- | --- | --- | --- | --- |
-| T-01 | Live status | Live ("At {place} since {time}", ticking estimate timer); in transit ("In transit · 12m"); stale ("Last known: Home · last seen 2:10 PM", timer stopped); unknown ("Mapping your first place"); no permission. Tap → place page. | ⬜ | ⬜ |
-| T-02 | Day bar | Empty / partial / full; durations by category, total mapped; tap or scrub → callout. Must also work in the Dynamic Island, widgets and share cards. | ⬜ | ⬜ |
-| T-03 | Hero stats | Two big numbers chosen by the dial (Peace: work · yours; Grind: work · sessions) | ⬜ | ⬜ |
-| T-04 | Confirmation card | Visit ("You spent 57m at Brambleline Café. Looks right?" Looks right / Pick another → picker); "Is this home?"; "Is this work?"; "Working from home today?" (Yes / No); none / queued | ⬜ | ⬜ |
-| T-05 | Insight | Hero sentence in the dial's voice, one supporting number, Share; up to four more ranked below; Not useful; day 1–3 onboarding series; fallback so it is never empty | ⬜ | ⬜ |
+| T-01 | Live status | Live ("At {place} since {time}", ticking estimate timer); in transit ("In transit · 12m"); stale ("Last known: Home · last seen 2:10 PM", timer stopped); unknown ("Mapping your first place"); no permission. Tap → place page. | 🎨 Today: live. 🔁 Today: transit, stale, unknown, no permission | 🟡 |
+| T-02 | Day bar | Empty / partial / full; durations by category, total mapped; tap or scrub → callout. Must also work in the Dynamic Island, widgets and share cards. | 🎨 Today: partial, legend. 🔁 Today: empty, full (past day), callout, unmapped | 🟡 (`DayBarView`, ready for widgets) |
+| T-03 | Hero stats | Two big numbers chosen by the dial (Peace: work · yours; Grind: work · sessions) | 🎨 Today: work · yours. 🔁 Today: work · sessions | 🟡 |
+| T-04 | Confirmation card | Visit ("You spent 57m at Brambleline Café. Looks right?" Looks right / Pick another → picker); "Is this home?"; "Is this work?"; "Working from home today?" (Yes / No); none / queued | 🎨 Today: visit (hidden Figma layer; brief's buttons). 🔁 floats above the tab bar. ⬜ Is this home? / work? / WFH? (need a data model) | 🟡 visit only |
+| T-05 | Insight | Hero sentence in the dial's voice, one supporting number, Share; up to four more ranked below; Not useful; day 1–3 onboarding series; fallback so it is never empty | 🎨 Today: deck with week chart. 🔁 Today: share, Not useful, lone-number card, still mapping | 🟡 (series and fallback come from the engine) |
 | T-06 | New today | New place or new scratch cell → Map; none / some | ⬜ | ⬜ |
-| T-07 | Timeline | Visits with name, span, duration, precision mark, badges (private, WFH, approximate); transit; gaps ("Dwell was asleep · 42m"); "Review this place"; current row "→ now"; long-press → visit edit; empty / partial / complete | ⬜ | ⬜ |
+| T-07 | Timeline | Visits with name, span, duration, precision mark, badges (private, WFH, approximate); transit; gaps ("Dwell was asleep · 42m"); "Review this place"; current row "→ now"; long-press → visit edit; empty / partial / complete | 🎨 Today: visit rows, View more. 🔁 Today: transit, gaps, badges, Review this place, empty. ⬜ long-press → visit edit (S-01) | 🟡 |
 | T-08 | Calendar matches | In the timeline: attended / partial (minutes late or early) / missed (where you were instead) / unknown; not connected (Connect calendar) / no events today / matched. Tap → event detail. | ⬜ | ⬜ |
-| T-09 | Permission banner | Four types, one at a time, Fix / Open Settings | ⬜ | ⬜ |
-| T-10 | Sync | "Retry sync" line when offline | ⬜ | ⬜ |
-| T-11 | First day | Now / Next / Then checklist | ⬜ | ⬜ |
-| T-12 | Empty and failed | "No stops yet today" / "Today couldn't load" + Retry | ⬜ | ⬜ |
-| T-13 | Quiet day | A day with little movement still teaches something | ⬜ | ⬜ |
-| T-14 | Loading | Skeleton within 600 ms of cold launch | ⬜ | ⬜ |
+| T-09 | Permission banner | Four types, one at a time, Fix / Open Settings | 🔁 Today | 🟡 |
+| T-10 | Sync | "Retry sync" line when offline | 🔁 Today: stale line, offline state | 🟡 |
+| T-11 | First day | Now / Next / Then checklist | ⬜ (Today's still-mapping state stands in: promise line and "1 day to go") | ⬜ |
+| T-12 | Empty and failed | "No stops yet today" / "Today couldn't load" + Retry | 🔁 Today | 🟡 |
+| T-13 | Quiet day | A day with little movement still teaches something | 🔁 Today (same layout; headline drops absent runs) | 🟡 |
+| T-14 | Loading | Skeleton within 600 ms of cold launch | 🔁 Today | 🟡 |
+| T-15 | Day picker | The day pill opens a calendar; a past day shows its headline, day bar, hero stats and timeline, without live status, insights or confirmation. Not in the brief (QUESTIONS.md). | 🎨 Today: the pill. 🔁 system calendar sheet | 🟡 |
 
 ## Map (A.3, §7.2)
 
@@ -81,7 +86,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | M-04 | Map states | Loading / syncing / failed / empty ("Your map starts with your first place") / populated | ⬜ | ⬜ |
 | M-05 | Lens reading | One line in the dial's voice ("31h beyond work this week." / "5 returns to Kestriva Labs.") | ⬜ | ⬜ |
 | M-06 | Places you return to | Top five by time → place page | ⬜ | ⬜ |
-| M-07 | Place page | Name, category, total, visits, first and last seen, streaks here, share level, calendar of visits; Edit, Share level, Private | ⬜ | ⬜ |
+| M-07 | Place page | Name, category, total, visits, first and last seen, streaks here, share level, calendar of visits; Edit, Share level, Private | ⬜ (Today's rows and live status already open a placeholder) | ⬜ |
 | M-08 | Scratch detail | Neighborhood / city / world coverage with %, cells this week, next milestone; Share (city silhouette) | ⬜ | ⬜ |
 | M-09 | Scratch cell detail | Date first uncovered | ⬜ | ⬜ |
 | M-10 | Privacy line | "Your map is private to you." | ⬜ | ⬜ |
@@ -128,8 +133,8 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | ID | Sheet | States and contents | Design | Built |
 | --- | --- | --- | --- | --- |
 | S-01 | Visit edit | Relabel, split, merge, private, WFH, delete | ⬜ | ⬜ |
-| S-02 | Place picker | Nearby, search, somewhere else | ⬜ | ⬜ |
-| S-03 | Insight detail + share preview | The insight, its data, the share card preview | ⬜ | ⬜ |
+| S-02 | Place picker | Nearby, search, somewhere else | ⬜ (Today's Pick another and Review this place open a placeholder) | ⬜ |
+| S-03 | Insight detail + share preview | The insight, its data, the share card preview | ⬜ (Today's insight tap and share open a placeholder) | ⬜ |
 | S-04 | Record card | The record landing, share | ⬜ | ⬜ |
 | S-05 | Badge detail | Unlock moment, tier progress, share | ⬜ | ⬜ |
 | S-06 | Weekly wrap | Multi-step reveal: total, day visuals, three superlatives, work and yours as two numbers, share | ⬜ | ⬜ |
@@ -157,12 +162,12 @@ Each needs timing, easing, a Reduce Motion alternative, and its haptic where one
 
 | ID | Moment | Haptic | Design | Built |
 | --- | --- | --- | --- | --- |
-| MO-01 | Live timer ticking | none | ⬜ | ⬜ |
-| MO-02 | Day bar filling | none | ⬜ | ⬜ |
+| MO-01 | Live timer ticking | none | 🔁 Today | 🟡 |
+| MO-02 | Day bar filling | none | 🔁 Today | 🟡 |
 | MO-03 | Scratch-off reveal | light | ⬜ | ⬜ |
 | MO-04 | Place reveal on the map | none | ⬜ | ⬜ |
-| MO-05 | Insight arrival | none | ⬜ | ⬜ |
-| MO-06 | Confirmation accepted | light | ⬜ | ⬜ |
+| MO-05 | Insight arrival | none | 🔁 Today (deck paging) | 🟡 |
+| MO-06 | Confirmation accepted | light | 🔁 Today | 🟡 |
 | MO-07 | Badge unlock | firm | ⬜ | ⬜ |
 | MO-08 | Streak extends | firm | ⬜ | ⬜ |
 | MO-09 | Record landing | firm | ⬜ | ⬜ |
