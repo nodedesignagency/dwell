@@ -13,6 +13,7 @@ struct TodayScreen: View {
 
     @Environment(\.repository) private var repository
     @Environment(\.fixedNow) private var fixedNow
+    @Environment(\.clockOffset) private var clockOffset
     @Environment(\.calendar) private var calendar
     @Environment(\.openURL) private var openURL
 
@@ -27,8 +28,8 @@ struct TodayScreen: View {
 
     var body: some View {
         NavigationStack {
-            TimelineView(.periodic(from: tickAnchor, by: 60)) { context in
-                let now = fixedNow ?? context.date
+            TimelineView(.periodic(from: tickAnchor.addingTimeInterval(-clockOffset), by: 60)) { context in
+                let now = fixedNow ?? context.date.addingTimeInterval(clockOffset)
                 let today = DwellDay(containing: now, calendar: calendar)
                 let day = pickedDay ?? today
                 TodayContent(

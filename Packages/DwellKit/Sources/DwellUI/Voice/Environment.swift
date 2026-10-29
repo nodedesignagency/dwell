@@ -12,6 +12,10 @@ extension EnvironmentValues {
     /// Pins the clock for previews and screenshots. `nil` means live time.
     @Entry public var fixedNow: Date? = nil
 
+    /// Shifts the live clock, so the simulator can run on the sample week and still tick.
+    /// Screens read now as `fixedNow ?? Date() + clockOffset`.
+    @Entry public var clockOffset: TimeInterval = 0
+
     /// What the user has granted. The app sets it from the system; previews set each banner.
     @Entry public var permissions: Permissions = .full
 }
@@ -33,6 +37,16 @@ public struct VoiceText: View {
 }
 
 extension View {
+    /// The sample week as if it were happening now: the clock reads Monday 26 October,
+    /// 2:47 PM in New York at `launch`, and ticks on from there. The simulator runs on this
+    /// until the client's engine is connected.
+    public func sampleWeek(launchedAt launch: Date) -> some View {
+        environment(\.repository, SampleRepository())
+            .environment(\.clockOffset, SampleData.now.timeIntervalSince(launch))
+            .environment(\.calendar, SampleData.calendar)
+            .environment(\.timeZone, SampleData.calendar.timeZone)
+    }
+
     /// The sample week, frozen at Monday 26 October, 2:47 PM, at the given dial stop.
     public func samplePreview(_ stop: Dial.Stop = .plain) -> some View {
         environment(\.dial, Dial(stop))

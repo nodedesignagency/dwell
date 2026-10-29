@@ -14,6 +14,15 @@ open Dwell.xcodeproj
 
 Pick an iPhone simulator and run. With no signing team set, it runs in the simulator; to run on a phone, choose your team under Signing & Capabilities.
 
+Or build and launch in the simulator without opening Xcode:
+
+```bash
+./scripts/run.sh                  # the booted iPhone simulator, or the newest one
+./scripts/run.sh "iPhone 18 Pro"  # a simulator by name
+```
+
+Until the client's tracking engine is connected, the app runs on the sample week: its clock starts at Monday 26 October 2026, 2:47 PM in New York, and ticks on from there.
+
 ## Test the core rules
 
 ```bash
