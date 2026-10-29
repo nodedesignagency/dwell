@@ -100,11 +100,12 @@ def main():
         "    }",
         "}",
         "",
-        "public enum Space {",
+        "/// Plain numbers, so nonisolated: usable in layouts and default arguments.",
+        "public nonisolated enum Space {",
     ]
     for name, value in tokens["space"].items():
         lines.append(f"    public static let {name}: CGFloat = {value}")
-    lines += ["}", "", "public enum Radius {"]
+    lines += ["}", "", "public nonisolated enum Radius {"]
     for name, value in tokens["radius"].items():
         lines.append(f"    public static let {name}: CGFloat = {value}")
     lines += ["}", ""]

@@ -45,7 +45,8 @@ extension PlaceCategory {
     }
 }
 
-public enum Space {
+/// Plain numbers, so nonisolated: usable in layouts and default arguments.
+public nonisolated enum Space {
     public static let xxs: CGFloat = 2
     public static let xs: CGFloat = 4
     public static let s: CGFloat = 8
@@ -57,7 +58,7 @@ public enum Space {
     public static let xxxl: CGFloat = 48
 }
 
-public enum Radius {
+public nonisolated enum Radius {
     public static let s: CGFloat = 8
     public static let m: CGFloat = 13
     public static let l: CGFloat = 16
