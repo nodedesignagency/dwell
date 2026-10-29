@@ -36,7 +36,7 @@ The project uses synchronized folders: any file added under `Dwell/` or the pack
 - Before writing a page, reuse what exists: check `docs/DESIGN.md` components and `DwellUI`. When a design introduces a reusable piece (card, stat pill, section header, calendar tile, segmented range control, list row, privacy bar), build it in `DwellUI` and add it to the components table.
 - When a design sets a colour, size or radius, update `design/tokens.json` (drop `placeholder: true`) and rerun the script; record type and motion decisions in `docs/DESIGN.md`.
 - If something in a design conflicts with the brief, stop and tell the user instead of guessing. Log it in `docs/QUESTIONS.md`.
-- The user will design about 15–20 screens. Everything else is derived from them. After each page, mark in `docs/SCREENS.md` what the design covered directly and what we derived from it. When the designs are done, report everything still marked missing so nothing is left out of the app.
+- The user will design about 15–20 screens. Everything else is derived from them. After each page, mark in `docs/SCREENS.md` what the design covered directly and what we derived from it. When the designs are done, report everything still marked missing so nothing is left out of the app. At that point also walk the user through `docs/QUESTIONS.md`: they have said some of those questions are not needed and want to go through them together then.
 
 ### Definition of done for a page
 

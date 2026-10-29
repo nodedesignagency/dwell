@@ -2,6 +2,8 @@
 
 Questions for the user or the client (Zac), and any place a design and the brief disagree. Each answer goes back into the code and this file.
 
+**Reminder:** the user will go through this list once the designs are done. Some questions are not needed; drop them with the user then, not before.
+
 ## For the client
 
 1. **The tracking engine and app state are not in this repo.** The repo started empty. The brief says a TestFlight build and a working engine are "available on request". We need the engine's code or API to write the adapter behind `DwellRepository`. Until then screens run on the sample week.
