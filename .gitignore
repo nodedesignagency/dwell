@@ -1,0 +1,14 @@
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/DwellKit/Package.resolved
+
+# Python
+__pycache__/
