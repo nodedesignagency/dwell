@@ -104,3 +104,35 @@ struct TokenTests {
         #expect(Set(sky.keys.filter { !$0.hasPrefix("_") }) == Set(SkyPhase.allCases.map(\.rawValue)))
     }
 }
+
+@Suite("Demo states for the simulator")
+struct DemoRepositoryTests {
+    @Test func `empty has no visits, no insights and no place yet`() async throws {
+        let repository = DemoRepository(.empty)
+        #expect(try await repository.day(SampleData.today).entries.isEmpty)
+        #expect(try await repository.insights(for: SampleData.today).isEmpty)
+        #expect(try await repository.liveStatus() == .unknown)
+    }
+
+    @Test func `failed and offline say which`() async {
+        await #expect(throws: LoadError(.unavailable)) { try await DemoRepository(.failed).day(SampleData.today) }
+        await #expect(throws: LoadError(.offline)) { try await DemoRepository(.offline).liveStatus() }
+    }
+
+    @Test func `each banner mode raises its banner`() {
+        #expect(DemoRepository.Mode.locationDenied.permissions.banner == .locationDenied)
+        #expect(DemoRepository.Mode.whenInUse.permissions.banner == .whenInUseOnly)
+        #expect(DemoRepository.Mode.preciseOff.permissions.banner == .preciseOff)
+        #expect(DemoRepository.Mode.motionDenied.permissions.banner == .motionDenied)
+        #expect(DemoRepository.Mode.transit.permissions.banner == nil)
+    }
+
+    @Test func `transit and last seen keep the sample day`() async throws {
+        let transit = DemoRepository(.transit)
+        #expect(!(try await transit.day(SampleData.today).entries.isEmpty))
+        guard case .lastKnown = try await DemoRepository(.lastSeen).liveStatus() else {
+            Issue.record("Expected last known")
+            return
+        }
+    }
+}

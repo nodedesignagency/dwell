@@ -87,6 +87,8 @@ struct TodayScreen: View {
             state = .loaded(TodayModel(snapshot: snapshot, liveStatus: liveStatus, insights: insights))
         } catch is CancellationError {
             return
+        } catch let error as LoadError {
+            state = .failed(error.failure)
         } catch {
             state = .failed((error as? URLError)?.code == .notConnectedToInternet ? .offline : .unavailable)
         }

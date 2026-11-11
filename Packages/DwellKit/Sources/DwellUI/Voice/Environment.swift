@@ -44,8 +44,8 @@ extension View {
     /// The sample week as if it were happening now: the clock reads Monday 26 October,
     /// 2:47 PM in New York at `launch`, and ticks on from there. The simulator runs on this
     /// until the client's engine is connected.
-    public func sampleWeek(launchedAt launch: Date) -> some View {
-        environment(\.repository, SampleRepository())
+    public func sampleWeek(launchedAt launch: Date, repository: any DwellRepository = SampleRepository()) -> some View {
+        environment(\.repository, repository)
             .environment(\.clockOffset, SampleData.now.timeIntervalSince(launch))
             .environment(\.calendar, SampleData.calendar)
             .environment(\.timeZone, SampleData.calendar.timeZone)
