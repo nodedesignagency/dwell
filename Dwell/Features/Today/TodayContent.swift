@@ -87,7 +87,13 @@ struct TodayContent: View {
         .padding(.top, Space.l)
         .padding(.bottom, Space.xxl)
         .frame(maxWidth: .infinity)
-        .background(Palette.background, in: .rect(topLeadingRadius: Radius.xxl, topTrailingRadius: Radius.xxl))
+        .background {
+            // Runs on well below the content, so overscrolling at the end shows the sheet,
+            // never the sky's colour waiting underneath for a pull-down at the top.
+            UnevenRoundedRectangle(topLeadingRadius: Radius.xxl, topTrailingRadius: Radius.xxl)
+                .fill(Palette.background)
+                .padding(.bottom, -1000)
+        }
     }
 
     @ViewBuilder
