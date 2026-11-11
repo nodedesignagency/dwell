@@ -9,7 +9,7 @@ Built 🟡 on a page we finished means the code is complete for every state but 
 
 Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81).
 
-Counts: 13 onboarding, 7 first-week moments, 15 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 11 motion moments. Compare (social) is listed last and is not v1.
+Counts: 13 onboarding, 7 first-week moments, 15 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
 ## Cross-cutting (every screen)
 
@@ -173,6 +173,8 @@ Each needs timing, easing, a Reduce Motion alternative, and its haptic where one
 | MO-09 | Record landing | firm | ⬜ | ⬜ |
 | MO-10 | Weekly wrap reveal | none | ⬜ | ⬜ |
 | MO-11 | Dial drag (re-rendering the sentence) | light at each stop | ⬜ | ⬜ |
+| MO-12 | Sky phase change (sunrise, day, sunset, night) | none | 🎨 user's sky images and direction | 🟡 |
+| MO-13 | Sky settles on every open | none | 🎨 user's direction | 🟡 |
 
 ## Compare (later, not v1)
 

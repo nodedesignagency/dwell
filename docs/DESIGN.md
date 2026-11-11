@@ -25,7 +25,7 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `surfaceRaised` | #FFFFFF | #2C2C2E | Sheets, cards on surface | placeholder |
 | `textPrimary` | #0A0D20 | #F5F5F7 | Body text and numbers | Today; dark derived |
 | `textSecondary` | #8B8B8B | #98989F | Times, labels, captions | Today; dark derived. **3.5:1 on white, below AA for small text** (QUESTIONS.md) |
-| `textOnHero` | #393939 | #F5F5F7 | Today's headline on the sunrise; voiced words at 70% | Today; dark derived |
+| `textOnHero` | #393939 | #F5F5F7 | Today's headline on the sky; voiced words at 70%. The header resolves it by the sky (light ink at sunset and night), not the system scheme | Today; dark derived |
 | `separator` | #E6E6EB | #38383A | Hairlines, dashed dividers, tile edges | Today; dark derived |
 | `cardStroke` | clear | white 12% | Card edge in dark mode, where shadows don't show | derived |
 | `gap` | #E3E3E3 | #3A3A3C | Unmapped time (hatched) on the day bar; skeletons | Today; dark derived |
@@ -34,7 +34,7 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `yours` | #6EE36A | #3DBF4A | Wash on the Yours hero stat | Today; dark derived |
 | `inverseSurface` | #353535 | #3A3A3C | The confirmation card | Today (hidden layer); dark derived |
 | `inverseText` | #FFFFFF | #FFFFFF | Text on `inverseSurface` | Today |
-| `glass` | white 70% | #1C1C1E 70% | Controls on the sunrise (the day pill) | Today; dark derived |
+| `glass` | white 70% | #1C1C1E 70% | Controls on the sky (the day pill, kept light in every sky) | Today; dark derived |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
 ### Category colours
@@ -50,6 +50,19 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 **Contrast and colour vision still to check (brief §12).** Home (#99E0FF) and Food & drink (#23FC97) are about 1.5:1 against white, below the 3:1 WCAG asks of graphics; the legend's names carry them for now. Food & drink green and Transit orange sit close for deuteranopia. Logged in QUESTIONS.md.
 
 The design uses two icon styles per category: **3D illustrations** (grayscale, soft, in the headline and hero stats) and **flat duotone glyphs** (the Solar set, in timeline rows). Only work, home and food & drink have 3D art so far (`Images.xcassets/categoryIcon`); `CategoryIcon` falls back to the glyph for the rest.
+
+### Sky
+
+Today's header is a sky drawn in code (`SkyView`), not an image: four phases by the clock, from the user's four sky images. Colours live in `design/tokens.json` under `sky` (a top-to-bottom gradient, a horizon band where the sky has one, the sun or moon's lit and shaded colour, its glow); the generator turns them into `SkyPhase.colors`. The sky follows the time of day, not light or dark mode, and the header's text follows the sky.
+
+| Phase | From | Sky | Body | Stars | Header ink |
+| --- | --- | --- | --- | --- | --- |
+| Sunrise | 5 AM | Blue → lilac → pink → gold, lilac band below the horizon | Half sun on the horizon, centred, peeking over the sheet | none | dark |
+| Day | 10 AM | Deep blue → pale blue → cream → yellow | Small bright sun, top right, wide soft glow | none | dark |
+| Sunset | 5 PM | Indigo → violet → coral → orange, purple band | Half sun on the horizon, orange | some, faint | light |
+| Night | 8 PM | Navy → teal → mint | Thin crescent moon, top right, faint glow | all | light |
+
+Positions are shares of the header (the horizon sits 26 pt above the sky's bottom edge, 6 pt under the sheet's top), so the scene holds at any height and at AX sizes. `-DwellSky night` at launch (`DWELL_SKY=night ./scripts/run.sh`) or `\.skyPhase` in previews forces a phase.
 
 ### Spacing and radius
 
@@ -88,9 +101,11 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | MO-02 Day bar filling | Ticks grow from the baseline and fade in on appear, `Motion.reveal` | Fade in only, no growth | none |
 | MO-05 Insight arrival | Deck pages: the card slides out the way you swiped and the next slides in, `Motion.standard` | Cross-fade | none |
 | MO-06 Confirmation accepted | The card drops below the tab bar and fades | Fade | light (`Haptic.confirm`) |
+| MO-12 Sky phase change | When the phase changes, live or since the last open (the old sky shows for 0.5 s first): skies cross-fade while the sun and moon travel, `Motion.skyChange` (2.6 s ease-in-out). Night → sunrise: the moon climbs away, the sun rises to the horizon. Sunrise → day: the sun arcs up to the top right and shrinks. Day → sunset: it sinks back to the horizon. Sunset → night: it drops below, the moon comes down, stars come out | `Motion.skyFade` (0.8 s cross-fade), bodies fade in place | none |
+| MO-13 Sky settles on open | Every launch and every return from the background: the sun or moon lifts into place (a quarter of its radius), its glow blooms, stars appear one by one 90 ms apart, `Motion.skySettle` (1.4 s ease-out) | Fade only | none |
 | Dial re-render | Voiced words cross-fade; the headline's words reflow with `Motion.standard` | Cross-fade | none here (the dial's own stops are MO-11) |
 | Day card "View more" | Rows expand in place, `Motion.standard` | Cross-fade | none |
-| Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll grows the sunrise from the top | None needed: it moves only with the finger | none |
+| Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll grows the sky from the top | None needed: it moves only with the finger | none |
 
 ### Haptics
 
@@ -126,7 +141,8 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `ConfirmationCard` | `Components/ConfirmationCard.swift` | Dark card, art, voiced question, Looks right (white pill) / Pick another (underlined) | Today (hidden Figma layer) | Built |
 | `NoticeBanner` | `Components/NoticeBanner.swift` | Symbol, message, action; stacks at AX sizes. Permission banner and stale line | Today (derived) | Built |
 | `Avatar` | `Components/NoticeBanner.swift` | Round image or person glyph | Today | Built |
-| `Art` | `Tokens/Art.swift` | Raster art in `Images.xcassets`: sunrise, calendar, confirm art, sample avatar, category illustrations | Today | Built |
+| `Art` | `Tokens/Art.swift` | Raster art in `Images.xcassets`: calendar, confirm art, sample avatar, category illustrations | Today | Built |
+| `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
 
 Still expected from the brief: calendar tiles, the segmented range control, the privacy bar, the dial, calendar match rows.
 
@@ -135,7 +151,7 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **States.** Every screen designs loading, empty, still mapping ("what we're waiting for and how long"), stale (banner over usable content), failed with retry. Permissions are a banner on top, not a state.
 - **Voice vs data.** Voiced sentences use `voice` roles through `VoiceText`; numbers use `data` roles and never change with the dial. Where a sentence carries data (Today's headline), `VoicedSentence` slots the data in as runs: the same runs at every dial position, set in full ink with an icon, while the voiced words sit back at 70%.
 - **Privacy line.** "Only you can see this." / "Your map is private to you." where it applies.
-- **Screen anatomy (Today).** A full-bleed illustration runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down stretches the illustration so it always meets the sheet. No pull-to-refresh on a pinned header (its spinner would sit behind the art); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
+- **Screen anatomy (Today).** A full-bleed sky for the time of day runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down stretches the sky so it always meets the sheet. No pull-to-refresh on a pinned header (its spinner would sit behind the sky); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
 - **Floating asks.** A question for the user (the confirmation card) floats above the tab bar as a dark card, not inline, and leaves when answered.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 
@@ -145,3 +161,4 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | --- | --- | --- |
 | 2026-10-29 | Setup | Placeholder tokens, type roles, motion, haptics |
 | 2026-10-29 | Today (Figma 69:81) | Colours for background, surface, text, separators, accent, live, work/home/food & drink/transit; radius scale; screen margin; SF Pro Rounded type scale; card, divider, sheen, soft button, section header, day bar, stat tile, insight card and week chart, timeline rows, confirmation card, banner, avatar; motion for MO-01, 02, 05, 06 |
+| 2026-11-11 | Sky images (sunrise, day, sunset, night) | Header sky drawn in code with four phases by the clock, sky tokens, MO-12 and MO-13; header ink follows the sky; the sunrise image is gone |

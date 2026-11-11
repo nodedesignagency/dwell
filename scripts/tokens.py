@@ -3,7 +3,7 @@
 
 Writes:
   Packages/DwellKit/Sources/DwellUI/Resources/Colors.xcassets   (owned by this script, rebuilt each run)
-  Packages/DwellKit/Sources/DwellUI/Tokens/Tokens.generated.swift
+  Packages/DwellKit/Sources/DwellUI/Tokens/Tokens.generated.swift (Palette, Space, Radius, SkyPhase.colors)
   Dwell/Resources/Assets.xcassets/AccentColor.colorset           (from color.accent)
 
 Run from anywhere: python3 scripts/tokens.py
@@ -64,6 +64,47 @@ def camel(name):
     return name[0].lower() + name[1:]
 
 
+def swift_color(hex_value):
+    """A literal SwiftUI Color for colours that never change with light or dark mode."""
+    c = component(hex_value)["components"]
+    rgb = ", ".join(f"{key}: {int(c[key], 16) / 255:.3f}" for key in ("red", "green", "blue"))
+    return f"Color(.sRGB, {rgb}, opacity: {float(c['alpha']):.3f})"
+
+
+def swift_stops(stops, indent):
+    if not stops:
+        return "[]"
+    pad = " " * indent
+    items = [f"{pad}    Gradient.Stop(color: {swift_color(color)}, location: {at})," for color, at in stops]
+    return "[\n" + "\n".join(items) + f"\n{pad}]"
+
+
+def sky_lines(sky):
+    """`SkyPhase.colors` from the "sky" section. The sky follows the time of day, not the
+    colour scheme, so these are plain colours rather than asset catalog entries."""
+    lines = [
+        "",
+        "extension SkyPhase {",
+        "    /// Today's header sky for this phase (`SkyView`).",
+        "    public var colors: SkyColors {",
+        "        switch self {",
+    ]
+    for name, phase in sky.items():
+        if name.startswith("_"):
+            continue
+        lines += [
+            f"        case .{name}:",
+            "            SkyColors(",
+            f"                sky: {swift_stops(phase['sky'], 16)},",
+            f"                horizon: {swift_stops(phase['horizon'], 16)},",
+            f"                body: {swift_color(phase['body'])},",
+            f"                bodyEdge: {swift_color(phase['bodyEdge'])},",
+            f"                glow: {swift_color(phase['glow'])})",
+        ]
+    lines += ["        }", "    }", "}"]
+    return lines
+
+
 def main():
     tokens = json.loads(TOKENS.read_text())
 
@@ -108,12 +149,15 @@ def main():
     lines += ["}", "", "public nonisolated enum Radius {"]
     for name, value in tokens["radius"].items():
         lines.append(f"    public static let {name}: CGFloat = {value}")
-    lines += ["}", ""]
+    lines += ["}"]
+    lines += sky_lines(tokens["sky"])
+    lines += [""]
     SWIFT.parent.mkdir(parents=True, exist_ok=True)
     SWIFT.write_text("\n".join(lines))
 
+    skies = [name for name in tokens["sky"] if not name.startswith("_")]
     print(f"{len(tokens['color'])} colours, {len(tokens['category'])} categories, "
-          f"{len(tokens['space'])} spaces, {len(tokens['radius'])} radii")
+          f"{len(tokens['space'])} spaces, {len(tokens['radius'])} radii, {len(skies)} skies")
 
 
 if __name__ == "__main__":

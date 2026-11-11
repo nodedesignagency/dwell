@@ -92,4 +92,15 @@ struct TokenTests {
         let categories = try #require(json?["category"] as? [String: Any])
         #expect(Set(categories.keys) == Set(PlaceCategory.allCases.map(\.rawValue)))
     }
+
+    /// Every sky phase needs its colours, or the generated `SkyPhase.colors` won't compile.
+    @Test func `tokens cover every sky`() throws {
+        let url = URL(filePath: #filePath)
+            .deletingLastPathComponent()
+            .appending(path: "../../../../design/tokens.json")
+            .standardized
+        let json = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+        let sky = try #require(json?["sky"] as? [String: Any])
+        #expect(Set(sky.keys.filter { !$0.hasPrefix("_") }) == Set(SkyPhase.allCases.map(\.rawValue)))
+    }
 }

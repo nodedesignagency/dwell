@@ -131,3 +131,27 @@ private let monday19 = DwellDay(year: 2026, month: 10, day: 19)
     today(.loaded(.sample())).samplePreview()
         .environment(\.permissions, Permissions(location: .always, isPreciseLocationOn: true, motion: .denied))
 }
+
+// MARK: Skies (the clock picks one; these force it)
+
+#Preview("Sky · sunrise") {
+    today(.loaded(.sample())).samplePreview()
+        .environment(\.skyPhase, .sunrise)
+}
+
+#Preview("Sky · sunset · Grind") {
+    today(.loaded(.sample())).samplePreview(.grind)
+        .environment(\.skyPhase, .sunset)
+}
+
+#Preview("Sky · night · dark") {
+    today(.loaded(.sample())).samplePreview()
+        .environment(\.skyPhase, .night)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Sky · night · AX3") {
+    today(.loaded(.sample())).samplePreview(.peace)
+        .environment(\.skyPhase, .night)
+        .dynamicTypeSize(.accessibility3)
+}

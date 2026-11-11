@@ -18,6 +18,10 @@ extension EnvironmentValues {
 
     /// What the user has granted. The app sets it from the system; previews set each banner.
     @Entry public var permissions: Permissions = .full
+
+    /// Forces Today's sky, for previews and demos (launch with `-DwellSky night`).
+    /// `nil` follows the clock.
+    @Entry public var skyPhase: SkyPhase? = nil
 }
 
 /// A sentence in the dial's voice. Re-renders the moment the dial moves.

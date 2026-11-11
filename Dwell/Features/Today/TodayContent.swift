@@ -17,6 +17,7 @@ struct TodayContent: View {
 
     @Environment(\.calendar) private var calendar
     @Environment(\.permissions) private var permissions
+    @Environment(\.skyPhase) private var skyOverride
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -24,6 +25,7 @@ struct TodayContent: View {
             ScrollView {
                 VStack(spacing: 0) {
                     TodayHeader(
+                        sky: skyOverride ?? SkyPhase(date: now, calendar: calendar),
                         headline: headline,
                         dayLabel: isToday ? "Today" : ClockText.dayName(day, calendar: calendar),
                         topInset: proxy.safeAreaInsets.top,
@@ -199,16 +201,17 @@ struct TodayContent: View {
 
 // MARK: - Header
 
-/// Avatar, the day pill and the headline, on the sunrise. The sunrise runs up under the
-/// status bar and down under the sheet's rounded corners.
+/// Avatar, the day pill and the headline, on the sky for this time of day. The sky runs up
+/// under the status bar and down under the sheet's rounded corners. Text follows the sky,
+/// not light or dark mode: dark ink by day, light ink at sunset and night.
 struct TodayHeader: View {
+    let sky: SkyPhase
     let headline: TodayHeadline
     let dayLabel: String
     let topInset: CGFloat
     var onProfile: () -> Void = {}
     var onPickDay: () -> Void = {}
 
-    @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .callout) private var pillIcon: CGFloat = 20
 
     var body: some View {
@@ -239,6 +242,8 @@ struct TodayHeader: View {
                     .background(Palette.glass, in: .rect(cornerRadius: Radius.m))
                 }
                 .buttonStyle(.plain)
+                // White glass in every sky, as designed; its calendar art is drawn for light.
+                .environment(\.colorScheme, .light)
                 .accessibilityLabel("Choose a day")
                 .accessibilityValue(dayLabel)
             }
@@ -267,20 +272,13 @@ struct TodayHeader: View {
         .padding(.top, topInset + Space.m - 2)
         .padding(.bottom, Space.xxl)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .environment(\.colorScheme, sky.isDark ? .dark : .light)
         .background {
-            Art.sunrise
-                .resizable()
-                .scaledToFill()
-                .overlay {
-                    // Derived: no night sunrise yet, so dark mode dims the day one.
-                    if colorScheme == .dark {
-                        Color.black.opacity(0.55)
-                    }
-                }
+            SkyView(sky)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // Runs on under the sheet's rounded corners; the scroll view clips the sides.
+                // Runs on under the sheet's rounded corners.
                 .padding(.bottom, -Space.xxl)
-                // Pulling down grows the sunrise from the top so it always meets the sheet.
+                // Pulling down grows the sky from the top so it always meets the sheet.
                 .visualEffect { content, geometry in
                     let pull = max(0, geometry.frame(in: .scrollView).minY)
                     return content.scaleEffect(1 + pull / max(geometry.size.height, 1), anchor: .top)

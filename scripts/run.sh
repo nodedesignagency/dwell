@@ -3,6 +3,7 @@
 #
 #   ./scripts/run.sh                    # the booted iPhone simulator, or the newest one
 #   ./scripts/run.sh "iPhone 18 Pro"    # a simulator by name
+#   DWELL_SKY=night ./scripts/run.sh    # force Today's sky: sunrise, day, sunset or night
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail
@@ -30,5 +31,5 @@ echo "Launching on $(xcrun simctl list devices | grep "$UDID" | sed -E 's/^ +//;
 xcrun simctl boot "$UDID" 2>/dev/null || true
 open -a Simulator --args -CurrentDeviceUDID "$UDID"
 xcrun simctl install "$UDID" "$DERIVED/Build/Products/Debug-iphonesimulator/Dwell.app"
-xcrun simctl launch --terminate-running-process "$UDID" "$BUNDLE_ID" >/dev/null
+xcrun simctl launch --terminate-running-process "$UDID" "$BUNDLE_ID" ${DWELL_SKY:+-DwellSky "$DWELL_SKY"} >/dev/null
 echo "Running."

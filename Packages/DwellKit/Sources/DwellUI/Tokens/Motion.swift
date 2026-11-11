@@ -12,6 +12,12 @@ public enum Motion {
     public static let landing = Animation.spring(duration: 0.5, bounce: 0.35)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
     public static let reduced = Animation.easeInOut(duration: 0.2)
+    /// The sky turning from one phase to the next: slow enough to watch the sun travel.
+    public static let skyChange = Animation.easeInOut(duration: 2.6)
+    /// The sky settling in each time the app opens.
+    public static let skySettle = Animation.easeOut(duration: 1.4)
+    /// A sky change under Reduce Motion: a cross-fade, long enough not to flash a whole header.
+    public static let skyFade = Animation.easeInOut(duration: 0.8)
 }
 
 extension View {

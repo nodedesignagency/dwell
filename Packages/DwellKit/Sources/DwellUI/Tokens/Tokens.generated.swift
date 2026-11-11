@@ -65,3 +65,95 @@ public nonisolated enum Radius {
     public static let xl: CGFloat = 20
     public static let xxl: CGFloat = 32
 }
+
+extension SkyPhase {
+    /// Today's header sky for this phase (`SkyView`).
+    public var colors: SkyColors {
+        switch self {
+        case .sunrise:
+            SkyColors(
+                sky: [
+                    Gradient.Stop(color: Color(.sRGB, red: 0.380, green: 0.549, blue: 0.957, opacity: 1.000), location: 0),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.471, green: 0.596, blue: 0.980, opacity: 1.000), location: 0.1),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.604, green: 0.635, blue: 0.961, opacity: 1.000), location: 0.2),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.776, green: 0.667, blue: 0.894, opacity: 1.000), location: 0.3),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.910, green: 0.690, blue: 0.776, opacity: 1.000), location: 0.4),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.984, green: 0.722, blue: 0.651, opacity: 1.000), location: 0.5),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.992, green: 0.776, blue: 0.561, opacity: 1.000), location: 0.6),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.992, green: 0.812, blue: 0.478, opacity: 1.000), location: 0.7),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.988, green: 0.737, blue: 0.400, opacity: 1.000), location: 0.8),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.988, green: 0.659, blue: 0.416, opacity: 1.000), location: 0.9),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.878, green: 0.573, blue: 0.541, opacity: 1.000), location: 1),
+                ],
+                horizon: [
+                    Gradient.Stop(color: Color(.sRGB, red: 0.992, green: 0.694, blue: 0.467, opacity: 1.000), location: 0),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.910, green: 0.588, blue: 0.541, opacity: 1.000), location: 0.5),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.816, green: 0.541, blue: 0.588, opacity: 1.000), location: 1),
+                ],
+                body: Color(.sRGB, red: 0.992, green: 0.929, blue: 0.643, opacity: 1.000),
+                bodyEdge: Color(.sRGB, red: 0.992, green: 0.824, blue: 0.478, opacity: 1.000),
+                glow: Color(.sRGB, red: 1.000, green: 0.898, blue: 0.604, opacity: 1.000))
+        case .day:
+            SkyColors(
+                sky: [
+                    Gradient.Stop(color: Color(.sRGB, red: 0.173, green: 0.573, blue: 0.996, opacity: 1.000), location: 0),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.247, green: 0.624, blue: 0.992, opacity: 1.000), location: 0.1),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.333, green: 0.690, blue: 0.992, opacity: 1.000), location: 0.2),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.424, green: 0.745, blue: 0.988, opacity: 1.000), location: 0.3),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.541, green: 0.804, blue: 0.965, opacity: 1.000), location: 0.4),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.698, green: 0.859, blue: 0.918, opacity: 1.000), location: 0.5),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.863, green: 0.902, blue: 0.831, opacity: 1.000), location: 0.6),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.976, green: 0.914, blue: 0.722, opacity: 1.000), location: 0.7),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.996, green: 0.898, blue: 0.639, opacity: 1.000), location: 0.8),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.996, green: 0.867, blue: 0.537, opacity: 1.000), location: 0.9),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.996, green: 0.851, blue: 0.494, opacity: 1.000), location: 1),
+                ],
+                horizon: [],
+                body: Color(.sRGB, red: 1.000, green: 0.973, blue: 0.839, opacity: 1.000),
+                bodyEdge: Color(.sRGB, red: 1.000, green: 0.941, blue: 0.741, opacity: 1.000),
+                glow: Color(.sRGB, red: 1.000, green: 0.965, blue: 0.847, opacity: 1.000))
+        case .sunset:
+            SkyColors(
+                sky: [
+                    Gradient.Stop(color: Color(.sRGB, red: 0.176, green: 0.216, blue: 0.565, opacity: 1.000), location: 0),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.259, green: 0.247, blue: 0.627, opacity: 1.000), location: 0.1),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.396, green: 0.286, blue: 0.675, opacity: 1.000), location: 0.2),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.620, green: 0.325, blue: 0.667, opacity: 1.000), location: 0.3),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.847, green: 0.369, blue: 0.576, opacity: 1.000), location: 0.4),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.976, green: 0.431, blue: 0.439, opacity: 1.000), location: 0.5),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.988, green: 0.541, blue: 0.314, opacity: 1.000), location: 0.6),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.992, green: 0.588, blue: 0.243, opacity: 1.000), location: 0.7),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.984, green: 0.439, blue: 0.267, opacity: 1.000), location: 0.8),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.949, green: 0.333, blue: 0.353, opacity: 1.000), location: 0.9),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.478, green: 0.247, blue: 0.522, opacity: 1.000), location: 1),
+                ],
+                horizon: [
+                    Gradient.Stop(color: Color(.sRGB, red: 0.949, green: 0.337, blue: 0.357, opacity: 1.000), location: 0),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.690, green: 0.267, blue: 0.463, opacity: 1.000), location: 0.4),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.431, green: 0.239, blue: 0.533, opacity: 1.000), location: 1),
+                ],
+                body: Color(.sRGB, red: 0.996, green: 0.816, blue: 0.357, opacity: 1.000),
+                bodyEdge: Color(.sRGB, red: 0.988, green: 0.604, blue: 0.271, opacity: 1.000),
+                glow: Color(.sRGB, red: 1.000, green: 0.702, blue: 0.278, opacity: 1.000))
+        case .night:
+            SkyColors(
+                sky: [
+                    Gradient.Stop(color: Color(.sRGB, red: 0.031, green: 0.137, blue: 0.267, opacity: 1.000), location: 0),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.035, green: 0.153, blue: 0.286, opacity: 1.000), location: 0.1),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.047, green: 0.192, blue: 0.349, opacity: 1.000), location: 0.2),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.051, green: 0.247, blue: 0.431, opacity: 1.000), location: 0.3),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.078, green: 0.345, blue: 0.510, opacity: 1.000), location: 0.4),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.133, green: 0.471, blue: 0.608, opacity: 1.000), location: 0.5),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.227, green: 0.620, blue: 0.682, opacity: 1.000), location: 0.6),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.384, green: 0.753, blue: 0.722, opacity: 1.000), location: 0.7),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.561, green: 0.867, blue: 0.745, opacity: 1.000), location: 0.8),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.718, green: 0.941, blue: 0.757, opacity: 1.000), location: 0.9),
+                    Gradient.Stop(color: Color(.sRGB, red: 0.745, green: 0.957, blue: 0.757, opacity: 1.000), location: 1),
+                ],
+                horizon: [],
+                body: Color(.sRGB, red: 0.965, green: 0.937, blue: 0.824, opacity: 1.000),
+                bodyEdge: Color(.sRGB, red: 0.851, green: 0.824, blue: 0.706, opacity: 1.000),
+                glow: Color(.sRGB, red: 0.965, green: 0.937, blue: 0.824, opacity: 1.000))
+        }
+    }
+}

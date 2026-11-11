@@ -251,3 +251,25 @@ struct SampleDeckTests {
         #expect(hero.week[5].value == 0 && hero.week[6].value == 0)
     }
 }
+
+@Suite("The sky follows the clock")
+struct SkyPhaseTests {
+    static let times: [(hour: Int, minute: Int, phase: SkyPhase)] = [
+        (0, 30, .night), (4, 59, .night), (5, 0, .sunrise), (9, 59, .sunrise), (10, 0, .day),
+        (14, 47, .day), (16, 59, .day), (17, 0, .sunset), (19, 59, .sunset), (20, 0, .night), (23, 59, .night),
+    ]
+
+    @Test(arguments: times)
+    func phases(hour: Int, minute: Int, phase: SkyPhase) {
+        let date = calendar.date(from: DateComponents(year: 2026, month: 10, day: 26, hour: hour, minute: minute))!
+        #expect(SkyPhase(date: date, calendar: calendar) == phase)
+    }
+
+    @Test func `the sample week's now is daytime`() {
+        #expect(SkyPhase(date: now, calendar: calendar) == .day)
+    }
+
+    @Test func `light text over sunset and night only`() {
+        #expect(SkyPhase.allCases.filter(\.isDark) == [.sunset, .night])
+    }
+}
