@@ -232,7 +232,7 @@ struct TodayHeader: View {
                             .frame(width: pillIcon, height: pillIcon)
                             .accessibilityHidden(true)
                         Text(verbatim: dayLabel)
-                            .textRole(.label)
+                            .textRole(.label, tracking: 0)
                             .foregroundStyle(Palette.textPrimary)
                     }
                     .padding(10)

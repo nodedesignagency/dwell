@@ -70,7 +70,7 @@ public struct SoftButtonStyle: ButtonStyle {
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .textRole(.label)
+            .textRole(.label, tracking: -0.01)
             .foregroundStyle(Palette.textPrimary)
             .padding(.horizontal, Space.l)
             .frame(maxWidth: .infinity, minHeight: 44)

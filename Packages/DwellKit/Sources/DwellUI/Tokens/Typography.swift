@@ -70,8 +70,9 @@ public enum TextRole: CaseIterable, Sendable {
         }
     }
 
-    /// Tracking as a share of the point size.
-    static let tracking: CGFloat = -0.02
+    /// Tracking as a share of the point size: -2% unless a component says otherwise
+    /// ("View more" -1%, the day pill 0).
+    public static let tracking: CGFloat = -0.02
 
     /// The role at an already scaled size.
     public func font(size: CGFloat, weight: Font.Weight? = nil) -> Font {
@@ -82,26 +83,30 @@ public enum TextRole: CaseIterable, Sendable {
 
 extension View {
     /// Sets the font, Dynamic Type scaling and tracking for a text role.
-    /// - Parameter weight: overrides the role's weight, e.g. semibold for small buttons.
-    public func textRole(_ role: TextRole, weight: Font.Weight? = nil) -> some View {
-        modifier(TextRoleModifier(role: role, weight: weight))
+    /// - Parameters:
+    ///   - weight: overrides the role's weight, e.g. semibold for small buttons.
+    ///   - tracking: overrides `TextRole.tracking`, as a share of the point size (-0.01 is -1%).
+    public func textRole(_ role: TextRole, weight: Font.Weight? = nil, tracking: CGFloat? = nil) -> some View {
+        modifier(TextRoleModifier(role: role, weight: weight, tracking: tracking))
     }
 }
 
 private struct TextRoleModifier: ViewModifier {
     let role: TextRole
     let weight: Font.Weight?
+    let tracking: CGFloat?
     @ScaledMetric private var size: CGFloat
 
-    init(role: TextRole, weight: Font.Weight?) {
+    init(role: TextRole, weight: Font.Weight?, tracking: CGFloat?) {
         self.role = role
         self.weight = weight
+        self.tracking = tracking
         _size = ScaledMetric(wrappedValue: role.size, relativeTo: role.textStyle)
     }
 
     func body(content: Content) -> some View {
         content
             .font(role.font(size: size, weight: weight))
-            .tracking(size * TextRole.tracking)
+            .tracking(size * (tracking ?? TextRole.tracking))
     }
 }

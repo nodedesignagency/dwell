@@ -61,7 +61,7 @@ Elevation: cards take one soft shadow (black 6%, radius 16, y 6); the confirmati
 
 ### Type
 
-SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type works). Medium for anything that leads, regular for supporting text, tracking −2% of the size. Each size is the design's at the default text size and scales with Dynamic Type relative to the nearest system style (`@ScaledMetric`). Roles in `DwellUI/Tokens/Typography.swift`; `.textRole(_:weight:)` applies one.
+SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type works). Medium for anything that leads, regular for supporting text. Tracking −2% of the size, except the "View more" button at −1% and the day pill at 0 (`.textRole(_:weight:tracking:)`); the tab bar keeps the system's own spacing. Each size is the design's at the default text size and scales with Dynamic Type relative to the nearest system style (`@ScaledMetric`). Roles in `DwellUI/Tokens/Typography.swift`; `.textRole(_:weight:)` applies one.
 
 | Role | Size | Weight | Scales with | Use |
 | --- | --- | --- | --- | --- |
