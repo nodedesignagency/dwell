@@ -32,7 +32,8 @@ struct DayTimelineCard: View {
             }
 
             ForEach(Array(shown.enumerated()), id: \.element.id) { offset, entry in
-                if offset > 0, entry.visit != nil, shown[offset - 1].visit != nil {
+                // A dashed line between every two rows, transit and gaps included (Today design).
+                if offset > 0 {
                     DashedDivider()
                 }
                 row(entry)
