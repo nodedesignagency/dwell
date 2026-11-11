@@ -67,7 +67,7 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | --- | --- | --- | --- | --- |
 | `voiceHero` | 24 | medium | title2 | Today's headline |
 | `voice` | 22 | medium | title3 | Insight sentences |
-| `dataHero` | 40 | medium, mono digits | largeTitle | The live timer; an insight's lone number |
+| `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
 | `dataStat` | 16 | medium, mono digits | callout | Hero stat numbers |
 | `data` | 14 | regular, mono digits | subheadline | Durations in rows |
 | `title` | 20 | medium | title3 | Section titles |

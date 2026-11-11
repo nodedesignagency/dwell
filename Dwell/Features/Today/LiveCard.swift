@@ -90,7 +90,9 @@ struct LiveStatusView: View {
         VStack(spacing: Space.l) {
             if let big {
                 Text(verbatim: big.text)
-                    .textRole(.dataHero)
+                    // Proportional digits, as in the design, so "1h" doesn't open a gap.
+                    // The brief asks for monospaced everywhere: QUESTIONS.md, design vs brief 11.
+                    .textRole(.dataHero, monospacedDigits: false)
                     .foregroundStyle(big.isLive ? Palette.textPrimary : Palette.textSecondary)
                     .contentTransition(reduceMotion ? .opacity : .numericText(value: big.minutes))
                     .motion(value: big.text)

@@ -12,7 +12,7 @@ public enum TextRole: CaseIterable, Sendable {
     case voiceHero
     /// Insight sentences. 22.
     case voice
-    /// The live timer. 40, monospaced digits.
+    /// The live timer. 40, monospaced digits (the timer itself opts out, see LiveCard).
     case dataHero
     /// Hero stat numbers. 16 medium, monospaced digits.
     case dataStat
@@ -75,9 +75,9 @@ public enum TextRole: CaseIterable, Sendable {
     public static let tracking: CGFloat = -0.02
 
     /// The role at an already scaled size.
-    public func font(size: CGFloat, weight: Font.Weight? = nil) -> Font {
+    public func font(size: CGFloat, weight: Font.Weight? = nil, monospacedDigits: Bool? = nil) -> Font {
         let font = Font.system(size: size, weight: weight ?? self.weight, design: .rounded)
-        return usesMonospacedDigits ? font.monospacedDigit() : font
+        return monospacedDigits ?? usesMonospacedDigits ? font.monospacedDigit() : font
     }
 }
 
@@ -86,8 +86,14 @@ extension View {
     /// - Parameters:
     ///   - weight: overrides the role's weight, e.g. semibold for small buttons.
     ///   - tracking: overrides `TextRole.tracking`, as a share of the point size (-0.01 is -1%).
-    public func textRole(_ role: TextRole, weight: Font.Weight? = nil, tracking: CGFloat? = nil) -> some View {
-        modifier(TextRoleModifier(role: role, weight: weight, tracking: tracking))
+    ///   - monospacedDigits: overrides the role's digit style.
+    public func textRole(
+        _ role: TextRole,
+        weight: Font.Weight? = nil,
+        tracking: CGFloat? = nil,
+        monospacedDigits: Bool? = nil
+    ) -> some View {
+        modifier(TextRoleModifier(role: role, weight: weight, tracking: tracking, monospacedDigits: monospacedDigits))
     }
 }
 
@@ -95,18 +101,20 @@ private struct TextRoleModifier: ViewModifier {
     let role: TextRole
     let weight: Font.Weight?
     let tracking: CGFloat?
+    let monospacedDigits: Bool?
     @ScaledMetric private var size: CGFloat
 
-    init(role: TextRole, weight: Font.Weight?, tracking: CGFloat?) {
+    init(role: TextRole, weight: Font.Weight?, tracking: CGFloat?, monospacedDigits: Bool?) {
         self.role = role
         self.weight = weight
         self.tracking = tracking
+        self.monospacedDigits = monospacedDigits
         _size = ScaledMetric(wrappedValue: role.size, relativeTo: role.textStyle)
     }
 
     func body(content: Content) -> some View {
         content
-            .font(role.font(size: size, weight: weight))
+            .font(role.font(size: size, weight: weight, monospacedDigits: monospacedDigits))
             .tracking(size * (tracking ?? TextRole.tracking))
     }
 }
