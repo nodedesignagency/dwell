@@ -105,7 +105,7 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | MO-13 Sky settles on open | Every launch and every return from the background: the sun or moon lifts into place (a quarter of its radius), its glow blooms, stars appear one by one 90 ms apart, `Motion.skySettle` (1.4 s ease-out) | Fade only | none |
 | Dial re-render | Voiced words cross-fade; the headline's words reflow with `Motion.standard` | Cross-fade | none here (the dial's own stops are MO-11) |
 | Day card "View more" | Rows expand in place, `Motion.standard` | Cross-fade | none |
-| Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll grows the sky from the top | None needed: it moves only with the finger | none |
+| Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll shows the sky's last colour running on below it | None needed: it moves only with the finger | none |
 
 ### Haptics
 
@@ -151,7 +151,7 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **States.** Every screen designs loading, empty, still mapping ("what we're waiting for and how long"), stale (banner over usable content), failed with retry. Permissions are a banner on top, not a state.
 - **Voice vs data.** Voiced sentences use `voice` roles through `VoiceText`; numbers use `data` roles and never change with the dial. Where a sentence carries data (Today's headline), `VoicedSentence` slots the data in as runs: the same runs at every dial position, set in full ink with an icon, while the voiced words sit back at 70%.
 - **Privacy line.** "Only you can see this." / "Your map is private to you." where it applies.
-- **Screen anatomy (Today).** A full-bleed sky for the time of day runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down stretches the sky so it always meets the sheet. No pull-to-refresh on a pinned header (its spinner would sit behind the sky); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
+- **Screen anatomy (Today).** A full-bleed sky for the time of day runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down shows the sky's last colour running on below it, never a gap. No pull-to-refresh on a pinned header (its spinner would sit behind the sky); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
 - **Floating asks.** A question for the user (the confirmation card) floats above the tab bar as a dark card, not inline, and leaves when answered.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 

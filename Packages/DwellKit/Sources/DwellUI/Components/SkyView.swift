@@ -78,12 +78,28 @@ public struct SkyView: View {
             }
         }
         .clipped()
+        // The sky's last colour runs on below it, hidden under the sheet, so pulling the
+        // sheet down shows more sky rather than a gap.
+        .background(alignment: .bottom) {
+            Rectangle()
+                .fill(bottomColor)
+                .frame(height: Self.runOn)
+                .offset(y: Self.runOn)
+        }
         .accessibilityHidden(true)
         .onAppear(perform: arrive)
         .onChange(of: phase) { _, new in turn(to: new) }
         .onChange(of: scenePhase) { old, new in
             if old == .background, new == .active { settle() }
         }
+    }
+
+    /// Deeper than any pull-down, short of the bottom of a scrolled-to-the-end page.
+    private static let runOn: CGFloat = 400
+
+    private var bottomColor: Color {
+        let colors = (shown ?? phase).colors
+        return (colors.horizon.last ?? colors.sky.last)?.color ?? .clear
     }
 
     // MARK: Animation

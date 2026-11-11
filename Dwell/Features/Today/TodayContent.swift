@@ -6,7 +6,7 @@ import SwiftUI
 ///
 /// The header (avatar, day pill, headline) sits on the sunrise and stays put; the sheet with
 /// the live card, the insight deck and the day scrolls up over it and covers it. Pulling down
-/// stretches the sunrise rather than opening a gap. While a visit needs a yes, the
+/// shows more sky (its last colour runs on below it) rather than a gap. While a visit needs a yes, the
 /// confirmation card floats above the tab bar.
 struct TodayContent: View {
     let state: Loadable<TodayModel>
@@ -276,13 +276,9 @@ struct TodayHeader: View {
         .background {
             SkyView(sky)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // Runs on under the sheet's rounded corners.
+                // Runs on under the sheet's rounded corners (and, in its last colour, further
+                // down, for when the sheet is pulled down).
                 .padding(.bottom, -Space.xxl)
-                // Pulling down grows the sky from the top so it always meets the sheet.
-                .visualEffect { content, geometry in
-                    let pull = max(0, geometry.frame(in: .scrollView).minY)
-                    return content.scaleEffect(1 + pull / max(geometry.size.height, 1), anchor: .top)
-                }
                 .accessibilityHidden(true)
         }
     }
