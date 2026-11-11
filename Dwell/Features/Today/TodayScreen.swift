@@ -108,7 +108,6 @@ struct TodayScreen: View {
             openProfile: openProfile,
             pickDay: { isPickingDay = true },
             retry: { reloads += 1 },
-            refresh: { await load(day, isToday: isToday) },
             openPlace: { openPlace = $0 },
             confirm: { visit in
                 confirmed.insert(visit.id)

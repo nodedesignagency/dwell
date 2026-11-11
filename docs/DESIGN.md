@@ -90,6 +90,7 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | MO-06 Confirmation accepted | The card drops below the tab bar and fades | Fade | light (`Haptic.confirm`) |
 | Dial re-render | Voiced words cross-fade; the headline's words reflow with `Motion.standard` | Cross-fade | none here (the dial's own stops are MO-11) |
 | Day card "View more" | Rows expand in place, `Motion.standard` | Cross-fade | none |
+| Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll grows the sunrise from the top | None needed: it moves only with the finger | none |
 
 ### Haptics
 
@@ -108,7 +109,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | Component | File | Variants and states | First used | Status |
 | --- | --- | --- | --- | --- |
 | `VoiceText` | `DwellUI/Voice/Environment.swift` | Any `VoicedLine`; cross-fades when the dial moves | Setup | Built |
-| `VoicedSentenceView` | `Components/VoicedSentenceView.swift` | A `VoicedSentence`: voiced words at 70% ink, data runs at full ink with a 3D category icon and mono digits; wraps word by word; one VoiceOver label | Today headline | Built |
+| `VoicedSentenceView` | `Components/VoicedSentenceView.swift` | A `VoicedSentence`: voiced words at 70% ink, data runs at full ink with a 3D category icon and mono digits; wraps word by word, runs included, icon kept on the run's first word; one VoiceOver label | Today headline | Built |
 | `FlowLayout` | `Components/FlowLayout.swift` | Leading / centre / trailing; wraps like text | Today | Built |
 | `CategoryIcon` | `Components/CategoryIcon.swift` | `.illustration` (3D art, glyph fallback) / `.glyph`; `nil` category draws a pin | Today | Built; art for 3 of 14 categories |
 | `.card()` | `Components/Card.swift` | Surface, radius xl, soft shadow; hairline in dark | Today | Built |
@@ -134,7 +135,7 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **States.** Every screen designs loading, empty, still mapping ("what we're waiting for and how long"), stale (banner over usable content), failed with retry. Permissions are a banner on top, not a state.
 - **Voice vs data.** Voiced sentences use `voice` roles through `VoiceText`; numbers use `data` roles and never change with the dial. Where a sentence carries data (Today's headline), `VoicedSentence` slots the data in as runs: the same runs at every dial position, set in full ink with an icon, while the voiced words sit back at 70%.
 - **Privacy line.** "Only you can see this." / "Your map is private to you." where it applies.
-- **Screen anatomy (Today).** A full-bleed illustration runs under the status bar behind the header (avatar left, a glass pill right, the headline), then a sheet with 32-pt top corners scrolls over it. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
+- **Screen anatomy (Today).** A full-bleed illustration runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down stretches the illustration so it always meets the sheet. No pull-to-refresh on a pinned header (its spinner would sit behind the art); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
 - **Floating asks.** A question for the user (the confirmation card) floats above the tab bar as a dark card, not inline, and leaves when answered.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 

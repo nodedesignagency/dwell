@@ -4,9 +4,10 @@ import SwiftUI
 
 /// Today's layout for any state, with no loading of its own: previews drive it directly.
 ///
-/// The header (avatar, day pill, headline) sits on the sunrise; a sheet with rounded top
-/// corners slides over it with the live card, the insight deck and the day. While a visit
-/// needs a yes, the confirmation card floats above the tab bar.
+/// The header (avatar, day pill, headline) sits on the sunrise and stays put; the sheet with
+/// the live card, the insight deck and the day scrolls up over it and covers it. Pulling down
+/// stretches the sunrise rather than opening a gap. While a visit needs a yes, the
+/// confirmation card floats above the tab bar.
 struct TodayContent: View {
     let state: Loadable<TodayModel>
     let day: DwellDay
@@ -28,12 +29,16 @@ struct TodayContent: View {
                         topInset: proxy.safeAreaInsets.top,
                         onProfile: actions.openProfile,
                         onPickDay: actions.pickDay)
+                    // Pinned: cancel the scroll so the header stays where it is. The sheet comes
+                    // later in the stack, so it draws on top and covers the header as it rises.
+                    .visualEffect { content, geometry in
+                        content.offset(y: -geometry.frame(in: .scrollView).minY)
+                    }
                     sheet
                 }
             }
             .ignoresSafeArea(edges: .top)
             .background(Palette.background)
-            .refreshable { await actions.refresh() }
             .safeAreaInset(edge: .bottom, spacing: 0) { confirmation }
             .motion(value: confirmationID)
         }
@@ -275,6 +280,11 @@ struct TodayHeader: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // Runs on under the sheet's rounded corners; the scroll view clips the sides.
                 .padding(.bottom, -Space.xxl)
+                // Pulling down grows the sunrise from the top so it always meets the sheet.
+                .visualEffect { content, geometry in
+                    let pull = max(0, geometry.frame(in: .scrollView).minY)
+                    return content.scaleEffect(1 + pull / max(geometry.size.height, 1), anchor: .top)
+                }
                 .accessibilityHidden(true)
         }
     }

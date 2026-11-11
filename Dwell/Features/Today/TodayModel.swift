@@ -38,7 +38,6 @@ struct TodayActions {
     var openProfile: () -> Void = {}
     var pickDay: () -> Void = {}
     var retry: () -> Void = {}
-    var refresh: () async -> Void = {}
     var openPlace: (PlaceID) -> Void = { _ in }
     var confirm: (Visit) -> Void = { _ in }
     var pickAnother: (Visit) -> Void = { _ in }
