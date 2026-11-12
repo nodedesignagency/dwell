@@ -7,11 +7,11 @@ import SwiftUI
 /// Measured from the design at 373 × 519: the title (40, lines 44 apart) starts 32 from the
 /// top, the message (20, grey, at most 300 wide) 10 under it, the art (200) 17 under that,
 /// the button (44) 71 under the art, 10.5 in from the sides and 16 above the bottom. The
-/// close button is 44, 16 in from the top and side.
+/// close button is 44 on glass, the cross 24 inside 10 of padding, 16 in from the top and side.
 public struct PromptSheet: View {
     @ScaledMetric(relativeTo: .largeTitle) private var titleLineGap: CGFloat = -3.8
     @ScaledMetric(relativeTo: .largeTitle) private var artSize: CGFloat = 200
-    @ScaledMetric(relativeTo: .title3) private var closeSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .title3) private var closeGlyph: CGFloat = 24
 
     private let titleLines: [String]
     private let message: String
@@ -97,11 +97,12 @@ public struct PromptSheet: View {
         .overlay(alignment: .topTrailing) {
             Button(action: onClose) {
                 Image(systemName: "xmark")
-                    .font(.system(size: closeSize * 0.36, weight: .medium))
+                    .font(.system(size: closeGlyph * 0.75, weight: .medium))
                     .foregroundStyle(Palette.textPrimary)
-                    .frame(width: closeSize, height: closeSize)
-                    .background(Palette.surfaceRaised, in: .circle)
+                    .frame(width: closeGlyph, height: closeGlyph)
+                    .padding(10)
                     .contentShape(.circle)
+                    .glassControl(in: Circle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(closeLabel)

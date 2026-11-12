@@ -99,7 +99,7 @@ extension ButtonStyle where Self == SoftButtonStyle {
 
 /// The navy capsule for a sheet's one action: "Yes, turn on" (Today design, "Turn Location").
 /// 44 tall, full width, the label 20 medium in white, with the confirmation card's top light
-/// and streaks; pressed, it dims.
+/// and its streaks sweeping across on a loop; pressed, it dims.
 public struct PrimaryButtonStyle: ButtonStyle {
     @ScaledMetric(relativeTo: .title3) private var height: CGFloat = 44
 
@@ -115,7 +115,7 @@ public struct PrimaryButtonStyle: ButtonStyle {
                 Capsule()
                     .fill(Palette.inverseSurface)
                     .overlay { InverseGlow().clipShape(Capsule()) }
-                    .overlay { Sheen().clipShape(Capsule()) }
+                    .overlay { SweepingSheen().clipShape(Capsule()) }
             }
             .contentShape(.capsule)
             .opacity(configuration.isPressed ? 0.8 : 1)
@@ -185,5 +185,44 @@ struct InverseGlow: View {
             endPoint: .bottom)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
+    }
+}
+
+/// Two streaks of light sweeping across a navy surface left to right on a steady loop, so it
+/// reads as waiting for an answer (the confirmation card, the primary button). Each pass starts just off the leading edge and ends off the
+/// trailing one, so the jump back is never seen. Under Reduce Motion they rest where the
+/// design draws them.
+struct SweepingSheen: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        if reduceMotion {
+            Sheen()
+        } else {
+            Sheen()
+                .phaseAnimator(SweepPhase.allCases) { content, phase in
+                    let shift = phase.shift
+                    content.visualEffect { content, proxy in
+                        content.offset(x: shift * proxy.size.width)
+                    }
+                } animation: { phase in
+                    switch phase {
+                    case .after: Motion.sweep
+                    case .before: nil // off the card on both sides, so the jump is never seen
+                    }
+                }
+        }
+    }
+}
+
+nonisolated private enum SweepPhase: CaseIterable {
+    case before, after
+
+    /// Where the streaks sit, as a share of the card's width from where the design draws them.
+    var shift: CGFloat {
+        switch self {
+        case .before: -0.5
+        case .after: 1
+        }
     }
 }
