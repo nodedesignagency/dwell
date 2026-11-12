@@ -108,18 +108,18 @@ public struct PromptSheet: View {
 
 /// Behind the art (Figma "Frame 2147239465", as on the hero tiles, in light): grey over the
 /// whole card, a little deeper at the pin, under sixteen light rays at 30%, radial from 50%
-/// to nothing over 1018 pt. The grey's falloff is read from the design's screenshot (#D8
-/// at the pin to #E6 at the corners over white); Figma's own numbers for its disc don't
-/// render the same outside Figma.
+/// to nothing over 1018 pt. The grey's falloff is read from the design's screenshot, then
+/// lightened at the pin on the user's call (12 Nov): about #E0 at the pin to #E6 at the
+/// corners over white. Figma's own numbers for its disc don't render the same outside Figma.
 private struct SheetGlow: View {
     var body: some View {
         ZStack {
             Circle()
                 .fill(RadialGradient(
                     stops: [
-                        .init(color: Palette.glowShade.opacity(0.47), location: 0),
-                        .init(color: Palette.glowShade.opacity(0.42), location: 0.25),
-                        .init(color: Palette.glowShade.opacity(0.33), location: 0.5),
+                        .init(color: Palette.glowShade.opacity(0.36), location: 0),
+                        .init(color: Palette.glowShade.opacity(0.35), location: 0.25),
+                        .init(color: Palette.glowShade.opacity(0.32), location: 0.5),
                         .init(color: Palette.glowShade.opacity(0.28), location: 0.7),
                         .init(color: Palette.glowShade.opacity(0.25), location: 1),
                     ],
