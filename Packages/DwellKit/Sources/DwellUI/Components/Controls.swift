@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The design's back button (Your places): a 40-pt white square with 12-pt corners and the
-/// design's arrow (22, the "This week" arrow turned round). It pops the page; the app keeps
-/// the edge swipe working alongside it. Tappable over 44 points.
+/// The design's back button (Your places, Figma): the design's arrow (20, black; the "This week"
+/// arrow turned round) on a 40-pt square of glass with 13-pt corners (`.glassSquare`).
+/// Tappable over 44. It pops the page; the app keeps the edge swipe working alongside it.
 public struct BackButton: View {
     @Environment(\.dismiss) private var dismiss
     private let action: (() -> Void)?
@@ -19,28 +19,20 @@ public struct BackButton: View {
             Art.arrow
                 .resizable()
                 .scaledToFit()
-                .frame(width: 22, height: 22)
+                .frame(width: 20, height: 20)
                 .scaleEffect(x: -1)
                 .flipsForRightToLeftLayoutDirection(true)
-                .foregroundStyle(Palette.textPrimary)
-                .frame(width: 40, height: 40)
-                .background(Palette.surface, in: .rect(cornerRadius: Radius.control))
-                .overlay {
-                    RoundedRectangle(cornerRadius: Radius.control)
-                        .strokeBorder(Palette.cardStroke, lineWidth: 1)
-                }
-                // 44 points to tap, 40 to see.
-                .padding(2)
-                .contentShape(.rect)
-                .padding(-2)
+                // Figma's #000000 in light; white in dark, derived.
+                .foregroundStyle(Color.primary)
         }
-        .buttonStyle(PressStyle())
+        .buttonStyle(.glassSquare)
         .accessibilityLabel("Back")
     }
 }
 
 /// A chip that sorts or filters a list (Your places design: "Most time", "All categories",
-/// "Favourites"): 32 tall, white, 12-pt corners, the filter glyph (12) 6 from the label (14
+/// "Favourites"): 32 tall, white, 13-pt corners (the back button's, from Figma; the chips
+/// measure the same), the filter glyph (12) 6 from the label (14
 /// medium), 10 across. On (a filter is applied) it turns navy with white words, derived from
 /// the confirmation card: the design draws only the resting chip.
 ///
@@ -71,12 +63,12 @@ public struct FilterChip: View {
         .foregroundStyle(isOn ? Palette.inverseText : Palette.textPrimary)
         .padding(.horizontal, 10)
         .frame(minHeight: height)
-        .background(isOn ? Palette.inverseSurface : Palette.surface, in: .rect(cornerRadius: Radius.control))
+        .background(isOn ? Palette.inverseSurface : Palette.surface, in: .rect(cornerRadius: Radius.m))
         .overlay {
-            RoundedRectangle(cornerRadius: Radius.control)
+            RoundedRectangle(cornerRadius: Radius.m)
                 .strokeBorder(Palette.cardStroke, lineWidth: 1)
         }
-        .contentShape(.rect(cornerRadius: Radius.control))
+        .contentShape(.rect(cornerRadius: Radius.m))
     }
 }
 
@@ -109,7 +101,9 @@ public struct SearchField: View {
             }
             .textRole(.caption)
             .foregroundStyle(Palette.textPrimary)
+            #if os(iOS)
             .textInputAutocapitalization(.never)
+            #endif
             .autocorrectionDisabled()
             .submitLabel(.search)
             if !text.isEmpty {
@@ -147,13 +141,5 @@ public struct SearchField: View {
                     lineWidth: 1)
                 .allowsHitTesting(false)
         }
-    }
-}
-
-/// Dims while pressed, like the app's other plain controls.
-struct PressStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(configuration.isPressed ? 0.6 : 1)
     }
 }

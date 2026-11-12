@@ -58,6 +58,8 @@ public enum Palette {
     public static let glowRays = Color("glowRays", bundle: .module)
     /// Controls over the sunrise (the day pill)
     public static let glass = Color("glass", bundle: .module)
+    /// The back button's glass before iOS 26: white 80% under the drawn glass (Figma)
+    public static let glassControl = Color("glassControl", bundle: .module)
     /// The weekly wrap invite: the light blue at the middle of its radial fill
     public static let wrapCentre = Color("wrapCentre", bundle: .module)
     /// The weekly wrap invite: the deep blue at the edge of its radial fill
@@ -106,7 +108,6 @@ public nonisolated enum Radius {
     public static let l: CGFloat = 16
     public static let xl: CGFloat = 20
     public static let xxl: CGFloat = 32
-    public static let control: CGFloat = 12
 }
 
 extension SkyPhase {
