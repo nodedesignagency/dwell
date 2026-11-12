@@ -222,9 +222,11 @@ extension SampleData {
             .transit("16:00", "16:20"), .visit("northline", "16:20", "17:25"), .transit("17:25", "17:40"),
             .visit("home", "17:40", "31:47"),
         ]),
+        // Today has one short gap, as a real day would: Dwell slept on the walk to work, so the
+        // day bar carries a little Unmapped and the timeline a "Dwell was asleep" row.
         (26, [
             .transit("7:47", "8:02"), .visit("brambleline", "8:02", "8:59", [.needsReview]),
-            .transit("8:59", "9:14"), .visit("kestriva", "9:14", "12:38"), .transit("12:38", "12:46"),
+            .gap("8:59", "9:14"), .visit("kestriva", "9:14", "12:38"), .transit("12:38", "12:46"),
             .visit("stagnes", "12:46", "13:20"), .transit("13:20", "13:31"),
             .visit("kestriva", "13:31", "", [.ongoing]),
             .event("Team standup", "9:30", "9:45", .attended),

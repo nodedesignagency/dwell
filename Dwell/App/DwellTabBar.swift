@@ -5,6 +5,11 @@ import SwiftUI
 /// large rounded top corners, white 20% over frosted glass and an ink-10% border, and a white
 /// pill behind the selected tab that slides between tabs.
 ///
+/// Figma: the tabs sit 12 below the bar's top and 12 in from its sides, and stand 24 above the
+/// screen's bottom edge, so they reach 10 pt into the home indicator's strip on a Face ID phone.
+/// The bar's own frame stops at the safe area (what screens clear with `.clearsTabBar()`); the
+/// tabs hang below it by the difference and the glass runs on to the bottom edge.
+///
 /// Replaces the system bar's look; `RootView` keeps the system `TabView` for the screens.
 /// Icons are outlined SF Symbols until the design's tab icons are exported. [ICON NEEDED]
 struct DwellTabBar: View {
@@ -13,19 +18,26 @@ struct DwellTabBar: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var pill
     @ScaledMetric(relativeTo: .footnote) private var iconSize: CGFloat = 22
+    /// The home indicator's strip under the bar (0 on phones with a Home button).
+    @State private var homeIndicator: CGFloat = 0
 
-    /// Figma: tabs 54 tall from 12 below the bar's top, 11.5 in from its sides.
     private static let corner: CGFloat = 44
+    /// Figma: 12 from the bar's top and sides to the tabs, 24 from the tabs to the screen's bottom.
+    private static let inset: CGFloat = 12
+    private static let bottom: CGFloat = 24
+    /// Figma tab: 101 wide, 54 tall (hug), padding 8 across and 6 down, 4 between icon and label.
+    private static let tabWidth: CGFloat = 101
+    private static let tabHeight: CGFloat = 54
 
     var body: some View {
-        HStack(spacing: 0) {
+        TabStrip {
             ForEach(RootView.Tab.allCases, id: \.self) { tab in
                 button(tab)
             }
         }
-        .padding(.horizontal, 11.5)
-        .padding(.top, Space.m)
-        .padding(.bottom, Space.xs)
+        .padding(.horizontal, Self.inset)
+        .padding(.top, Self.inset)
+        .padding(.bottom, Self.bottom - homeIndicator)
         .background {
             let shape = UnevenRoundedRectangle(topLeadingRadius: Self.corner, topTrailingRadius: Self.corner)
             ZStack {
@@ -35,6 +47,7 @@ struct DwellTabBar: View {
             .modifier(TabBarGlass(shape: shape))
             .ignoresSafeArea(edges: .bottom)
         }
+        .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom } action: { homeIndicator = $0 }
         .motion(value: selection)
     }
 
@@ -56,11 +69,15 @@ struct DwellTabBar: View {
                     .minimumScaleFactor(0.7)
             }
             .foregroundStyle(isSelected ? Palette.textPrimary : Palette.textSecondary)
-            .frame(maxWidth: .infinity, minHeight: 54)
+            .padding(.horizontal, Space.s)
+            .padding(.vertical, 6)
+            .frame(width: Self.tabWidth)
+            .frame(minHeight: Self.tabHeight)
+            // Figma: clip content. The pill and its shadows sit outside the clip.
+            .clipped()
             .background {
                 if isSelected {
                     selectedPill
-                        .padding(.horizontal, -4)
                 }
             }
             .contentShape(.rect)
@@ -86,6 +103,33 @@ struct DwellTabBar: View {
             shape
         } else {
             shape.matchedGeometryEffect(id: "pill", in: pill)
+        }
+    }
+}
+
+/// Figma's "space between" row: the first tab flush with the leading edge, the last flush with
+/// the trailing edge, the rest evenly spaced between. Each tab keeps its own width (101), so
+/// on phones narrower than 428 pt, where four don't fit side by side, they overlap by a few
+/// points; only the selected tab draws a pill, so the overlap never shows.
+private struct TabStrip: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        return CGSize(
+            width: proposal.width ?? sizes.reduce(0) { $0 + $1.width },
+            height: sizes.map(\.height).max() ?? 0)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        guard let first = sizes.first, let last = sizes.last else { return }
+        let start = bounds.minX + first.width / 2
+        let end = bounds.maxX - last.width / 2
+        let step = sizes.count > 1 ? (end - start) / CGFloat(sizes.count - 1) : 0
+        for (index, subview) in subviews.enumerated() {
+            subview.place(
+                at: CGPoint(x: start + step * CGFloat(index), y: bounds.midY),
+                anchor: .center,
+                proposal: ProposedViewSize(width: sizes[index].width, height: bounds.height))
         }
     }
 }

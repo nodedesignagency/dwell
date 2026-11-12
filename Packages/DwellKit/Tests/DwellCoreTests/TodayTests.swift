@@ -35,9 +35,9 @@ struct DayRecapTests {
         #expect(DurationText.short(recap.standout?.duration ?? 0) == "57m")
     }
 
-    @Test func `today is fully mapped from 4 AM`() {
-        #expect(recap.unmapped == 0)
-        #expect(recap.mapped == SampleData.todaySnapshot.elapsed(now: now).duration)
+    @Test func `today is mapped from 4 AM but for one 15m gap`() {
+        #expect(DurationText.short(recap.unmapped) == "15m")
+        #expect(recap.mapped + recap.unmapped == SampleData.todaySnapshot.elapsed(now: now).duration)
     }
 
     @Test func `a gap counts as unmapped`() {
@@ -63,13 +63,21 @@ struct DayBarTests {
     @Test func `categories run in display order, not by size`() {
         #expect(today.parts.map(\.segment) == [
             .bucket(.category(.work)), .bucket(.category(.home)), .bucket(.category(.foodAndDrink)),
-            .bucket(.category(.transit)), .bucket(.category(.personal)),
+            .bucket(.category(.transit)), .bucket(.category(.personal)), .unmapped,
         ])
     }
 
-    @Test func `the bar is the day so far, with no unmapped tail`() {
+    @Test func `the bar is the day so far, unmapped only where a gap is`() {
         #expect(today.total == SampleData.todaySnapshot.elapsed(now: now).duration)
-        #expect(!today.parts.contains { $0.segment == .unmapped })
+        let unmapped: [TimeInterval] = today.parts.filter { $0.segment == .unmapped }.map(\.duration)
+        #expect(unmapped == [15.0 * 60])
+    }
+
+    @Test func `today's short gap keeps a tick or two at the end`() {
+        let ticks = today.ticks(55)
+        let unmapped = ticks.filter { $0 == .unmapped }.count
+        #expect((1...2).contains(unmapped))
+        #expect(ticks.last == .unmapped)
     }
 
     @Test func `unmapped time comes last`() {
