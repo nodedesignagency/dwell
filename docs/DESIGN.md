@@ -80,7 +80,7 @@ Positions are shares of the header (the horizon sits 26 pt above the sky's botto
 
 `Radius` (Today): s 8 (chart bars) · m 13 (day pill) · box 14 (the day bar box) · l 16 (hero tiles, banners) · xl 20 (cards, confirmation card) · xxl 32 (the sheet's top corners).
 
-Elevation: cards take one soft shadow (black 6%, radius 16, y 6); the confirmation card no drop shadow, but a warm light along its top edge (`inverseGlow` from 15% at the edge to about 1% at the bottom, read from the screenshot; the design's five inner shadows replace it once their values are in). In dark mode the card edge (`cardStroke`) stands in for the shadow.
+Elevation: cards take one soft shadow (black 6%, radius 16, y 6), cast by the card's shape only: boxes and tiles inside a card (the day bar box, the hero tiles) have none and sit on the same white; the confirmation card no drop shadow, but a warm light along its top edge (`inverseGlow` from 15% at the edge to about 1% at the bottom, read from the screenshot; the design's five inner shadows replace it once their values are in). In dark mode the card edge (`cardStroke`) stands in for the shadow.
 
 ### Type
 
@@ -91,7 +91,7 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | `voiceHero` | 24 | medium | title2 | Today's headline |
 | `voice` | 22 | medium | title3 | Insight sentences |
 | `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
-| `dataStat` | 16 | medium, mono digits | callout | Hero stat numbers |
+| `dataStat` | 16 | medium, proportional digits (as in the design; see QUESTIONS.md, design vs brief 11) | callout | Hero stat numbers |
 | `data` | 14 | regular, mono digits | subheadline | Durations in rows |
 | `title` | 20 | medium | title3 | Section titles |
 | `body` | 16 | medium | callout | Place names, the live caption |
@@ -111,6 +111,7 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | MO-01 Live timer ticking | Ticks on the minute the visit started; digits roll (`.numericText`) with `Motion.standard` | Digits cross-fade | none |
 | MO-02 Day bar filling | Ticks grow from the baseline and fade in on appear, `Motion.reveal` | Fade in only, no growth | none |
 | MO-05 Insight arrival | Deck pages: the card slides out the way you swiped and the next slides in, `Motion.standard` | Cross-fade | none |
+| Confirmation waiting | While the card shows, its two streaks of light rest where the design draws them for 2.4 s, leave to the right (`Motion.sweepOut`, 0.9 s ease-in) and slide back in from the left (`Motion.sweepIn`, 0.7 s ease-out), on a loop | Streaks stay at rest | none |
 | MO-06 Confirmation accepted | The card drops below the tab bar and fades | Fade | light (`Haptic.confirm`) |
 | MO-12 Sky phase change | When the phase changes, live or since the last open (the old sky shows for 0.5 s first): skies cross-fade while the sun and moon travel, `Motion.skyChange` (2.6 s ease-in-out). Night → sunrise: the moon climbs away, the sun rises to the horizon. Sunrise → day: the sun arcs up to the top right and shrinks. Day → sunset: it sinks back to the horizon. Sunset → night: it drops below, the moon comes down, stars come out | `Motion.skyFade` (0.8 s cross-fade), bodies fade in place | none |
 | MO-13 Sky settles on open | Every launch and every return from the background: the sun or moon lifts into place (a quarter of its radius), its glow blooms, stars appear one by one 90 ms apart, `Motion.skySettle` (1.4 s ease-out) | Fade only | none |
@@ -189,3 +190,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (tab bar look, rays) | The tab bar is frosted (regular material) instead of Liquid Glass, with its own ink-10% border token; inactive labels #747474, labels 12 on a 16 line, icons ink; the rays are back to Figma's values |
 
 | 2026-11-12 | Today (confirmation card) | The card follows the new Figma: navy #252537, category art, grey question over the visit, buttons on the same row, warm top light instead of the cyan glow; brief's words kept |
+
+| 2026-11-12 | Today (card shadows, stat digits, sweep) | The card shadow is cast by the card's shape only, so the day bar box and hero tiles no longer shadow the white around them; hero stat numbers use proportional digits; the confirmation card's streaks sweep across it while it waits |

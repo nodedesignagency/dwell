@@ -14,7 +14,9 @@ public enum TextRole: CaseIterable, Sendable {
     case voice
     /// The live timer. 40, monospaced digits (the timer itself opts out, see LiveCard).
     case dataHero
-    /// Hero stat numbers. 16 medium, monospaced digits.
+    /// Hero stat numbers. 16 medium, proportional digits as in the design (monospaced ones
+    /// opened a gap after each "1": "1h 3 1m"). The brief asks for monospaced everywhere:
+    /// QUESTIONS.md, design vs brief 11.
     case dataStat
     /// Durations and times in rows and callouts. 14, monospaced digits.
     case data
@@ -69,7 +71,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var usesMonospacedDigits: Bool {
         switch self {
-        case .dataHero, .dataStat, .data: true
+        case .dataHero, .data: true
         default: false
         }
     }

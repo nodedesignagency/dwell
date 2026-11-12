@@ -3,13 +3,20 @@ import SwiftUI
 extension View {
     /// A white card on the sheet (Today: the live card, insight cards, the day card).
     /// A soft shadow in light mode; in dark mode, where shadows vanish, a hairline edge.
+    ///
+    /// The shadow belongs to the card's shape alone. On the whole view, every box, tile and
+    /// line of text inside would cast one too, greying the white around them (the day bar box
+    /// and hero tiles did, until 12 Nov).
     public func card(radius: CGFloat = Radius.xl) -> some View {
-        background(Palette.surface, in: .rect(cornerRadius: radius))
-            .overlay {
-                RoundedRectangle(cornerRadius: radius)
-                    .strokeBorder(Palette.cardStroke, lineWidth: 1)
-            }
-            .shadow(color: .black.opacity(0.06), radius: 16, y: 6)
+        background {
+            RoundedRectangle(cornerRadius: radius)
+                .fill(Palette.surface)
+                .shadow(color: .black.opacity(0.06), radius: 16, y: 6)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: radius)
+                .strokeBorder(Palette.cardStroke, lineWidth: 1)
+        }
     }
 }
 

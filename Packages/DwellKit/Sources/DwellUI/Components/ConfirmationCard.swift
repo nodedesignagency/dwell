@@ -81,7 +81,7 @@ public struct ConfirmationCard<Artwork: View>: View {
             shape
                 .fill(Palette.inverseSurface)
                 .overlay { TopGlow().clipShape(shape) }
-                .overlay { Sheen().clipShape(shape) }
+                .overlay { SweepingSheen().clipShape(shape) }
         }
         .accessibilityElement(children: .contain)
     }
@@ -167,5 +167,45 @@ private struct TopGlow: View {
             endPoint: .bottom)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
+    }
+}
+
+/// The card's two streaks of light, passing across it every few seconds so it reads as
+/// waiting for an answer: they rest where the design draws them for 2.4 s, leave to the right,
+/// and slide back in from the left. Under Reduce Motion they stay at rest.
+private struct SweepingSheen: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        if reduceMotion {
+            Sheen()
+        } else {
+            Sheen()
+                .phaseAnimator(SweepPhase.allCases) { content, phase in
+                    let shift = phase.shift
+                    content.visualEffect { content, proxy in
+                        content.offset(x: shift * proxy.size.width)
+                    }
+                } animation: { phase in
+                    switch phase {
+                    case .gone: Motion.sweepOut
+                    case .before: nil // off the card on both sides, so the jump is never seen
+                    case .rest: Motion.sweepIn
+                    }
+                }
+        }
+    }
+}
+
+nonisolated private enum SweepPhase: CaseIterable {
+    case rest, gone, before
+
+    /// Where the streaks sit, as a share of the card's width from their resting place.
+    var shift: CGFloat {
+        switch self {
+        case .rest: 0
+        case .gone: 1
+        case .before: -0.5
+        }
     }
 }

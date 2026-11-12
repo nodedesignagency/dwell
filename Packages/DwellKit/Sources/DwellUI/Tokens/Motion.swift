@@ -10,6 +10,11 @@ public enum Motion {
     public static let reveal = Animation.spring(duration: 0.6, bounce: 0.15)
     /// Records, badges, streaks landing.
     public static let landing = Animation.spring(duration: 0.5, bounce: 0.35)
+    /// Light passing across a card that's waiting for an answer: it rests, then leaves to the
+    /// right...
+    public static let sweepOut = Animation.easeIn(duration: 0.9).delay(2.4)
+    /// ...and comes back in from the left to rest again.
+    public static let sweepIn = Animation.easeOut(duration: 0.7)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
     public static let reduced = Animation.easeInOut(duration: 0.2)
     /// The sky turning from one phase to the next: slow enough to watch the sun travel.
