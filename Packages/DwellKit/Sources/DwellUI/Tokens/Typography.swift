@@ -8,6 +8,8 @@ import SwiftUI
 /// tracking at -2% of the size. Sizes are the design's at the default text size and scale
 /// with Dynamic Type relative to the nearest system style.
 public enum TextRole: CaseIterable, Sendable {
+    /// A sheet's big title: "Turn on your location". 40.
+    case display
     /// Today's headline sentence. 24.
     case voiceHero
     /// Insight sentences. 22.
@@ -35,6 +37,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var size: CGFloat {
         switch self {
+        case .display: 40
         case .voiceHero: 24
         case .voice: 22
         case .dataHero: 40
@@ -51,6 +54,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
+        case .display: .largeTitle
         case .voiceHero: .title2
         case .voice: .title3
         case .dataHero: .largeTitle
@@ -64,7 +68,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label, .tab: .medium
+        case .display, .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }

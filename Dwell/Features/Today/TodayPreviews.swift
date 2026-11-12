@@ -182,3 +182,35 @@ private let firstDay = Loadable<TodayModel>.stillMapping(MappingProgress(daysCol
         .environment(\.skyPhase, .night)
         .dynamicTypeSize(.accessibility3)
 }
+
+// MARK: Turn on your location (the sheet over Today when location is off)
+
+private func locationSheet() -> some View {
+    PromptSheet(
+        titleLines: LocationSheetCopy.titleLines,
+        message: LocationSheetCopy.message,
+        art: Art.Illustration.place,
+        actionTitle: LocationSheetCopy.action,
+        closeLabel: LocationSheetCopy.close,
+        onAction: {},
+        onClose: {})
+}
+
+#Preview("Location sheet") {
+    today(.loaded(.sample())).samplePreview()
+        .environment(\.permissions, Permissions(location: .denied, isPreciseLocationOn: true, motion: .granted))
+        .blur(radius: 10)
+        .sheet(isPresented: .constant(true)) { locationSheet() }
+}
+
+#Preview("Location sheet · dark") {
+    Color.clear
+        .sheet(isPresented: .constant(true)) { locationSheet() }
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Location sheet · AX3") {
+    Color.clear
+        .sheet(isPresented: .constant(true)) { locationSheet() }
+        .dynamicTypeSize(.accessibility3)
+}

@@ -97,6 +97,35 @@ extension ButtonStyle where Self == SoftButtonStyle {
     public static var soft: SoftButtonStyle { SoftButtonStyle() }
 }
 
+/// The navy capsule for a sheet's one action: "Yes, turn on" (Today design, "Turn Location").
+/// 44 tall, full width, the label 20 medium in white, with the confirmation card's top light
+/// and streaks; pressed, it dims.
+public struct PrimaryButtonStyle: ButtonStyle {
+    @ScaledMetric(relativeTo: .title3) private var height: CGFloat = 44
+
+    public init() {}
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .textRole(.title)
+            .foregroundStyle(Palette.inverseText)
+            .padding(.horizontal, Space.l)
+            .frame(maxWidth: .infinity, minHeight: height)
+            .background {
+                Capsule()
+                    .fill(Palette.inverseSurface)
+                    .overlay { InverseGlow().clipShape(Capsule()) }
+                    .overlay { Sheen().clipShape(Capsule()) }
+            }
+            .contentShape(.capsule)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+    }
+}
+
+extension ButtonStyle where Self == PrimaryButtonStyle {
+    public static var primary: PrimaryButtonStyle { PrimaryButtonStyle() }
+}
+
 /// A section title with its icon and an optional control on the trailing side:
 /// "This week ← →", "Your day".
 public struct SectionHeader<Trailing: View>: View {
@@ -133,5 +162,28 @@ public struct SectionHeader<Trailing: View>: View {
 extension SectionHeader where Trailing == EmptyView {
     public init(_ title: String, icon: Image) {
         self.init(title, icon: icon) { EmptyView() }
+    }
+}
+
+/// The warm light along the top of the navy surfaces (the confirmation card, the primary
+/// button): the design's five inner shadows in #FAEFD5, read from the screenshot as 15% at
+/// the edge fading to about 1% at the bottom. Replace with the five Figma inner shadows once
+/// their values are in. [VALUES NEEDED]
+struct InverseGlow: View {
+    var body: some View {
+        LinearGradient(
+            stops: [
+                .init(color: Palette.inverseGlow.opacity(0.15), location: 0),
+                .init(color: Palette.inverseGlow.opacity(0.11), location: 0.1),
+                .init(color: Palette.inverseGlow.opacity(0.08), location: 0.2),
+                .init(color: Palette.inverseGlow.opacity(0.055), location: 0.35),
+                .init(color: Palette.inverseGlow.opacity(0.038), location: 0.5),
+                .init(color: Palette.inverseGlow.opacity(0.018), location: 0.7),
+                .init(color: Palette.inverseGlow.opacity(0.009), location: 1),
+            ],
+            startPoint: .top,
+            endPoint: .bottom)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }

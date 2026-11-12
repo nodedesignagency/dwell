@@ -68,7 +68,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | T-06 | New today | New place or new scratch cell → Map; none / some | ⬜ | ⬜ |
 | T-07 | Timeline | Visits with name, span, duration, precision mark, badges (private, WFH, approximate); transit; gaps ("Dwell was asleep · 42m"); "Review this place"; current row "→ now"; long-press → visit edit; empty / partial / complete | 🎨 Today: visit rows, View more. 🔁 Today: transit, gaps, badges, Review this place, empty. ⬜ long-press → visit edit (S-01) | 🟡 |
 | T-08 | Calendar matches | In the timeline: attended / partial (minutes late or early) / missed (where you were instead) / unknown; not connected (Connect calendar) / no events today / matched. Tap → event detail. | ⬜ | ⬜ |
-| T-09 | Permission banner | Four types, one at a time, Fix / Open Settings | 🔁 Today | 🟡 |
+| T-09 | Permission banner | Four types, one at a time, Fix / Open Settings | 🔁 Today. 🎨 "Turn on your location" sheet (Figma "Turn Location", 12 Nov): opens over Today once per launch when location is off, and from the banner's button; "Yes, turn on" goes to Settings. 🔁 dark, AX sizes. ⬜ sheets for the other three banners | 🟡 (`DWELL_STATE=locationDenied`) |
 | T-10 | Sync | "Retry sync" line when offline | 🔁 Today: stale line, offline state | 🟡 |
 | T-11 | First day | Now / Next / Then checklist | 🎨 Today: "Getting Started": headline with a 5-minute run, shuffling icons, "Waiting for your first stop" with the live dot, numbered Now / Next / Then cards. 🔁 Peace and Grind headlines [COPY NEEDED], dark, AX sizes, permission banner | 🟡 |
 | T-12 | Empty and failed | "No stops yet today" / "Today couldn't load" + Retry | 🔁 Today | 🟡 |

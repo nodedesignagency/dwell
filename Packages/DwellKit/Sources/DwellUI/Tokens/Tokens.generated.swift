@@ -50,6 +50,10 @@ public enum Palette {
     public static let tabPillStroke = Color("tabPillStroke", bundle: .module)
     /// Getting started: the step numbers and their Now / Next / Then tags
     public static let step = Color("step", bundle: .module)
+    /// The grey a sheet's glow fades out to at its edges (Turn on your location)
+    public static let glowShade = Color("glowShade", bundle: .module)
+    /// The light rays behind a sheet's art (Turn on your location)
+    public static let glowRays = Color("glowRays", bundle: .module)
     /// Controls over the sunrise (the day pill)
     public static let glass = Color("glass", bundle: .module)
     /// The chart fold bucket, Everything else. Not a category. (placeholder)

@@ -43,6 +43,8 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `tabBarStroke` | ink 10% | white 12% | The tab bar's border | Today (user, 12 Nov); dark derived |
 | `tabInactive` | #747474 | #8E8E93 | Labels of the tabs not selected | Today (Figma); dark derived |
 | `step` | #3E64F6 | #5C7EFF | Getting started: the step numbers and their tags | Today (Figma "Getting Started"); dark derived |
+| `glowShade` | #ADADAD | #000000 | The grey a sheet's glow fades to at its edges | Today (Figma "Turn Location"); dark derived |
+| `glowRays` | #FFFFFF | #FFFFFF | The light rays behind a sheet's art | Today (Figma "Turn Location") |
 | `glass` | white 70% | #1C1C1E 70% | Controls on the sky (the day pill, kept light in every sky) | Today; dark derived |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
@@ -89,6 +91,7 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 
 | Role | Size | Weight | Scales with | Use |
 | --- | --- | --- | --- | --- |
+| `display` | 40, lines 44 apart | medium | largeTitle | A sheet's title ("Turn on your location") |
 | `voiceHero` | 24 | medium | title2 | Today's headline |
 | `voice` | 22 | medium | title3 | Insight sentences |
 | `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
@@ -147,6 +150,9 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `.card()` | `Components/Card.swift` | Surface, radius xl, soft shadow; hairline in dark | Today | Built |
 | `DashedDivider` | `Components/Card.swift` | 1 pt, dash 3/3, `separator` | Today | Built |
 | `Sheen` | `Components/Card.swift` | Two blurred diagonal streaks; white on dark, separator on light | Today | Built |
+| `PrimaryButtonStyle` (`.primary`) | `Components/Card.swift` | Navy capsule, 44 tall, full width, label 20 medium white, the card's top light and streaks; dims pressed | Today ("Yes, turn on") | Built |
+| `PromptSheet` | `Components/PromptSheet.swift` | Sheet asking for one thing: two-line `display` title (32 from the top), grey message (20, ≤ 300 wide, 10 below), 3D art (200, 17 below) over a glow (726-pt grey vignette at 50% under turning light rays at 30%), `.primary` button (71 below the art, 10.5 from the sides, 16 from the bottom), 44-pt close button 16 from the corner; white, corners 32, sized to its content | Today ("Turn Location") | Built |
+| `TurningRays` | `Components/Rays.swift` | Sixteen rays fading from a centre, turning a full circle every 24 s; still under Reduce Motion. Shared by the hero tiles and sheets | Today | Built |
 | `SoftButtonStyle` (`.soft`) | `Components/Card.swift` | Full-width capsule with sheen and edge; pressed | Today ("View more") | Built |
 | `SectionHeader` | `Components/Card.swift` | Icon + title (header trait) + optional trailing control ("This week": the design's 22-pt arrows, 8 apart, their 44-pt tap areas overlapping) | Today ("This week", "Your day") | Built |
 | `DayBarView` | `Components/DayBarView.swift` | The day so far, in a box (radius 14, padding 8, gap 10, white, ink-5% border). Ticks 4 × 32 capsules, 2 pt apart, count from width; categories in display order, ≤ 7 + Everything else; unmapped last (gaps only, never the hours still to come) as hollow capsules with 45° stripes, outline and stripes #DADADA 80%; each tick and swatch carries five stacked inner shadows in its category's glint (x 0, spread 0; y 13 / 8 / 5 / 2 / 1, blur 4 / 3 / 3 / 2 / 1, opacity 1 / 5 / 18 / 30 / 35%); legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph. SwiftUI shapes, not Swift Charts: Charts doesn't draw inner shadows, and the bar's VoiceOver and audio graph are its own | Today | Built |
@@ -174,6 +180,7 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **Privacy line.** "Only you can see this." / "Your map is private to you." where it applies.
 - **Screen anatomy (Today).** A full-bleed sky for the time of day runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down shows the sky's last colour running on below it, never a gap. No pull-to-refresh on a pinned header (its spinner would sit behind the sky); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
 - **Getting started (Today, day 0).** Before anything is mapped, Today's sheet holds the shuffling icons (80, 26 below the sheet's top), "Waiting for your first stop" (22 medium, 16 below) and "Mapping right now." with the live dot (6 below); a dashed line; then "Getting started" (a section header, 16 above the steps) and three `StepRow`s 10 apart. The header carries the headline with a 5-minute run.
+- **Asking for a permission (Today).** With location off, `PromptSheet` ("Turn on your location") opens over Today once per launch and from the banner's button, Today blurring behind it (radius 10); the banner stays. A modal, which brief §8.3 rules out: the client approved it.
 - **Floating asks.** A question for the user (the confirmation card) floats 8 pt above the tab bar as a dark card, not inline, and leaves when answered (sliding down behind the bar).
 - **Tab bar.** `DwellTabBar` (app target), the design's bar laid over the system `TabView` (whose own bar is hidden): full width, standing on the home indicator with its glass running down behind it, 44-pt top corners, white 20% over a frosted material (`.regularMaterial`, every iOS version; Liquid Glass refracted the content behind it, which the design doesn't) with an ink-10% border (`tabBarStroke`); tabs 101 × 54 (height hugs at larger text), padding 8 across and 6 down, 4 between icon and label, content clipped, spread space-between (first and last flush, so on phones under 428 pt they overlap a few points, unseen); 12 from the bar's top and sides to the tabs and 24 from the tabs to the screen's bottom edge, so they reach 10 pt into the home indicator's strip; the design's icons 22 pt, the same on every tab (dark versions derived by inverting the tones), labels `tab` role, #747474 (`tabInactive`) when not selected; the selected tab's label in ink on a white-80% pill the size of the tab with a #F6F6F6 border and four soft shadows (y 26.05 / 14.37 / 5.86 / 1.2, blur 10.78 / 8.36 / 5.86 / 3.59, black 1 / 2 / 4 / 4%; Figma's fifth is 0% and draws nothing). The pill slides between tabs (`Motion.standard`); under Reduce Motion it appears in place. No haptics on tab changes. A safe-area inset on the `TabView` never reaches the screens inside it (each tab is its own UIKit host), so `RootView` measures the bar and passes its height down (`tabBarHeight`); every screen adds it to its bottom safe area with `.clearsTabBar()` inside its `NavigationStack`, on the root and each pushed page, never on a sheet. Content then scrolls up behind the glass and ends above it.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
@@ -217,3 +224,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (icon shuffle as a 3D turn) | The shuffle becomes a coin-like turn on the vertical axis, a new icon every 0.7 s, swapping edge-on; the scale-and-fade swap is gone |
 
 | 2026-11-12 | Today (more 3D art) | The headline's clock and the Getting started rocket are the design's; the shuffle turns through house, office, café, a place pin and the map's cells, and takes in new category art by itself |
+
+| 2026-11-12 | Today (Turn on your location) | The location sheet from the Figma "Turn Location" frame: `PromptSheet`, `.primary` button, `display` type, glow tokens; the rays move to a shared `TurningRays` (the sheet's turn like the tiles') |

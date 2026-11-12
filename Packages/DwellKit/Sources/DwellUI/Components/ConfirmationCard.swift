@@ -80,7 +80,7 @@ public struct ConfirmationCard<Artwork: View>: View {
             let shape = RoundedRectangle(cornerRadius: Radius.xl)
             shape
                 .fill(Palette.inverseSurface)
-                .overlay { TopGlow().clipShape(shape) }
+                .overlay { InverseGlow().clipShape(shape) }
                 .overlay { SweepingSheen().clipShape(shape) }
         }
         .accessibilityElement(children: .contain)
@@ -145,28 +145,6 @@ public struct ConfirmationCard<Artwork: View>: View {
         .textRole(.footnote, weight: .semibold)
         // The pill's ink is drawn for a white pill; keep it in dark mode too.
         .environment(\.colorScheme, .light)
-    }
-}
-
-/// The light along the card's top edge: the design's five inner shadows, in the warm white
-/// #FAEFD5, read from the screenshot as 15% at the edge fading to about 1% at the bottom.
-/// Replace with the five Figma inner shadows once their values are in. [VALUES NEEDED]
-private struct TopGlow: View {
-    var body: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Palette.inverseGlow.opacity(0.15), location: 0),
-                .init(color: Palette.inverseGlow.opacity(0.11), location: 0.1),
-                .init(color: Palette.inverseGlow.opacity(0.08), location: 0.2),
-                .init(color: Palette.inverseGlow.opacity(0.055), location: 0.35),
-                .init(color: Palette.inverseGlow.opacity(0.038), location: 0.5),
-                .init(color: Palette.inverseGlow.opacity(0.018), location: 0.7),
-                .init(color: Palette.inverseGlow.opacity(0.009), location: 1),
-            ],
-            startPoint: .top,
-            endPoint: .bottom)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
     }
 }
 
