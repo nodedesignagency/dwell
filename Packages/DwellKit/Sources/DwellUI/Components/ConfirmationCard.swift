@@ -1,69 +1,171 @@
 import DwellCore
 import SwiftUI
 
-/// "You spent 57m at Brambleline Café. Looks right?" The one piece of work Dwell asks for
-/// (brief §7.1). A dark card that floats above the tab bar while a visit needs a yes.
+/// "Looks right? 57m at Brambleline Café." The one piece of work Dwell asks for (brief §7.1).
+/// A navy card that floats above the tab bar while a visit needs a yes.
 ///
-/// From the Today Figma frame (where it sits hidden), with the brief's buttons: "Looks right"
-/// and "Pick another", never "Yes" and "Wrong place". The design puts everything on one line;
-/// the brief's longer sentence and buttons need a second line, so the buttons sit below.
-public struct ConfirmationCard: View {
-    @ScaledMetric(relativeTo: .subheadline) private var artSize: CGFloat = 40
-    private let line: VoicedLine
+/// From the Today Figma frame (353 × 65, radius 20, #252537): the place's category art, a grey
+/// question over the visit in white, then a white pill and an underlined link, all on one row.
+/// The design's words are "Yes" / "Wrong place" and "47 min"; we use the brief's "Looks right"
+/// / "Pick another" and `57m` (the user's call). Those buttons are wider than "Yes", so a long
+/// place name wraps onto a second line rather than pushing the buttons off the row. At
+/// accessibility sizes the buttons move under the text.
+///
+/// VoiceOver reads the whole ask in the dial's voice ("You spent 57m at Brambleline Café.
+/// Looks right?"), then the two buttons.
+public struct ConfirmationCard<Artwork: View>: View {
+    @Environment(\.dial) private var dial
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .subheadline) private var artSize: CGFloat = 32
+    @ScaledMetric(relativeTo: .subheadline) private var detailSize: CGFloat = 14
+
+    private let question: VoicedLine
+    private let value: String
+    private let detail: String
+    private let sentence: VoicedLine
+    private let art: Artwork
     private let onLooksRight: () -> Void
     private let onPickAnother: () -> Void
 
-    public init(_ line: VoicedLine, onLooksRight: @escaping () -> Void, onPickAnother: @escaping () -> Void) {
-        self.line = line
+    /// - Parameters:
+    ///   - question: the grey line, "Looks right?", in the dial's voice.
+    ///   - value: the visit's duration, "57m". Never voiced.
+    ///   - detail: the rest of the white line, "at Brambleline Café".
+    ///   - sentence: the whole ask, for VoiceOver.
+    ///   - art: the place's category art, drawn at 32 pt.
+    public init(
+        question: VoicedLine,
+        value: String,
+        detail: String,
+        sentence: VoicedLine,
+        onLooksRight: @escaping () -> Void,
+        onPickAnother: @escaping () -> Void,
+        @ViewBuilder art: () -> Artwork
+    ) {
+        self.question = question
+        self.value = value
+        self.detail = detail
+        self.sentence = sentence
+        self.art = art()
         self.onLooksRight = onLooksRight
         self.onPickAnother = onPickAnother
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: Space.m) {
-            HStack(spacing: Space.m) {
-                Art.confirmVisit
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: artSize, height: artSize)
-                    .accessibilityHidden(true)
-                VoiceText(line)
-                    .textRole(.caption, weight: .medium)
-                    .foregroundStyle(Palette.inverseText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            FlowLayout(alignment: .trailing, spacing: Space.s, lineSpacing: Space.xs) {
-                Button(action: onLooksRight) {
-                    Text(verbatim: TodayCopy.looksRight)
-                        .foregroundStyle(Palette.textPrimary)
-                        .padding(.horizontal, Space.l)
-                        .padding(.vertical, Space.s)
-                        .background(.white, in: .capsule)
-                        .frame(minHeight: 44)
-                        .contentShape(.rect)
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: Space.s) {
+                    HStack(spacing: Space.m) {
+                        artwork
+                        text
+                    }
+                    buttons
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                Button(action: onPickAnother) {
-                    Text(verbatim: TodayCopy.pickAnother)
-                        .underline()
-                        .foregroundStyle(Palette.inverseText)
-                        .padding(.horizontal, Space.xs)
-                        .frame(minHeight: 44)
-                        .contentShape(.rect)
+                .padding(.vertical, Space.m)
+            } else {
+                HStack(spacing: Space.m) {
+                    artwork
+                    text
+                    buttons
+                        .fixedSize()
                 }
+                // Figma: 65 tall; the 44-pt buttons leave 10.5 above and below.
+                .padding(.vertical, 10.5)
             }
-            .buttonStyle(.plain)
-            .textRole(.footnote, weight: .semibold)
         }
         .padding(.horizontal, Space.l)
-        .padding(.top, Space.l)
-        .padding(.bottom, Space.xs)
-        .background(Palette.inverseSurface, in: .rect(cornerRadius: Radius.xl))
-        .overlay {
-            Sheen()
-                .clipShape(.rect(cornerRadius: Radius.xl))
+        .frame(minHeight: 65)
+        .background {
+            let shape = RoundedRectangle(cornerRadius: Radius.xl)
+            shape
+                .fill(Palette.inverseSurface)
+                .overlay { TopGlow().clipShape(shape) }
+                .overlay { Sheen().clipShape(shape) }
         }
-        .shadow(color: Color(red: 0.4, green: 0.8, blue: 1).opacity(0.18), radius: 20, y: 9)
         .accessibilityElement(children: .contain)
+    }
+
+    private var artwork: some View {
+        art
+            .frame(width: artSize, height: artSize)
+            .foregroundStyle(Palette.inverseText)
+            .accessibilityHidden(true)
+    }
+
+    private var text: some View {
+        VStack(alignment: .leading, spacing: Space.xxs) {
+            VoiceText(question)
+                .textRole(.footnote)
+                .foregroundStyle(Palette.inverseText.opacity(0.75))
+            Text(detailLine)
+                .tracking(detailSize * TextRole.tracking)
+                .foregroundStyle(Palette.inverseText)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                .minimumScaleFactor(0.9)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(sentence.text(for: dial))
+    }
+
+    /// "57m" semibold in monospaced digits, then "at Brambleline Café" regular.
+    private var detailLine: AttributedString {
+        var number = AttributedString(value)
+        number.font = TextRole.caption.font(size: detailSize, weight: .semibold, monospacedDigits: true)
+        var rest = AttributedString(" " + detail)
+        rest.font = TextRole.caption.font(size: detailSize, weight: .regular)
+        return number + rest
+    }
+
+    private var buttons: some View {
+        HStack(spacing: Space.s) {
+            Button(action: onLooksRight) {
+                Text(verbatim: TodayCopy.looksRight)
+                    .foregroundStyle(Palette.textPrimary)
+                    .padding(.horizontal, Space.l)
+                    .padding(.vertical, Space.s)
+                    // Figma: white, a shade darker along the top.
+                    .background(
+                        Palette.inverseText.shadow(.inner(color: .black.opacity(0.08), radius: 4, y: 3)),
+                        in: .capsule)
+                    .frame(minHeight: 44)
+                    .contentShape(.rect)
+            }
+            Button(action: onPickAnother) {
+                Text(verbatim: TodayCopy.pickAnother)
+                    .underline()
+                    .foregroundStyle(Palette.inverseText)
+                    .frame(minHeight: 44)
+                    .contentShape(.rect)
+            }
+        }
+        .buttonStyle(.plain)
+        .textRole(.footnote, weight: .semibold)
+        // The pill's ink is drawn for a white pill; keep it in dark mode too.
+        .environment(\.colorScheme, .light)
+    }
+}
+
+/// The light along the card's top edge: the design's five inner shadows, in the warm white
+/// #FAEFD5, read from the screenshot as 15% at the edge fading to about 1% at the bottom.
+/// Replace with the five Figma inner shadows once their values are in. [VALUES NEEDED]
+private struct TopGlow: View {
+    var body: some View {
+        LinearGradient(
+            stops: [
+                .init(color: Palette.inverseGlow.opacity(0.15), location: 0),
+                .init(color: Palette.inverseGlow.opacity(0.11), location: 0.1),
+                .init(color: Palette.inverseGlow.opacity(0.08), location: 0.2),
+                .init(color: Palette.inverseGlow.opacity(0.055), location: 0.35),
+                .init(color: Palette.inverseGlow.opacity(0.038), location: 0.5),
+                .init(color: Palette.inverseGlow.opacity(0.018), location: 0.7),
+                .init(color: Palette.inverseGlow.opacity(0.009), location: 1),
+            ],
+            startPoint: .top,
+            endPoint: .bottom)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }

@@ -161,6 +161,15 @@ struct TodayCopyTests {
         #expect(line.grind == "57m at Brambleline Café. Looks right?")
     }
 
+    @Test func `the card's two lines are the ask, split`() {
+        let sentence = TodayCopy.confirmVisit(placeName: "Brambleline Café", duration: 57 * 60)
+        let fact = "57m " + TodayCopy.confirmDetail(placeName: "Brambleline Café")
+        for (whole, question) in zip(sentence.allVariants, TodayCopy.confirmQuestion.allVariants) {
+            #expect(whole.contains(fact))
+            #expect(whole.hasSuffix(question))
+        }
+    }
+
     static var voicedLines: [VoicedLine] {
         let recap = SampleData.todaySnapshot.recap(now: now)
         let visit = Visit(id: "v", placeID: nil, placeName: "Brambleline Café", category: .foodAndDrink,

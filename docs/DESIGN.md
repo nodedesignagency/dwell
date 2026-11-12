@@ -34,7 +34,8 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `accent` | #248FFF | #409CFF | Tint, links, insight charts; the app's AccentColor | Today (week bars); dark derived |
 | `live` | #11A94D | #30D158 | The live dot | Today; dark derived |
 | `yours` | #6EE36A | #3DBF4A | Wash on the Yours hero stat | Today; dark derived |
-| `inverseSurface` | #353535 | #3A3A3C | The confirmation card | Today (hidden layer); dark derived |
+| `inverseSurface` | #252537 | #2A2A3E | The confirmation card (navy) | Today (Figma card, 12 Nov); dark derived |
+| `inverseGlow` | #FAEFD5 | #FAEFD5 | The warm light along the confirmation card's top edge | Today (Figma card; read from the screenshot) |
 | `inverseText` | #FFFFFF | #FFFFFF | Text on `inverseSurface` | Today |
 | `tabBar` | white 20% | #1C1C1E 20% | Tint over the tab bar's glass | Today (Figma); dark derived |
 | `tabPill` | white 80% | #3A3A3C 80% | The selected tab's pill | Today (Figma); dark derived |
@@ -79,7 +80,7 @@ Positions are shares of the header (the horizon sits 26 pt above the sky's botto
 
 `Radius` (Today): s 8 (chart bars) · m 13 (day pill) · box 14 (the day bar box) · l 16 (hero tiles, banners) · xl 20 (cards, confirmation card) · xxl 32 (the sheet's top corners).
 
-Elevation: cards take one soft shadow (black 6%, radius 16, y 6); the confirmation card a cool glow (cyan 18%, radius 20, y 9). In dark mode the card edge (`cardStroke`) stands in for the shadow.
+Elevation: cards take one soft shadow (black 6%, radius 16, y 6); the confirmation card no drop shadow, but a warm light along its top edge (`inverseGlow` from 15% at the edge to about 1% at the bottom, read from the screenshot; the design's five inner shadows replace it once their values are in). In dark mode the card edge (`cardStroke`) stands in for the shadow.
 
 ### Type
 
@@ -148,7 +149,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `WeekBarsChart` | `Components/InsightCard.swift` | Seven bars, weekday labels, zero days as a faint sliver; per-bar VoiceOver, audio graph | Today | Built (Swift Charts) |
 | `VisitRow` | `Components/TimelineRow.swift` | Icon well, span, place, duration, chevron; badges Approximate / Private / WFH; "Review this place"; duration moves under the name at AX sizes | Today ("Your day") | Built |
 | `TimelineNote` | `Components/TimelineRow.swift` | Slim transit row; gap row with a dashed outline | Today (derived) | Built |
-| `ConfirmationCard` | `Components/ConfirmationCard.swift` | Dark card, art, voiced question, Looks right (white pill) / Pick another (underlined) | Today (hidden Figma layer) | Built |
+| `ConfirmationCard` | `Components/ConfirmationCard.swift` | Navy card (65 tall, radius 20, padding 16): the place's category art 32, 12 to a grey voiced question (12, white 75%) over the visit in white (14: duration semibold, monospaced; place regular; wraps to two lines), then Looks right (white pill, 16 × 8, darker along the top) and Pick another (underlined), both 12 semibold, 8 apart, on the same row; buttons under the text at AX sizes; sheen and top light | Today (Figma card, 12 Nov) | Built; inner shadow values pending |
 | `NoticeBanner` | `Components/NoticeBanner.swift` | Symbol, message, action; stacks at AX sizes. Permission banner and stale line | Today (derived) | Built |
 | `Avatar` | `Components/NoticeBanner.swift` | Round image or person glyph | Today | Built |
 | `DwellTabBar` | `Dwell/App/DwellTabBar.swift` | Four tabs, sliding pill, glass bar; see Patterns | Today (Figma tabPills) | Built; icons are stand-ins |
@@ -186,3 +187,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (tab spacing, rays, Unmapped) | Tabs 101 × 54 with 8 × 6 padding, 12 from the bar's top and sides, 24 from the screen's bottom; rays 15% ink at the centre; the sample Monday gets a 15m gap so Unmapped shows, small, as in a real day |
 
 | 2026-11-12 | Today (tab bar look, rays) | The tab bar is frosted (regular material) instead of Liquid Glass, with its own ink-10% border token; inactive labels #747474, labels 12 on a 16 line, icons ink; the rays are back to Figma's values |
+
+| 2026-11-12 | Today (confirmation card) | The card follows the new Figma: navy #252537, category art, grey question over the visit, buttons on the same row, warm top light instead of the cyan glow; brief's words kept |

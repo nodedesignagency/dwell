@@ -32,8 +32,10 @@ public enum Palette {
     public static let live = Color("live", bundle: .module)
     /// Tint of the Yours hero stat
     public static let yours = Color("yours", bundle: .module)
-    /// The confirmation card
+    /// The confirmation card: navy
     public static let inverseSurface = Color("inverseSurface", bundle: .module)
+    /// The warm light along the confirmation card's top edge
+    public static let inverseGlow = Color("inverseGlow", bundle: .module)
     /// Text on inverseSurface
     public static let inverseText = Color("inverseText", bundle: .module)
     /// Tint over the tab bar's frosted glass: white 20%

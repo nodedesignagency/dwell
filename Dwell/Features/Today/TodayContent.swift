@@ -194,13 +194,20 @@ struct TodayContent: View {
     @ViewBuilder
     private var confirmation: some View {
         if let visit = visitToConfirm {
+            let duration = visit.interval(now: now).duration
             ConfirmationCard(
-                TodayCopy.confirmVisit(placeName: visit.placeName, duration: visit.interval(now: now).duration),
+                question: TodayCopy.confirmQuestion,
+                value: DurationText.short(duration),
+                detail: TodayCopy.confirmDetail(placeName: visit.placeName),
+                sentence: TodayCopy.confirmVisit(placeName: visit.placeName, duration: duration),
                 onLooksRight: { actions.confirm(visit) },
-                onPickAnother: { actions.pickAnother(visit) })
-                .padding(.horizontal, Space.l)
-                .padding(.bottom, Space.s)
-                .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                onPickAnother: { actions.pickAnother(visit) }
+            ) {
+                CategoryIcon(visit.category, style: .illustration)
+            }
+            .padding(.horizontal, Space.l)
+            .padding(.bottom, Space.s)
+            .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
         }
     }
 }

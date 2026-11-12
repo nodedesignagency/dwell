@@ -44,7 +44,7 @@ Found in the Today design (Figma 69:81). Settled with the user before building u
 2. **The headline and live caption don't follow the dial.** The design shows one voice. The headline gets Peace and Grind placeholders [COPY NEEDED]; the caption uses Appendix B.
 3. **The timeline shows no gaps and no badges.** §7.1: gaps are shown honestly; approximate stays visibly approximate. Built with gap and transit rows and Approximate / Private / WFH badges, plus "Review this place".
 4. **Title Case.** "This Week", "Your Day", "View More", "→ Now" are now sentence case per §8.6.
-5. **Confirmation buttons.** The hidden Figma card says "Yes / Wrong place", "Looks right ?" and "47 min at Diggin Cafe". Built with the brief's "Looks right / Pick another", Appendix B's sentence and `9h 32m` durations. Placement (not visible in the design) settled with the user: floating above the tab bar.
+5. **Confirmation buttons.** The Figma card says "Yes / Wrong place", "Looks right ?" and "47 min at Diggin Cafe". Settled with the user (12 Nov): the design's look and one-row layout with the brief's words, "Looks right?" over "57m at Brambleline Café", buttons "Looks right / Pick another". The wider buttons make long place names wrap to a second line. Placement settled too: floating above the tab bar.
 6. **Insights lack Share and Not useful.** Settled with the user: a share button by each card's topic, Not useful in the long-press menu.
 7. **Custom tab bar.** Settled with the user: the design's own bar (`DwellTabBar`) over the system `TabView`, which still holds the screens.
 8. **SN Pro on the day pill.** A non-system face for one label; set in SF Pro Rounded instead.

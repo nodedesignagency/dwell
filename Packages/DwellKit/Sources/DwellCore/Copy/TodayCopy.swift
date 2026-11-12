@@ -95,6 +95,18 @@ public enum TodayCopy {
             grind: "\(time) at \(placeName). Looks right?")
     }
 
+    /// The confirmation card's grey line, over the visit: the question that ends Appendix B's
+    /// ask at each stop.
+    public static let confirmQuestion = VoicedLine(
+        peace: "Right?",
+        plain: "Looks right?",
+        grind: "Looks right?")
+
+    /// The rest of the card's white line after the duration: "at Brambleline Café".
+    public static func confirmDetail(placeName: String) -> String {
+        "at \(placeName)"
+    }
+
     public static let looksRight = "Looks right"
     public static let pickAnother = "Pick another"
 
