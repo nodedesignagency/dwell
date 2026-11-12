@@ -31,6 +31,10 @@ public enum Art {
         public static let clock = Image("illustration/clock", bundle: .module)
         /// Rising bars: insights ("Waiting for your insights" on Today).
         public static let chart = Image("illustration/chart", bundle: .module)
+        /// A push pin: how many places ("41 places" on You).
+        public static let pushpin = Image("illustration/pushpin", bundle: .module)
+        /// The globe: how much of the city is mapped ("3.2% mapped" on You).
+        public static let globe = Image("illustration/globe", bundle: .module)
     }
 
     /// Line icons from the design, drawn as templates so they take the ink they're given:
@@ -39,6 +43,38 @@ public enum Art {
     public static let clock = Image("glyph/clock", bundle: .module).renderingMode(.template)
     public static let chevron = Image("glyph/chevron", bundle: .module).renderingMode(.template)
     public static let arrow = Image("icon/arrow", bundle: .module).renderingMode(.template)
+
+    /// You's 3D art. Exported at 4x; each canvas is 4x the frame it's shown in, so the art
+    /// keeps the design's size: section headers 20 ("Streaks", "Badges"), the profile's pills
+    /// 20 (the push pin on "41 places", the globe on "3.2% mapped").
+    public static let streaks = Image("icon/streaks", bundle: .module)
+    public static let badges = Image("icon/badges", bundle: .module)
+
+    /// You's flat glyphs (Solar, duotone), templates like the timeline's: the settings gear
+    /// (20), the sun, alarm clock and trophy on the push switches (18), the privacy line's lock (16).
+    public enum Glyph {
+        public static let settings = Image("glyph/settings", bundle: .module).renderingMode(.template)
+        public static let sun = Image("glyph/sun", bundle: .module).renderingMode(.template)
+        public static let alarm = Image("glyph/alarm", bundle: .module).renderingMode(.template)
+        public static let trophy = Image("glyph/trophy", bundle: .module).renderingMode(.template)
+        public static let lock = Image("glyph/lock", bundle: .module).renderingMode(.template)
+    }
+
+    /// A streak's day (You): lit when kept, grey when a freeze covered it, a dashed outline when
+    /// missed or still to come. 20 × 24.
+    public enum Flame {
+        public static let kept = Image("flame/kept", bundle: .module)
+        public static let frozen = Image("flame/frozen", bundle: .module)
+        public static let open = Image("flame/open", bundle: .module)
+    }
+
+    /// The dial's art (You), cut from the design's "Plain" render: a white pill and the dark
+    /// current one, 36.33 wide at their own heights (64.67 and 75.33). Their rounded ends stay
+    /// put while the middle stretches (`DialArt.capInsets`), so one pair draws every stop.
+    public enum DialPill {
+        public static let plain = Image("dial/pill", bundle: .module)
+        public static let current = Image("dial/pillCurrent", bundle: .module)
+    }
 
     /// The tab bar's icons, from the design. Drawn for light; their dark versions invert the
     /// tones (white outline, dark fill), derived by us.
@@ -51,6 +87,15 @@ public enum Art {
 }
 
 extension Art {
+    /// A badge's medal at its tier, where the design has one yet (Explorer at gold so far).
+    /// Locked badges show their medal in grey (`BadgeTile`). 25 square.
+    public static func badge(_ kind: Badge.Kind, tier: Badge.Tier?) -> Image? {
+        switch (kind, tier) {
+        case (.explorer, .gold), (.explorer, nil): Image("badge/explorerGold", bundle: .module)
+        default: nil
+        }
+    }
+
     /// A category's 3D illustration, where the design has one yet.
     public static func illustration(_ category: PlaceCategory) -> Image? {
         category.illustrationName.map { Image($0, bundle: .module) }

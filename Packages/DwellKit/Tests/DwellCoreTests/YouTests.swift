@@ -91,7 +91,7 @@ struct FeaturedStreakTests {
 struct BadgeShowcaseTests {
     @Test func `earned badges come first, best tier first, then the closest to unlocking`() {
         let kinds = Badge.showcase(SampleData.badges).map(\.kind)
-        #expect(kinds == [.foundingUser, .explorer, .cartographer, .earlyBird, .globetrotter, .marathoner])
+        #expect(kinds == [.explorer, .foundingUser, .cartographer, .earlyBird, .globetrotter, .marathoner])
     }
 
     @Test func `the grid holds six`() {

@@ -82,10 +82,6 @@ public enum Palette {
     public static let dialTrack = Color("dialTrack", bundle: .module)
     /// You: the dots on the dial's arc at each named stop. Read from the screenshot
     public static let dialStop = Color("dialStop", bundle: .module)
-    /// You: the dial art's pills that aren't the current stop (a drawn stand-in for the design's 3D art)
-    public static let dialPill = Color("dialPill", bundle: .module)
-    /// You: the dial art's pill for the current stop (a drawn stand-in for the design's 3D art)
-    public static let dialPillCurrent = Color("dialPillCurrent", bundle: .module)
     /// You: white in both modes: the dial's thumb, the switch's knob, the ring round the profile picture
     public static let ring = Color("ring", bundle: .module)
     /// The design's switch, on: the system green (the screenshot reads #33C65C)
@@ -96,8 +92,6 @@ public enum Palette {
     public static let privacy = Color("privacy", bundle: .module)
     /// The privacy line's words. Read from the screenshot
     public static let privacyText = Color("privacyText", bundle: .module)
-    /// The privacy line's lock. Read from the screenshot
-    public static let privacyIcon = Color("privacyIcon", bundle: .module)
     /// Uncovered scratch cells on the map behind You's profile. Read from the screenshot
     public static let scratchCell = Color("scratchCell", bundle: .module)
     /// A bronze badge's medal (stand-in until the badge art arrives). Read from the design's medal

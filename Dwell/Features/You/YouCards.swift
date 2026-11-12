@@ -70,12 +70,12 @@ struct DialCard: View {
         .card()
     }
 
-    /// [ICON NEEDED] the design's sun, alarm clock and trophy (Solar, bold duotone).
+    /// The design's sun, alarm clock and trophy (Solar, duotone).
     private func glyph(_ kind: NotificationKind) -> Image {
         switch kind {
-        case .morningRecap: Image(systemName: "sun.max.fill")
-        case .streakAtRisk: Image(systemName: "alarm.fill")
-        case .records: Image(systemName: "trophy.fill")
+        case .morningRecap: Art.Glyph.sun
+        case .streakAtRisk: Art.Glyph.alarm
+        case .records: Art.Glyph.trophy
         }
     }
 }
@@ -100,8 +100,7 @@ struct StreakCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // [ICON NEEDED] the design's flame for the header.
-            SectionHeader(YouCopy.streaks, icon: Image(systemName: "flame.fill")) {
+            SectionHeader(YouCopy.streaks, icon: Art.streaks) {
                 Button(action: viewAll) {
                     HeaderLink(YouCopy.viewAll)
                 }
@@ -270,8 +269,7 @@ struct BadgesCard: View {
             repeating: GridItem(.flexible(), spacing: 0, alignment: .top),
             count: dynamicTypeSize.isAccessibilitySize ? 2 : 3)
         VStack(alignment: .leading, spacing: 0) {
-            // [ICON NEEDED] the design's medal for the header.
-            SectionHeader(YouCopy.badges, icon: Image(systemName: "medal.fill")) {
+            SectionHeader(YouCopy.badges, icon: Art.badges) {
                 Button(action: viewAll) {
                     HeaderLink(YouCopy.earned(earned))
                 }
@@ -286,7 +284,11 @@ struct BadgesCard: View {
                     Button {
                         open(badge)
                     } label: {
-                        BadgeTile(name: YouCopy.name(of: badge.kind), details: YouCopy.details(for: badge), tier: badge.tier)
+                        BadgeTile(
+                            name: YouCopy.name(of: badge.kind),
+                            details: YouCopy.details(for: badge),
+                            tier: badge.tier,
+                            art: Art.badge(badge.kind, tier: badge.tier))
                     }
                     .buttonStyle(.plain)
                 }

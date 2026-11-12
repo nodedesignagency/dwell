@@ -1,11 +1,11 @@
 import DwellCore
 import SwiftUI
 
-/// One day of a streak (You design): an orange flame for a day kept, a grey one for a day a
-/// freeze covered, and a faint outline for one missed or still to come. A stand-in flame (SF
-/// Symbol) until the design's arrives. [ICON NEEDED] Read from the screenshot: 19 × 23.
+/// One day of a streak (You design): the design's orange flame for a day kept, its grey one for
+/// a day a freeze covered, and its dashed outline for one missed or still to come. 20 × 24,
+/// the flame itself 19.25 × 23.5.
 public struct FlameMark: View {
-    @ScaledMetric(relativeTo: .caption) private var height: CGFloat = 23
+    @ScaledMetric(relativeTo: .caption) private var height: CGFloat = 24
     private let state: Streak.Mark.State
 
     public init(_ state: Streak.Mark.State) {
@@ -13,19 +13,19 @@ public struct FlameMark: View {
     }
 
     public var body: some View {
-        Group {
-            switch state {
-            case .kept:
-                Image(systemName: "flame.fill").resizable().foregroundStyle(Palette.streak)
-            case .frozen:
-                Image(systemName: "flame.fill").resizable().foregroundStyle(Palette.flameFrozen)
-            case .missed, .open:
-                Image(systemName: "flame").resizable().fontWeight(.light).foregroundStyle(Palette.outline)
-            }
+        image
+            .resizable()
+            .scaledToFit()
+            .frame(height: height)
+            .accessibilityHidden(true)
+    }
+
+    private var image: Image {
+        switch state {
+        case .kept: Art.Flame.kept
+        case .frozen: Art.Flame.frozen
+        case .missed, .open: Art.Flame.open
         }
-        .scaledToFit()
-        .frame(height: height)
-        .accessibilityHidden(true)
     }
 }
 
@@ -107,30 +107,44 @@ public struct HeaderLink: View {
     }
 }
 
-/// A badge in a grid (You design: the medal, "Explorer", "Gold • 41 places"): the medal 24, 8
-/// to the name (16 medium), 2 to its facts (12, grey, 8 to each dot), all centred. Locked
-/// badges keep their place with a grey medal. The medal is a stand-in until each badge's art
-/// arrives. [ICON NEEDED]
+/// A badge in a grid (You design: the medal, "Explorer", "Gold • 41 places"): the medal 25
+/// (the art 24 inside), 8 to the name (16 medium), 2 to its facts (12, grey, 8 to each dot),
+/// all centred. Locked badges keep their place with their medal in grey. Badges whose art
+/// hasn't arrived show an SF Symbol medal in their tier's colour. [ICON NEEDED]
 public struct BadgeTile: View {
-    @ScaledMetric(relativeTo: .callout) private var medalSize: CGFloat = 24
+    @ScaledMetric(relativeTo: .callout) private var medalSize: CGFloat = 25
     private let name: String
     private let details: [String]
     private let tier: Badge.Tier?
+    private let art: Image?
 
-    public init(name: String, details: [String], tier: Badge.Tier?) {
+    /// - Parameter art: the medal at this tier (`Art.badge`), or `nil` for a stand-in.
+    public init(name: String, details: [String], tier: Badge.Tier?, art: Image? = nil) {
         self.name = name
         self.details = details
         self.tier = tier
+        self.art = art
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            Image(systemName: tier == nil ? "medal" : "medal.fill")
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(medalColor)
-                .frame(width: medalSize, height: medalSize)
-                .accessibilityHidden(true)
+            Group {
+                if let art {
+                    art
+                        .resizable()
+                        .scaledToFit()
+                        .grayscale(tier == nil ? 1 : 0)
+                        .opacity(tier == nil ? 0.45 : 1)
+                } else {
+                    Image(systemName: tier == nil ? "medal" : "medal.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(medalColor)
+                        .padding(2)
+                }
+            }
+            .frame(width: medalSize, height: medalSize)
+            .accessibilityHidden(true)
             Text(verbatim: name)
                 .textRole(.body)
                 .foregroundStyle(tier == nil ? Palette.textSecondary : Palette.textPrimary)

@@ -81,7 +81,7 @@ struct ProfileHeader: View {
 
     private var placesPill: some View {
         Button(action: openPlaces) {
-            StatPill(PlacesCopy.count(placeCount), art: Art.Illustration.place)
+            StatPill(PlacesCopy.count(placeCount), art: Art.Illustration.pushpin)
         }
         .buttonStyle(.plain)
         .accessibilityHint("Shows your places")
@@ -89,8 +89,7 @@ struct ProfileHeader: View {
 
     private var mappedPill: some View {
         Button(action: openCoverage) {
-            // [ICON NEEDED] the design's 3D globe.
-            StatPill(YouCopy.mapped(coverage), art: Image(systemName: "globe.americas.fill"))
+            StatPill(YouCopy.mapped(coverage), art: Art.Illustration.globe)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(YouCopy.spokenMapped(coverage, city: profile.city))

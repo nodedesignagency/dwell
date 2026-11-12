@@ -140,11 +140,11 @@ public enum SampleData {
         Streak(kind: .firstIn, current: 1, best: 4, freezes: 0, state: .active),
     ]
 
-    /// Four earned of thirteen. Counts agree with the rest of the sample: 14 places, 41 cells
-    /// in Brooklyn, 4 countries.
+    /// Four earned of thirteen, Explorer at gold as in the design. Counts agree with the rest of
+    /// the sample: 14 places, 41 cells in Brooklyn, 4 countries.
     public static let badges: [Badge] = [
         Badge(kind: .foundingUser, tier: .gold, progress: 1),
-        Badge(kind: .explorer, tier: .silver, progress: 0.45, count: 14),
+        Badge(kind: .explorer, tier: .gold, progress: 1, count: 14),
         Badge(kind: .earlyBird, tier: .bronze, progress: 0.6, count: 6),
         Badge(kind: .cartographer, tier: .bronze, progress: 0.2, count: 41),
         Badge(kind: .marathoner, tier: nil, progress: 0.3, count: 3),

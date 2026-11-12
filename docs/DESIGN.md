@@ -59,16 +59,13 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `dialSky` | #D0EEFD | #16354D | The dial card's glow | You; dark derived |
 | `dialTrack` | #E9ECF4 | #3A3A3C | The dial's arc | You; dark derived |
 | `dialStop` | #9294A1 | #8E8E93 | The dots at the dial's stops | You; dark derived |
-| `dialPill` / `dialPillCurrent` | #F3F3F3 / #4A4A4A | #5A5A5E / #F5F5F7 | The dial art's pills (drawn stand-in); the current one inverts in dark | You (read from the render); dark derived |
 | `ring` | #FFFFFF | #F5F5F7 | White in both modes: the dial's thumb, the switch's knob, the ring round the profile picture | You; dark derived |
 | `toggleOn` | #34C759 | #30D158 | The design's switch, on (the system green; the screenshot reads #33C65C) | You |
 | `toggleOff` | #C6C6C8 | #48484A | The design's switch, off | You; dark derived |
 | `privacy` | #EEEEEE | #1C1C1E | The privacy line's bar | You; dark derived |
-| `privacyText` | #484848 | #AEAEB2 | The privacy line's words | You; dark derived |
-| `privacyIcon` | #A1A3A7 | #8E8E93 | The privacy line's lock | You; dark derived |
+| `privacyText` | #484848 | #AEAEB2 | The privacy line's words, and its lock (body at half, as the duotone glyph draws it) | You; dark derived |
 | `scratchCell` | #E394FF | #C77DFF | Uncovered cells on the map behind the profile | You; dark derived |
-| `bronze` | #E48E62 | #E48E62 | A bronze badge's medal (stand-in) | You (the design's medal) |
-| `silver`, `gold` | #B8BCC4, #F2B23A | same | Silver and gold medals (stand-ins) | placeholder |
+| `bronze`, `silver`, `gold` | #E48E62, #B8BCC4, #F2B23A | same | The SF Symbol medal of a badge whose art hasn't arrived, by tier | placeholder (bronze read from the design's medal) |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
 ### Category colours
@@ -220,15 +217,15 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `StatPill` | `Components/GlassPill.swift` | A fact on glass: art 20, 8 to the words (14 medium), 10 across, 9 down (38 tall) | You ("41 places", "3.2% mapped") | Built |
 | `LabelPill` | `Components/GlassPill.swift` | A card's label on glass: 14 medium, 16 × 8 (32 tall); header trait | You ("Your dial") | Built |
 | `DialControl` | `Components/DialControl.swift` | The tone dial: a shallow arch (ends 11 in and 24.5 below the top), track 8, a dot (4) at each stop (0, 23.5, 50, 76.5, 100% across, as drawn), labels 12 grey centred under the dots and kept inside (the middle three on one line 17 below the top, the ends 7.5 under their dots; only the ends at AX sizes), a white thumb 20. Continuous; a tap settles on the nearest stop; `Haptic.dialStop` per stop passed; VoiceOver adjustable a stop at a time, its value the stop and its line | You | Built |
-| `DialArt` | `Components/DialControl.swift` | Three pills (35 wide, 7 apart, corners 14) rising 54, 58.5, 63; the one nearest the dial 16 taller and dark, Calm and Push between two. A drawn stand-in for the design's 3D art | You | Built (stand-in) |
+| `DialArt` | `Components/DialControl.swift` | Three pills cut from the design's "Plain" render (`Art.DialPill`: the white pill and the dark one), 36.33 wide, 6.25 apart, rising 55, 59.75, 64.5; the one nearest the dial 15.25 taller and dark (the dark pill cross-fades over the white), Calm and Push between two. Only each pill's middle stretches (`capInsets` 18 top and bottom), so the rounded ends keep their shape. At Plain it is the render exactly | You | Built |
 | `DialGlow` | `Components/DialControl.swift` | The dial card's sky: an elliptical glow of `dialSky` from 46 below the top, gone 230 down and 220 to the sides, under white turning rays at 60% | You | Built |
 | `PillSwitch`, `ToggleRowStyle` (`.row`), `ToggleRowLabel` | `Components/PillToggle.swift` | The design's switch (41 × 19, knob 25 × 17 inset 1) over a system `Toggle`; the row style makes the whole row the toggle: glyph in an `IconWell`, 8 to the title (16 medium) over its line (14 grey) 4 apart, the switch trailing, 4 below; disabled shows off with a grey glyph | You (the three pushes) | Built |
-| `PrivacyBar` | `Components/PrivacyBar.swift` | Lock 14, 6 to the line (14, `privacyText`), centred on a `privacy` bar the cards' width, 38 tall, corners 8 | You ("Only you can see your map") | Built |
-| `FlameMark` | `Components/StreakParts.swift` | A streak day: orange (kept), grey (a freeze covered it), faint outline (missed, or not yet); 23 tall; SF Symbol stand-in | You | Built (stand-in) |
+| `PrivacyBar` | `Components/PrivacyBar.swift` | The design's lock (16, duotone, `privacyText`), 5 to the line (14, `privacyText`), centred on a `privacy` bar the cards' width, 38 tall, corners 8 | You ("Only you can see your map") | Built |
+| `FlameMark` | `Components/StreakParts.swift` | A streak day, the design's flames (`Art.Flame`): orange (kept), grey (a freeze covered it), dashed outline (missed, or not yet); 20 × 24 | You | Built |
 | `StatColumn` | `Components/StreakParts.swift` | Label (14 grey) 4 above its value (16 medium); one VoiceOver element | You ("Current · 12 days") | Built |
 | `VerticalDashedDivider` | `Components/StreakParts.swift` | `DashedDivider` upright | You (between the streak's figures) | Built |
 | `HeaderLink` | `Components/StreakParts.swift` | A section header's way into more: 14 grey, 6 to the row chevron; 44 to tap without growing the header | You ("View all", "6 of 13") | Built |
-| `BadgeTile` | `Components/StreakParts.swift` | Medal 24, 8 to the name (16 medium), 2 to its facts (12 grey, centred `DotLine`); locked: grey medal and name | You | Built; medals are stand-ins |
+| `BadgeTile` | `Components/StreakParts.swift` | Medal 25 (`Art.badge`, the art 24 inside), 8 to the name (16 medium), 2 to its facts (12 grey, centred `DotLine`); locked: the medal in grey at 45%, the name grey; without art yet, an SF Symbol medal in its tier's colour | You | Built; art for Explorer at gold only |
 | `AvatarPin` | `Components/AvatarPin.swift` | The profile picture in a white ring (133, 4 wide) with a tail (20 wide, 14 down), soft shadow | You | Built |
 | `DotLine` alignment | `Components/RowParts.swift` | Now takes an alignment (centred under a name or a badge) | You | Built |
 | `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
@@ -251,6 +248,7 @@ Still expected from the brief: calendar tiles, the segmented range control, cale
 - **Grouped list (Your places).** One white card, 12 down and 16 across inside; each section a `SectionLabel`, then for each row a dashed line and the row, 12 apart, each row with 4 more below it; 18 between sections. A place that is a favourite shows in Favourites and again in All places. While searching, one list; with the Favourites chip on, only Favourites. Nothing left: a card saying so with "Clear filters". Nothing mapped yet: a `WaitingCard` with the 3D place pin.
 - **You (screen anatomy).** No sky and no sheet: the page's grey (`background`) from the top. "You" (24 medium) and the settings button (`.glassSquare`) 17 below the status bar, 16 from the sides; the profile 15 below: the picture as a pin over a faded MapKit map of the city (centred on its middle, about 20 m to the point, muted, no points of interest, cells in lilac, fading to nothing 165 out), "41 places" tucked under the ring's left edge and "3.2% mapped" on its right, both on glass; 8 to the name (28 medium), 4 to "@maya • Brooklyn". Then the cards, 14 below, 16 apart, 20 from the sides: the dial card (its own blue sky at the top; the three pushes under the arc), Streaks, Badges; 18 to the privacy line. The dial card shows in every state, failed included, because the dial is the phone's own setting.
 - **Section card (You).** Header (`SectionHeader` with a `HeaderLink`) 14 from the top and 16 from the sides, 9 to the dashed line, 14 to the content; a framed group inside takes `Radius.box` and its own wash.
+- **You's art (12 Nov).** The 3D art came exported at 4x; each canvas is trimmed (no resampling) to 4x the frame it's shown in, centred on the art, so it shows at the design's size: `icon/streaks`, `icon/badges` (section headers, 80 px for 20 pt, like Today's), `illustration/pushpin`, `illustration/globe` (the profile's pills, 20 pt), `flame/kept`, `flame/frozen`, `flame/open` (20 × 24 pt), `badge/explorerGold` (25 pt). The dial render ("Plain") is cut into `dial/pill` and `dial/pillCurrent`, saved at 3x (the catalog has no 4x). Glyphs (`glyph/settings`, `sun`, `alarm`, `trophy`, `lock`) are SVG templates, duotone like the timeline's.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 
 ## Change log
@@ -309,3 +307,4 @@ Still expected from the brief: calendar tiles, the segmented range control, cale
 
 | 2026-11-12 | Your places (back button, Figma) | The back button is glass: Liquid Glass on iOS 26+ in the design's 40-pt square with 13-pt corners, the close button's drawn glass before that; arrow 20 and black; chips take 13-pt corners too, and `Radius.control` (12) is gone |
 | 2026-11-12 | You (screenshot) | The profile on a MapKit map with uncovered cells, glass pills, the dial (arc control, drawn art, sky glow), the design's switch and switch rows for the three pushes, the streak card (run, rule, flames, figures), the badge grid, the privacy bar; type roles `profileName` 28 and `dataDisplay` 32; colours for streaks, the dial, switches, the privacy bar, cells and medals |
+| 2026-11-12 | You (art) | The design's art in place: header flame and medal, push pin and globe on the profile's pills, the three flames, Explorer's gold medal, the dial's pills cut from the Plain render (they now draw every stop), the gear, sun, alarm clock, trophy and lock glyphs; `dialPill`, `dialPillCurrent` and `privacyIcon` are gone |

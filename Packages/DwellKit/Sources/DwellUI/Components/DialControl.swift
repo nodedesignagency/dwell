@@ -204,52 +204,43 @@ private struct StopLabels: Layout {
 }
 
 /// Three pills that rise from Peace to Grind, the current stop's taller and dark (You design,
-/// over "Plain"). Drawn in code, a stand-in until the design's 3D art arrives, so it can follow
-/// the thumb while the dial is dragged: each pill darkens and grows as the dial nears its stop
-/// (Peace, Plain, Grind), and Calm and Push sit between two.
+/// "Plain"). The design's render, cut into its white pill and its dark one (`Art.DialPill`), so
+/// it can follow the thumb while the dial is dragged: each pill darkens and grows as the dial
+/// nears its stop (Peace, Plain, Grind), and at Calm and Push two pills share it. At Plain it
+/// is the render exactly.
 ///
-/// Read from the screenshot: 35 wide, 7 apart, corners 14, standing on one line; at Plain 54,
-/// 74 and 63 tall, so the pills rise 54, 58.5, 63 and the current one stands 16 taller.
+/// From the render (exported at 4x): 36.33 wide, 6.25 apart, standing on one line; at Plain
+/// 55, 75 and 64.5 tall, so the pills rise 55, 59.75, 64.5 and the current one stands 15.25
+/// taller. Only the middle of each pill stretches; its rounded ends keep their shape.
 public struct DialArt: View {
     private let position: Double
-    static let pillWidth: CGFloat = 35
-    static let heights: [CGFloat] = [54, 58.5, 63]
-    static let lift: CGFloat = 16
+    static let pillWidth: CGFloat = 109.0 / 3
+    static let spacing: CGFloat = 6.25
+    static let heights: [CGFloat] = [55, 59.75, 64.5]
+    static let lift: CGFloat = 15.25
+    /// The rounded ends, which never stretch.
+    static let capInsets = EdgeInsets(top: 18, leading: 0, bottom: 18, trailing: 0)
 
     public init(position: Double) {
         self.position = position
     }
 
     public var body: some View {
-        HStack(alignment: .bottom, spacing: 7) {
+        HStack(alignment: .bottom, spacing: Self.spacing) {
             ForEach(0..<3, id: \.self) { index in
                 let nearness = max(0, 1 - abs(position / Dial.range.upperBound - Double(index) / 2) * 2)
-                DialPill(current: nearness)
-                    .frame(width: Self.pillWidth, height: Self.heights[index] + Self.lift * nearness)
+                ZStack {
+                    Art.DialPill.plain
+                        .resizable(capInsets: Self.capInsets, resizingMode: .stretch)
+                    Art.DialPill.current
+                        .resizable(capInsets: Self.capInsets, resizingMode: .stretch)
+                        .opacity(nearness)
+                }
+                .frame(width: Self.pillWidth, height: Self.heights[index] + Self.lift * nearness)
             }
         }
-        .frame(height: (Self.heights.max() ?? 63) + Self.lift, alignment: .bottom)
+        .frame(height: (Self.heights.max() ?? 64.5) + Self.lift, alignment: .bottom)
         .accessibilityHidden(true)
-    }
-}
-
-private struct DialPill: View {
-    let current: Double
-
-    var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 14, style: .continuous)
-        ZStack {
-            shape.fill(Palette.dialPill)
-            shape.fill(Palette.dialPillCurrent).opacity(current)
-            // Lit from the top left, as in the design's render.
-            shape.fill(LinearGradient(
-                colors: [.white.opacity(0.35), .white.opacity(0), .black.opacity(0.2)],
-                startPoint: .topLeading, endPoint: .bottomTrailing))
-            shape.strokeBorder(
-                LinearGradient(colors: [.white.opacity(0.8), .white.opacity(0)], startPoint: .top, endPoint: .center),
-                lineWidth: 1)
-        }
-        .shadow(color: .black.opacity(0.12), radius: 6, y: 5)
     }
 }
 

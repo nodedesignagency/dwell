@@ -32,7 +32,7 @@ public struct PillSwitch: View {
 /// its glyph in a well, 8 to the title (16 medium) over a line (14, grey) 4 apart, and the
 /// design's switch at the trailing edge. The whole row toggles, so it's easy to hit. Like a
 /// place row, it has 4 below it. When the row can't be changed (the dial doesn't send that
-/// push), it shows off and doesn't respond, and its glyph greys.
+/// push), it shows off and doesn't respond; the rest looks the same, as drawn.
 public struct ToggleRowStyle: ToggleStyle {
     public init() {}
 
@@ -71,7 +71,6 @@ extension ToggleStyle where Self == ToggleRowStyle {
 
 /// The label of a `.row` toggle: a glyph in a well over the title and its line.
 public struct ToggleRowLabel: View {
-    @Environment(\.isEnabled) private var isEnabled
     private let title: String
     private let detail: String
     private let glyph: Image
@@ -88,8 +87,7 @@ public struct ToggleRowLabel: View {
                 glyph
                     .resizable()
                     .scaledToFit()
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(isEnabled ? Palette.textPrimary : Palette.textSecondary)
+                    .foregroundStyle(Palette.textPrimary)
             }
             VStack(alignment: .leading, spacing: Space.xs) {
                 Text(verbatim: title)

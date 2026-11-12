@@ -46,13 +46,11 @@ struct YouContent: View {
             Button {
                 actions.open(.settings)
             } label: {
-                // [ICON NEEDED] the design's settings gear (a line icon).
-                Image(systemName: "gearshape")
+                Art.Glyph.settings
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    // Figma's black in light, as on the back button; white in dark, derived.
-                    .foregroundStyle(Color.primary)
+                    .foregroundStyle(Palette.textPrimary)
             }
             .buttonStyle(.glassSquare)
             .accessibilityLabel(YouCopy.settings)
