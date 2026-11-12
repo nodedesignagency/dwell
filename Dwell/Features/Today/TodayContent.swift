@@ -136,7 +136,7 @@ struct TodayContent: View {
         banners(staleSince: nil)
         // Figma: the icon (80) 26 below the sheet's top, 16 to the title (22), 6 to the line.
         VStack(spacing: 0) {
-            IconShuffle(Self.firstStopIcons)
+            IconShuffle(Art.firstStopIcons)
                 .frame(width: 80, height: 80)
             Text(verbatim: TodayCopy.waitingForFirstStop)
                 .textRole(.voice)
@@ -160,26 +160,13 @@ struct TodayContent: View {
 
         // Figma: the header 16 above the first step, steps 10 apart.
         VStack(alignment: .leading, spacing: Space.l) {
-            // [ICON NEEDED] the design's 3D rocket.
-            SectionHeader(TodayCopy.gettingStarted, icon: Image(systemName: "sparkles"))
+            SectionHeader(TodayCopy.gettingStarted, icon: Art.gettingStarted)
             VStack(spacing: 10) {
                 ForEach(Array(TodayCopy.gettingStartedSteps.enumerated()), id: \.offset) { offset, step in
                     StepRow(number: offset + 1, tag: step.tag, title: step.title, detail: step.detail)
                 }
             }
         }
-    }
-
-    /// What the shuffle cycles through, the house first (and alone under Reduce Motion).
-    /// [ICON NEEDED] the design's set; these are the 3D icons we have.
-    private static var firstStopIcons: [Image] {
-        var icons: [Image] = []
-        for category in [PlaceCategory.home, .work, .foodAndDrink] {
-            if let art = Art.illustration(category) {
-                icons.append(art)
-            }
-        }
-        return icons + [Art.heroWork, Art.heroYours]
     }
 
     private func failed(_ failure: LoadFailure) -> some View {

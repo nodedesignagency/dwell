@@ -38,19 +38,29 @@ The project uses synchronized folders: any file added under `Dwell/` or the pack
 - If something in a design conflicts with the brief, stop and tell the user instead of guessing. Log it in `docs/QUESTIONS.md`.
 - The user will design about 15–20 screens. Everything else is derived from them. After each page, mark in `docs/SCREENS.md` what the design covered directly and what we derived from it. When the designs are done, report everything still marked missing so nothing is left out of the app. At that point also walk the user through `docs/QUESTIONS.md`: they have said some of those questions are not needed and want to go through them together then.
 
+### Work on `main` only (the user's rule, 12 Nov)
+
+**Every chat works on `main`, whatever branch the session or the user's setup names.** The first Today page was built on a `claude/...` branch that never reached `main`; a later chat started from `main` without it, and a third kept adding to that branch while the second built on an older copy. The user saw a screen that didn't match their latest Today. Never again:
+
+1. **Before any work:** `git fetch origin && git checkout main && git pull`. Then check every other remote branch for commits `main` doesn't have (`git log main..origin/<branch>`). If any has some, stop and tell the user which branch and what's on it, and offer to bring it into `main` first. Never build on a side branch, and never start from a stale copy.
+2. **Commit on `main` and push to `main`** (`git push origin main`). The user has given standing permission for this. A session's own `claude/...` branch is not where work lands; don't push work there.
+3. **Before every push**, `git pull --rebase origin main`: chats run in parallel on the same `main`. If a push is refused because `main` moved, pull with rebase and push again. Never force-push `main`. Shared files will conflict (`design/tokens.json`, `docs/*.md`, `DwellUI` tokens and components, `DwellCore` models): keep edits to them small and additive, resolve by keeping both sides, and rerun `python3 scripts/tokens.py` instead of hand-merging the generated files. Never resolve a whole file with `--ours` or `--theirs`: it drops the other side's lines.
+4. **If pushing to `main` is refused** (permissions, protection), say so at once and give the user the exact command to merge; don't carry on quietly on a side branch.
+
 ### Working with the user (agreed while building Today)
 
-- **After every change you push, end your reply with the command for the user's Mac**, using your own branch:
+- **After every change you push, end your reply with the command for the user's Mac:**
   ```bash
-  cd ~/dwell && git fetch origin && git checkout <your-branch> && git pull && ./scripts/run.sh
+  cd ~/dwell && git fetch origin && git checkout main && git pull && ./scripts/run.sh
   ```
   The user has a clone at `~/dwell` and reviews every change in the simulator. `DWELL_STATE=<state>` and `DWELL_SKY=<phase>` before `./scripts/run.sh` open a screen state or sky (see README).
 - **Exact values win.** When the user pastes Figma values (colours, shadows, blur, opacity, spacing), use them exactly. Don't "improve" them, and don't swap in an estimate you made earlier; ask if one looks wrong on the phone. Figma blur is twice SwiftUI's shadow or blur radius.
 - **Build the design's version of system components.** Where the design draws its own control (the tab bar is one), build that, keeping the system component underneath for behaviour. Don't keep the system look because the brief prefers native components; ask if unsure.
+- **When the user uploads icons** (they land at the repo root on `main`): pull `main`, `git mv` each into `DwellUI/Resources/Images.xcassets` under a name that says what it is, and use it where the design puts it. Category 3D art goes in `categoryIcon/` and `PlaceCategory.illustrationName`; the Getting started shuffle (`Art.firstStopIcons`) then picks it up by itself. Each time, tell the user which icons the shuffle now turns through and which categories still have none, until all fourteen are in.
 - **Every tab screen calls `.clearsTabBar()`** inside its `NavigationStack`, on the root and on each pushed page (never on a sheet). `DwellTabBar` is laid over the screens, and without it content and bottom insets (the confirmation card) end up behind the bar.
 - **Answer the question asked.** "Why did you add X?" wants the reason, not a change.
 - **Figma MCP is on the Starter plan**, a handful of calls a month. Spend them on `get_design_context` for the sections you need and download the assets at once (the URLs expire). Otherwise build from the screenshot and ask the user for the exact values and assets.
-- **Pages are built in parallel**, each in its own chat and branch. Start from `main` once the previous pages are merged. Shared files will conflict: `design/tokens.json`, `docs/*.md`, `DwellUI` tokens and components, `DwellCore` models. Keep edits to them small and additive. After merging `main` in, rerun `python3 scripts/tokens.py` instead of hand-merging the generated files.
+- **Pages are built in parallel**, each in its own chat, all on `main` (see above).
 
 ### Definition of done for a page
 
@@ -112,6 +122,6 @@ Everything in `DwellUI` and `Dwell/` is only compiled when the user builds in Xc
 
 ## Git
 
-- `main` holds the setup and finished pages.
-- Each page is built on its own branch. Commit and push each change as you make it (the user pulls after every one), then summarise the page when it's done.
+- Everything lives on `main`: setup, every page, every change. No page branches (see "Work on `main` only").
+- Commit and push each change to `main` as you make it (the user pulls after every one), then summarise the page when it's done.
 - Never commit `.build/`, `DerivedData/` or `xcuserdata/`.

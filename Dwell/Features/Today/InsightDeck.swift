@@ -36,14 +36,9 @@ struct InsightDeck: View {
 
             if insights.isEmpty {
                 WaitingCard(title: TodayCopy.insightsWaitingTitle, detail: TodayCopy.insightsWaitingDetail) {
-                    // [ICON NEEDED] the design's 3D chart (three bars, light to dark, a line
-                    // through them). Until it arrives, the same shape in SF Symbols.
-                    Image(systemName: "chart.bar.fill")
+                    Art.Illustration.chart
                         .resizable()
                         .scaledToFit()
-                        .foregroundStyle(LinearGradient(
-                            colors: [Palette.textSecondary.opacity(0.4), Palette.textPrimary],
-                            startPoint: .leading, endPoint: .trailing))
                 }
             } else if insights.indices.contains(current) {
                 let insight = insights[current]
