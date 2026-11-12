@@ -28,7 +28,7 @@ public enum TextRole: CaseIterable, Sendable {
     case caption
     /// Legends and small buttons. 12.
     case footnote
-    /// Tab bar labels. 13.
+    /// Tab bar labels. 12, line height 16, no tracking.
     case tab
 
     public var size: CGFloat {
@@ -43,7 +43,7 @@ public enum TextRole: CaseIterable, Sendable {
         case .label: 16
         case .caption: 14
         case .footnote: 12
-        case .tab: 13
+        case .tab: 12
         }
     }
 

@@ -1,9 +1,11 @@
 import DwellUI
 import SwiftUI
 
-/// The tab bar from the Today design (Figma "tabPills"): a glass bar across the bottom with
-/// large rounded top corners, white 20% over frosted glass and an ink-10% border, and a white
-/// pill behind the selected tab that slides between tabs.
+/// The tab bar from the Today design (Figma "tabPills"): a frosted bar across the bottom with
+/// large rounded top corners, white 20% over a frosted material and an ink-10% border, and a
+/// white pill behind the selected tab that slides between tabs. Frosted, not Liquid Glass:
+/// Liquid Glass refracts what's behind it (the week chart's blue bars showed through); the
+/// design's bar blurs it to a soft white.
 ///
 /// Figma: the tabs sit 12 below the bar's top and 12 in from its sides, and stand 24 above the
 /// screen's bottom edge, so they reach 10 pt into the home indicator's strip on a Face ID phone.
@@ -18,6 +20,8 @@ struct DwellTabBar: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var pill
     @ScaledMetric(relativeTo: .footnote) private var iconSize: CGFloat = 22
+    /// Figma: labels 12 on a 16 line.
+    @ScaledMetric(relativeTo: .footnote) private var labelLine: CGFloat = 16
     /// The home indicator's strip under the bar (0 on phones with a Home button).
     @State private var homeIndicator: CGFloat = 0
 
@@ -42,9 +46,9 @@ struct DwellTabBar: View {
             let shape = UnevenRoundedRectangle(topLeadingRadius: Self.corner, topTrailingRadius: Self.corner)
             ZStack {
                 shape.fill(Palette.tabBar)
-                shape.strokeBorder(Palette.separator, lineWidth: 1)
+                shape.strokeBorder(Palette.tabBarStroke, lineWidth: 1)
             }
-            .modifier(TabBarGlass(shape: shape))
+            .background(.regularMaterial, in: shape)
             .ignoresSafeArea(edges: .bottom)
         }
         .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom } action: { homeIndicator = $0 }
@@ -57,18 +61,21 @@ struct DwellTabBar: View {
             selection = tab
         } label: {
             VStack(spacing: Space.xs) {
+                // Ink on every tab, as in the design; only the label greys out.
                 Image(systemName: tab.symbol)
                     .resizable()
                     .scaledToFit()
                     .symbolVariant(.none)
                     .fontWeight(.medium)
                     .frame(width: iconSize, height: iconSize)
+                    .foregroundStyle(Palette.textPrimary)
                 Text(verbatim: tab.title)
                     .textRole(.tab, weight: isSelected ? .medium : .regular, tracking: 0)
+                    .foregroundStyle(isSelected ? Palette.textPrimary : Palette.tabInactive)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
+                    .frame(minHeight: labelLine)
             }
-            .foregroundStyle(isSelected ? Palette.textPrimary : Palette.textSecondary)
             .padding(.horizontal, Space.s)
             .padding(.vertical, 6)
             .frame(width: Self.tabWidth)
@@ -157,18 +164,5 @@ private struct TabBarClearance: ViewModifier {
 
     func body(content: Content) -> some View {
         content.safeAreaPadding(.bottom, height)
-    }
-}
-
-/// Figma's glass: Liquid Glass on iOS 26, an ultra-thin material before it.
-private struct TabBarGlass<S: Shape>: ViewModifier {
-    let shape: S
-
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content.glassEffect(.regular, in: shape)
-        } else {
-            content.background(.ultraThinMaterial, in: shape)
-        }
     }
 }

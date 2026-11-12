@@ -62,8 +62,6 @@ public struct StatTile<Icon: View>: View {
 /// square): a blurred disc of the tile's colour, and over it sixteen faint rays of ink.
 private struct TileGlow: View {
     static let size: CGFloat = 271.55
-    /// Layer opacity over the 50% → 0 gradient: 0.3 is 15% ink at the centre.
-    static let rayStrength: Double = 0.3
     let tint: Color
 
     var body: some View {
@@ -76,14 +74,13 @@ private struct TileGlow: View {
                 .offset(x: 11.8, y: -0.4)
                 .blur(radius: 33.4)
                 .opacity(0.5)
-            // "Vector": rays of ink, radial from the centre to nothing at the edge. Figma's
-            // fill 15% × layer 20% × 50% comes to 1.5% ink, which barely shows on the phone;
-            // raised to 15% ink at the centre on the user's call (12 Nov).
+            // "Vector": rays of ink, radial from 50% at the centre to nothing at the edge,
+            // fill 15%, layer 20%.
             Rays(count: 16, share: 0.6)
                 .fill(RadialGradient(
                     colors: [Palette.textPrimary.opacity(0.5), Palette.textPrimary.opacity(0)],
                     center: .center, startRadius: 0, endRadius: Self.size / 2))
-                .opacity(Self.rayStrength)
+                .opacity(0.15 * 0.2)
         }
         .allowsHitTesting(false)
     }

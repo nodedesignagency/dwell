@@ -36,8 +36,12 @@ public enum Palette {
     public static let inverseSurface = Color("inverseSurface", bundle: .module)
     /// Text on inverseSurface
     public static let inverseText = Color("inverseText", bundle: .module)
-    /// Tint over the tab bar's glass: white 20%
+    /// Tint over the tab bar's frosted glass: white 20%
     public static let tabBar = Color("tabBar", bundle: .module)
+    /// The tab bar's border: ink at 10%
+    public static let tabBarStroke = Color("tabBarStroke", bundle: .module)
+    /// Labels of the tabs not selected
+    public static let tabInactive = Color("tabInactive", bundle: .module)
     /// The selected tab's pill: white 80%
     public static let tabPill = Color("tabPill", bundle: .module)
     /// The selected tab's pill border
