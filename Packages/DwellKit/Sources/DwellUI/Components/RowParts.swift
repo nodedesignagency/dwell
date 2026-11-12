@@ -72,18 +72,22 @@ public struct DotLine: View {
     @ScaledMetric(relativeTo: .subheadline) private var dotSize: CGFloat = 3
     private let items: [String]
     private let spacing: CGFloat
+    private let alignment: HorizontalAlignment
 
-    /// - Parameter spacing: from each fact to the dot. The design has 8 under a place's name
-    ///   (14 pt) and 12 under a page title (16 pt).
-    public init(_ items: [String], spacing: CGFloat = Space.s) {
+    /// - Parameters:
+    ///   - spacing: from each fact to the dot. The design has 8 under a place's name (14 pt)
+    ///     and 12 under a page title (16 pt).
+    ///   - alignment: where each line sits: leading in rows, centred under a badge or a name.
+    public init(_ items: [String], spacing: CGFloat = Space.s, alignment: HorizontalAlignment = .leading) {
         self.items = items
         self.spacing = spacing
+        self.alignment = alignment
     }
 
     public var body: some View {
         // A line's height is its text's, and the line box's middle is within a fraction of a
         // point of the capitals' middle, so centring the dot on the line puts it there.
-        FlowLayout(spacing: spacing, lineSpacing: 0) {
+        FlowLayout(alignment: alignment, spacing: spacing, lineSpacing: 0) {
             ForEach(Array(items.enumerated()), id: \.offset) { offset, item in
                 if offset > 0 {
                     Circle()

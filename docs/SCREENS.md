@@ -7,7 +7,7 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 
 Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
 
-Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov).
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov); **You** (screenshot, 12 Nov).
 
 Counts: 13 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
@@ -88,7 +88,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | M-05 | Lens reading | One line in the dial's voice ("31h beyond work this week." / "5 returns to Kestriva Labs.") | ⬜ | ⬜ |
 | M-06 | Places you return to | Top five by time → place page | ⬜ (a "See all" can push Your places, Y-06: `YourPlacesScreen` takes the stack's own `openPlace`) | ⬜ |
 | M-07 | Place page | Name, category, total, visits, first and last seen, streaks here, share level, calendar of visits; Edit, Share level, Private | ⬜ (Today's rows and live status, and Your places' rows, already open a placeholder) | ⬜ |
-| M-08 | Scratch detail | Neighborhood / city / world coverage with %, cells this week, next milestone; Share (city silhouette) | ⬜ | ⬜ |
+| M-08 | Scratch detail | Neighborhood / city / world coverage with %, cells this week, next milestone; Share (city silhouette) | ⬜ (You's "3.2% mapped" opens a placeholder) | ⬜ |
 | M-09 | Scratch cell detail | Date first uncovered | ⬜ | ⬜ |
 | M-10 | Privacy line | "Your map is private to you." | ⬜ | ⬜ |
 
@@ -115,19 +115,19 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 
 | ID | Element | States and contents | Design | Built |
 | --- | --- | --- | --- | --- |
-| Y-01 | Profile | Avatar, username, city; Edit | ⬜ | ⬜ |
-| Y-02 | The dial | Continuous with named stops, live preview of today's headline, light haptic at each stop | ⬜ | ⬜ |
-| Y-03 | Streaks | Name, current, best, flame, freeze bank (max 2); empty / active / at risk / frozen / broken; opt out of the at-risk push | ⬜ | ⬜ |
-| Y-04 | Badges | Tier grid (bronze / silver / gold) with progress → badge detail | ⬜ | ⬜ |
-| Y-05 | Scratch-map badges | Cartographer, Globetrotter progress | ⬜ | ⬜ |
+| Y-01 | Profile | Avatar, username, city; Edit | 🎨 You (screenshot, 12 Nov): "You" and the settings button; the picture as a pin over a faded map of the city with the uncovered cells; "41 places" (→ Your places) and "3.2% mapped" (→ scratch detail, M-08) on glass; name; "@maya • Brooklyn". 🔁 the map centred on the city's middle, never home; loading (skeleton), failed (retry, the dial still works), stale (banner), dark, AX sizes (the two facts move under the city). ⬜ Edit: not in the design, assumed behind the settings button (QUESTIONS.md, design vs brief 34) | 🟡 (`DWELL_OPEN=you`) |
+| Y-02 | The dial | Continuous with named stops, live preview of today's headline, light haptic at each stop | 🎨 You: "Your dial" on glass, the three-pill art, the stop's name and line, the arc with five stops and a thumb. 🔁 continuous drag (the nearest stop names it), a tap settles on the nearest stop, `Haptic.dialStop` each time a stop is passed, name and line cross-fade, the art follows the thumb, VoiceOver adjusts a stop at a time, AX sizes (end labels only), dark. ⬜ the live preview of today's headline (QUESTIONS.md, design vs brief 26); the 3D art (drawn stand-in) | 🟡 |
+| Y-03 | Streaks | Name, current, best, flame, freeze bank (max 2); empty / active / at risk / frozen / broken; opt out of the at-risk push | 🎨 You: one streak leading: its run ("12 evenings"), rule ("Home by 6:30 PM") with the pencil (→ work rules, Y-08), the last seven days as flames, Current / Best / Freezes, "View all" (→ S-09). Opt out of the at-risk push: the "Streak at risk" switch in the dial card. 🔁 a day a freeze covered (grey flame), missed and still-to-come days (outline), which streak leads at each stop, weekly streaks (seven weeks), broken ("0 evenings", best kept), empty (voiced, Peace / Plain / Grind), AX sizes (figures stack). At risk and frozen show in today's flame and the push, not a look of their own (QUESTIONS.md, design vs brief 30) | 🟡 |
+| Y-04 | Badges | Tier grid (bronze / silver / gold) with progress → badge detail | 🎨 You: "Badges", "6 of 13" (→ every badge), six in three columns: medal, name, tier • count. 🔁 earned first by tier, then locked ones nearest to unlocking ("Locked • 4 countries", grey medal), every badge locked on day 0, two columns at AX sizes; a tile opens badge detail (S-05, pending). ⬜ the badge art (SF Symbol medals stand in) | 🟡 |
+| Y-05 | Scratch-map badges | Cartographer, Globetrotter progress | 🔁 You: in the same grid as any badge, counting cells and countries | 🟡 |
 | Y-06 | Your places | Saved places with favourites; Add / edit / archive; empty | 🎨 Your places (screenshot, 12 Nov; the back button's glass from Figma): back button, header (3D sun and clock, "Your places", places count · hours mapped), search, chips (Most time, All categories, Favourites), Favourites section. 🔁 the chips' menus and the Favourites toggle, their "on" look (navy), no matches, empty (waiting card), loading, stale, failed, dark, AX sizes, a private place's "Private". ⬜ Add (by role) and archive: not in the design (QUESTIONS.md, design vs brief 24) | 🟡 (`DWELL_OPEN=places`) |
 | Y-07 | Places manager | All places by lifetime time → place settings sheet (rename, category, share level, private, home/work, apply to past); empty | 🎨 Your places: one page with Y-06, "All places" by most time, each row with its category, visits (home: "Since March") and lifetime hours. 🔁 sort by visits or A to Z. ⬜ the place settings sheet: rows open the place page (M-07) instead, whose Edit would hold it (QUESTIONS.md, design vs brief 24) | 🟡 |
-| Y-08 | Work rules | Auto-WFH per weekday, tag a day WFH or PTO, out-by target, Live Activity at the gym | ⬜ | ⬜ |
+| Y-08 | Work rules | Auto-WFH per weekday, tag a day WFH or PTO, out-by target, Live Activity at the gym | ⬜ (You's pencil by "Home by 6:30 PM" opens a placeholder) | ⬜ |
 | Y-09 | Calendar | Connect flow; choose calendars; location matching on/off; "Titles never leave your phone"; not connected / connected | ⬜ | ⬜ |
 | Y-10 | Battery | "About 1.8% today", bursts, minutes, explanation; collecting | ⬜ | ⬜ |
-| Y-11 | Notifications and units | Four notification toggles, quiet hours, units | ⬜ | ⬜ |
+| Y-11 | Notifications and units | Four notification toggles, quiet hours, units | 🎨 You: three switches in the dial card, the design's own switch: Morning recap (every stop), Streak at risk (Push and Grind, opt-in), New records (Grind). 🔁 a push the dial doesn't send shows off and can't be turned on, its glyph grey; the setting is kept, so it comes back when the dial does. ⬜ the fourth toggle, quiet hours and units (behind settings?) (QUESTIONS.md, design vs brief 27) | 🟡 switches |
 | Y-12 | Privacy center | Training toggle; export (5 states); delete with 30-day grace; sharing defaults (read-only); legal links; demo variant | ⬜ | ⬜ |
-| Y-13 | Edit profile | Avatar, username, city | ⬜ | ⬜ |
+| Y-13 | Edit profile | Avatar, username, city | ⬜ (no Edit in the You design; assumed behind settings) | ⬜ |
 
 ## Sheets and overlays (A.7)
 
@@ -137,11 +137,11 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | S-02 | Place picker | Nearby, search, somewhere else | ⬜ (Today's Pick another and Review this place open a placeholder) | ⬜ |
 | S-03 | Insight detail + share preview | The insight, its data, the share card preview | ⬜ (Today's insight tap and share open a placeholder) | ⬜ |
 | S-04 | Record card | The record landing, share | ⬜ | ⬜ |
-| S-05 | Badge detail | Unlock moment, tier progress, share | ⬜ | ⬜ |
+| S-05 | Badge detail | Unlock moment, tier progress, share | ⬜ (You's badge tiles open a placeholder) | ⬜ |
 | S-06 | Weekly wrap | Multi-step reveal: total, day visuals, three superlatives, work and yours as two numbers, share | ⬜ (Today's invite opens a placeholder) | ⬜ |
 | S-07 | Year in places | Places, hours, records, coverage, firsts; share | ⬜ | ⬜ |
 | S-08 | Calendar event detail | The event, its match state, where you were | ⬜ | ⬜ |
-| S-09 | Streak detail | History, freezes used and banked | ⬜ | ⬜ |
+| S-09 | Streak detail | History, freezes used and banked | ⬜ (You's "View all" opens a placeholder) | ⬜ |
 | S-10 | Share sheet | Format pick (1080×1920 / 1080×1080), preview, system share | ⬜ | ⬜ |
 
 ## System surfaces (§10)
@@ -173,7 +173,7 @@ Each needs timing, easing, a Reduce Motion alternative, and its haptic where one
 | MO-08 | Streak extends | firm | ⬜ | ⬜ |
 | MO-09 | Record landing | firm | ⬜ | ⬜ |
 | MO-10 | Weekly wrap reveal | none | ⬜ | ⬜ |
-| MO-11 | Dial drag (re-rendering the sentence) | light at each stop | ⬜ | ⬜ |
+| MO-11 | Dial drag (re-rendering the sentence) | light at each stop | 🔁 You: the thumb follows the finger, the art's pills grow and darken towards the stop, the name and line cross-fade; a tap settles with `Motion.standard`. Reduce Motion: no spring, words cross-fade. ⬜ the sentence itself (design vs brief 26) | 🟡 |
 | MO-12 | Sky phase change (sunrise, day, sunset, night) | none | 🎨 user's sky images and direction | 🟡 |
 | MO-13 | Sky settles on every open | none | 🎨 user's direction | 🟡 |
 

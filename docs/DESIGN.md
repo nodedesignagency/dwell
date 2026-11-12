@@ -53,6 +53,22 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `field` | #FAFAFB | #1C1C1E | The search field's fill: the page's grey, lit a little, raised by its shadow | Your places (read from the screenshot); dark derived |
 | `fieldIcon` | #6C6C6C | #AEAEB2 | The search field's magnifier | Your places (read from the screenshot); dark derived |
 | `placeholder` | #9A9BA3 | #6E6E73 | The search field's placeholder ("Search places") | Your places (read from the screenshot); dark derived |
+| `streak` | #FF6803 | #FF7A1F | Streak flames and the run ("12 evenings") | You (read from the screenshot); dark derived |
+| `streakWash` | #FFF7F1 | #2A1C12 | The box behind the leading streak | You; dark derived |
+| `flameFrozen` | #D9D9D9 | #48484A | A day a freeze covered: the grey flame; a locked badge's medal | You; dark derived |
+| `dialSky` | #D0EEFD | #16354D | The dial card's glow | You; dark derived |
+| `dialTrack` | #E9ECF4 | #3A3A3C | The dial's arc | You; dark derived |
+| `dialStop` | #9294A1 | #8E8E93 | The dots at the dial's stops | You; dark derived |
+| `dialPill` / `dialPillCurrent` | #F3F3F3 / #4A4A4A | #5A5A5E / #F5F5F7 | The dial art's pills (drawn stand-in); the current one inverts in dark | You (read from the render); dark derived |
+| `ring` | #FFFFFF | #F5F5F7 | White in both modes: the dial's thumb, the switch's knob, the ring round the profile picture | You; dark derived |
+| `toggleOn` | #34C759 | #30D158 | The design's switch, on (the system green; the screenshot reads #33C65C) | You |
+| `toggleOff` | #C6C6C8 | #48484A | The design's switch, off | You; dark derived |
+| `privacy` | #EEEEEE | #1C1C1E | The privacy line's bar | You; dark derived |
+| `privacyText` | #484848 | #AEAEB2 | The privacy line's words | You; dark derived |
+| `privacyIcon` | #A1A3A7 | #8E8E93 | The privacy line's lock | You; dark derived |
+| `scratchCell` | #E394FF | #C77DFF | Uncovered cells on the map behind the profile | You; dark derived |
+| `bronze` | #E48E62 | #E48E62 | A bronze badge's medal (stand-in) | You (the design's medal) |
+| `silver`, `gold` | #B8BCC4, #F2B23A | same | Silver and gold medals (stand-ins) | placeholder |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
 ### Category colours
@@ -88,7 +104,7 @@ Positions are shares of the header (the horizon sits 26 pt above the sky's botto
 
 `Space`: xxs 2 · xs 4 · s 8 · m 12 · l 16 · **screen 20** · xl 24 · xxl 32 · xxxl 48. The Today design confirms the 4-pt scale and adds 20 for screen margins.
 
-`Radius` (Today): s 8 (chart bars) · m 13 (day pill) · box 14 (the day bar box) · l 16 (hero tiles, banners) · xl 20 (cards, confirmation card) · xxl 32 (the sheet's top corners). Your places' back button is **m 13** in Figma, and its filter chips measure the same; it confirms xl 20 for its list card and the screen margin of 16 for a pushed page.
+`Radius` (Today): s 8 (chart bars) · m 13 (day pill) · box 14 (the day bar box) · l 16 (hero tiles, banners) · xl 20 (cards, confirmation card) · xxl 32 (the sheet's top corners). You confirms box 14 for a framed group inside a card (the streak's orange box), s 8 for the privacy bar, xl 20 for its cards, and the screen margin of 20 for cards (16 for its top bar, as on a pushed page). Your places' back button is **m 13** in Figma, and its filter chips measure the same; it confirms xl 20 for its list card and the screen margin of 16 for a pushed page.
 
 Elevation: cards take one soft shadow (black 6%, radius 16, y 6), cast by the card's shape only: boxes and tiles inside a card (the day bar box, the hero tiles) have none and sit on the same white; the confirmation card no drop shadow, but a warm light along its top edge (`inverseGlow` from 15% at the edge to about 1% at the bottom, read from the screenshot; the design's five inner shadows replace it once their values are in). In dark mode the card edge (`cardStroke`) stands in for the shadow. The search field (Your places) is raised off the page rather than set on a card: its fill is close to the page's grey, lit by a 1-pt white line along its top that fades by the middle, with two shadows below, black 6% (radius 2, y 2) and 5% (radius 12, y 8). Those values are our estimate from the screenshot until the Figma ones arrive. Chips: white, no shadow, no border (the card edge in dark). The back button is glass (`GlassSquareButtonStyle`).
 
@@ -99,10 +115,12 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | Role | Size | Weight | Scales with | Use |
 | --- | --- | --- | --- | --- |
 | `voiceDisplay` | 32 | medium | largeTitle | The weekly wrap invite's title (measured from the screenshot) |
+| `dataDisplay` | 32 | medium, proportional digits | largeTitle | A streak's run: "12 evenings" (You; proportional like the live timer, design vs brief 35) |
+| `profileName` | 28 | medium | title | The user's name on You |
 | `display` | 40, lines 44 apart | medium | largeTitle | A sheet's title ("Turn on your location") |
 | `voiceHero` | 24 | medium | title2 | Today's headline |
 | `voice` | 22 | medium | title3 | Insight sentences |
-| `pageTitle` | 24 | medium | title2 | A pushed page's title: "Your places". Plain words, the size of Today's headline |
+| `pageTitle` | 24 | medium | title2 | A page's title: "Your places", "You"; the dial's stop name ("Plain"). Plain words, the size of Today's headline |
 | `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
 | `dataStat` | 16 | medium, proportional digits (as in the design; see QUESTIONS.md, design vs brief 11) | callout | Hero stat numbers |
 | `data` | 14 | regular, mono digits | subheadline | Durations in rows |
@@ -110,8 +128,8 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | `body` | 16 | medium | callout | Place names, the live caption. Regular weight for a page header's facts ("41 places • 640h mapped") |
 | `label` | 16 | medium | callout | Buttons, the day pill |
 | `action` | 18 | medium | body | The button on a feature card: "Let's go" (measured from the screenshot) |
-| `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners; a place's facts ("Work • 48 visits"), list section labels set in capitals ("FAVOURITES"), the search field. Medium weight on filter chips |
-| `footnote` | 12 | regular | caption | Legends, badges, small buttons |
+| `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners; a place's facts ("Work • 48 visits"), list section labels set in capitals ("FAVOURITES"), the search field; a switch row's line, the dial's line, "View all", the privacy line. Medium weight on filter chips and the glass pills ("41 places", "Your dial") |
+| `footnote` | 12 | regular | caption | Legends, badges, small buttons; the dial's stop labels, the flames' days, a badge's facts |
 | `tab` | 12, line height 16 | medium selected, regular otherwise; tracking 0 | footnote | Tab bar labels |
 
 The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not worth a bundled face).
@@ -138,6 +156,9 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | Day card "View more" | Rows expand in place, `Motion.standard` | Cross-fade | none |
 | Your places: a chip changes the list | Rows reorder, come and go in place, `Motion.standard`; typing in search doesn't animate | Cross-fade | none |
 | Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll shows the sky's last colour running on below it | None needed: it moves only with the finger | none |
+| MO-11 Dial drag (You) | The thumb follows the finger along the arc with no animation of its own; the art's pills grow and darken towards the nearest of Peace, Plain and Grind as it moves; the stop's name and line cross-fade (`Motion.standard`) as the thumb crosses into the next stop's half. A tap jumps to the nearest stop with `Motion.standard`. The page follows at once; the rest of the app 0.25 s after the drag rests | No spring on a tap (it jumps); words cross-fade | `Haptic.dialStop` each time the thumb passes a stop |
+| The design's switch | The knob slides and the track's colour changes, `Motion.standard` | `Motion.reduced` (a short slide, like the system's) | none |
+| Dial card rays | The white rays behind the dial art turn a full circle every 24 s (`TurningRays`), like the hero tiles' | Rays hold still | none |
 
 ### Haptics
 
@@ -195,9 +216,24 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `BackButton` | `Components/Controls.swift` | The design's arrow (20, `Color.primary`: Figma's #000000, white in dark) on `.glassSquare`; 40 to see, 44 to tap; flips for right-to-left; pops the page. The app turns the edge swipe back on under it (`Dwell/App/SwipeBack.swift`) | Your places (Figma) | Built |
 | `FilterChip` | `Components/Controls.swift` | 32 tall, white, radius 13, filter glyph (12, SF Symbol) 6 from the label (14 medium), 10 across; on: navy (`inverseSurface`) with white words (derived). A label for a `Menu` or `Button` | Your places ("Most time", "All categories", "Favourites") | Built; on look derived |
 | `SearchField` | `Components/Controls.swift` | 44 capsule raised off the page (see Elevation), magnifier (14, `fieldIcon`) 8 from the words (14; placeholder in `placeholder`), 14 in from the leading edge; clear button while there's text; a system `TextField` | Your places | Built; shadow estimated |
+| `.glassPill()` | `Components/GlassPill.swift` | A capsule of the back button's drawn glass (white 80%, white rim) with a soft shadow (black 6%, radius 6, y 3) | You | Built |
+| `StatPill` | `Components/GlassPill.swift` | A fact on glass: art 20, 8 to the words (14 medium), 10 across, 9 down (38 tall) | You ("41 places", "3.2% mapped") | Built |
+| `LabelPill` | `Components/GlassPill.swift` | A card's label on glass: 14 medium, 16 × 8 (32 tall); header trait | You ("Your dial") | Built |
+| `DialControl` | `Components/DialControl.swift` | The tone dial: a shallow arch (ends 11 in and 24.5 below the top), track 8, a dot (4) at each stop (0, 23.5, 50, 76.5, 100% across, as drawn), labels 12 grey centred under the dots and kept inside (the middle three on one line 17 below the top, the ends 7.5 under their dots; only the ends at AX sizes), a white thumb 20. Continuous; a tap settles on the nearest stop; `Haptic.dialStop` per stop passed; VoiceOver adjustable a stop at a time, its value the stop and its line | You | Built |
+| `DialArt` | `Components/DialControl.swift` | Three pills (35 wide, 7 apart, corners 14) rising 54, 58.5, 63; the one nearest the dial 16 taller and dark, Calm and Push between two. A drawn stand-in for the design's 3D art | You | Built (stand-in) |
+| `DialGlow` | `Components/DialControl.swift` | The dial card's sky: an elliptical glow of `dialSky` from 46 below the top, gone 230 down and 220 to the sides, under white turning rays at 60% | You | Built |
+| `PillSwitch`, `ToggleRowStyle` (`.row`), `ToggleRowLabel` | `Components/PillToggle.swift` | The design's switch (41 × 19, knob 25 × 17 inset 1) over a system `Toggle`; the row style makes the whole row the toggle: glyph in an `IconWell`, 8 to the title (16 medium) over its line (14 grey) 4 apart, the switch trailing, 4 below; disabled shows off with a grey glyph | You (the three pushes) | Built |
+| `PrivacyBar` | `Components/PrivacyBar.swift` | Lock 14, 6 to the line (14, `privacyText`), centred on a `privacy` bar the cards' width, 38 tall, corners 8 | You ("Only you can see your map") | Built |
+| `FlameMark` | `Components/StreakParts.swift` | A streak day: orange (kept), grey (a freeze covered it), faint outline (missed, or not yet); 23 tall; SF Symbol stand-in | You | Built (stand-in) |
+| `StatColumn` | `Components/StreakParts.swift` | Label (14 grey) 4 above its value (16 medium); one VoiceOver element | You ("Current · 12 days") | Built |
+| `VerticalDashedDivider` | `Components/StreakParts.swift` | `DashedDivider` upright | You (between the streak's figures) | Built |
+| `HeaderLink` | `Components/StreakParts.swift` | A section header's way into more: 14 grey, 6 to the row chevron; 44 to tap without growing the header | You ("View all", "6 of 13") | Built |
+| `BadgeTile` | `Components/StreakParts.swift` | Medal 24, 8 to the name (16 medium), 2 to its facts (12 grey, centred `DotLine`); locked: grey medal and name | You | Built; medals are stand-ins |
+| `AvatarPin` | `Components/AvatarPin.swift` | The profile picture in a white ring (133, 4 wide) with a tail (20 wide, 14 down), soft shadow | You | Built |
+| `DotLine` alignment | `Components/RowParts.swift` | Now takes an alignment (centred under a name or a badge) | You | Built |
 | `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
 
-Still expected from the brief: calendar tiles, the segmented range control, the privacy bar, the dial, calendar match rows.
+Still expected from the brief: calendar tiles, the segmented range control, calendar match rows.
 
 ## Patterns
 
@@ -213,6 +249,8 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **Tab bar.** `DwellTabBar` (app target), the design's bar laid over the system `TabView` (whose own bar is hidden): full width, standing on the home indicator with its glass running down behind it, 44-pt top corners, white 20% over a frosted material (`.regularMaterial`, every iOS version; Liquid Glass refracted the content behind it, which the design doesn't) with an ink-10% border (`tabBarStroke`); tabs 101 × 54 (height hugs at larger text), padding 8 across and 6 down, 4 between icon and label, content clipped, spread space-between (first and last flush, so on phones under 428 pt they overlap a few points, unseen); 12 from the bar's top and sides to the tabs and 24 from the tabs to the screen's bottom edge, so they reach 10 pt into the home indicator's strip; the design's icons 22 pt, the same on every tab (dark versions derived by inverting the tones), labels `tab` role, #747474 (`tabInactive`) when not selected; the selected tab's label in ink on a white-80% pill the size of the tab with a #F6F6F6 border and four soft shadows (y 26.05 / 14.37 / 5.86 / 1.2, blur 10.78 / 8.36 / 5.86 / 3.59, black 1 / 2 / 4 / 4%; Figma's fifth is 0% and draws nothing). The pill slides between tabs (`Motion.standard`); under Reduce Motion it appears in place. No haptics on tab changes. A safe-area inset on the `TabView` never reaches the screens inside it (each tab is its own UIKit host), so `RootView` measures the bar and passes its height down (`tabBarHeight`); every screen adds it to its bottom safe area with `.clearsTabBar()` inside its `NavigationStack`, on the root and each pushed page, never on a sheet. Content then scrolls up behind the glass and ends above it.
 - **Pushed page (Your places).** No system navigation bar: the design's `BackButton` sits 17 below the status bar (16 from the edge), then 18 to a `PageHeader`, 12 to the search field, 12 to the chips (8 apart, wrapping), 18 to the content. Margins 16. Everything scrolls together, back button included (as drawn; QUESTIONS.md). The edge swipe still goes back. The tab bar stays, as on every pushed page (`.clearsTabBar()`); the frame doesn't show one (QUESTIONS.md).
 - **Grouped list (Your places).** One white card, 12 down and 16 across inside; each section a `SectionLabel`, then for each row a dashed line and the row, 12 apart, each row with 4 more below it; 18 between sections. A place that is a favourite shows in Favourites and again in All places. While searching, one list; with the Favourites chip on, only Favourites. Nothing left: a card saying so with "Clear filters". Nothing mapped yet: a `WaitingCard` with the 3D place pin.
+- **You (screen anatomy).** No sky and no sheet: the page's grey (`background`) from the top. "You" (24 medium) and the settings button (`.glassSquare`) 17 below the status bar, 16 from the sides; the profile 15 below: the picture as a pin over a faded MapKit map of the city (centred on its middle, about 20 m to the point, muted, no points of interest, cells in lilac, fading to nothing 165 out), "41 places" tucked under the ring's left edge and "3.2% mapped" on its right, both on glass; 8 to the name (28 medium), 4 to "@maya • Brooklyn". Then the cards, 14 below, 16 apart, 20 from the sides: the dial card (its own blue sky at the top; the three pushes under the arc), Streaks, Badges; 18 to the privacy line. The dial card shows in every state, failed included, because the dial is the phone's own setting.
+- **Section card (You).** Header (`SectionHeader` with a `HeaderLink`) 14 from the top and 16 from the sides, 9 to the dashed line, 14 to the content; a framed group inside takes `Radius.box` and its own wash.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 
 ## Change log
@@ -270,3 +308,4 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Your places (screenshot) | A pushed page: the design's back button, page header (`pageTitle` 24), raised search field (`field`, `fieldIcon`, `placeholder`), filter chips (radius `control` 12), and one card of place rows in Favourites and All places; the timeline row's well and duration become `IconWell` and `DurationTrail` so place rows share them; `DotLine` for dot-separated facts |
 
 | 2026-11-12 | Your places (back button, Figma) | The back button is glass: Liquid Glass on iOS 26+ in the design's 40-pt square with 13-pt corners, the close button's drawn glass before that; arrow 20 and black; chips take 13-pt corners too, and `Radius.control` (12) is gone |
+| 2026-11-12 | You (screenshot) | The profile on a MapKit map with uncovered cells, glass pills, the dial (arc control, drawn art, sky glow), the design's switch and switch rows for the three pushes, the streak card (run, rule, flames, figures), the badge grid, the privacy bar; type roles `profileName` 28 and `dataDisplay` 32; colours for streaks, the dial, switches, the privacy bar, cells and medals |

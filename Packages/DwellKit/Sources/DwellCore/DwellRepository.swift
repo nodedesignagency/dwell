@@ -18,6 +18,16 @@ public protocol DwellRepository: Sendable {
     func weeklyWrap() async throws -> WeeklyWrap?
     /// The user opened the wrap from Today's invite, so the invite goes.
     func markWeeklyWrapOpened(_ id: WeeklyWrap.ID) async throws
+    /// You: who the user is.
+    func profile() async throws -> Profile
+    /// You: every streak, going or not, each with its last seven days (or weeks).
+    func streaks() async throws -> [Streak]
+    /// You: all thirteen badges, locked ones included, with their progress.
+    func badges() async throws -> [Badge]
+    /// Coverage at each scratch level: the city's neighborhoods, the country's cities, the world.
+    func coverage() async throws -> [ScratchCoverage]
+    /// The neighborhood cells uncovered so far, for the map behind You's profile.
+    func scratchCells() async throws -> [ScratchCell]
 }
 
 /// Serves `SampleData`. Used by previews, the simulator and the fictional demo.
@@ -51,4 +61,24 @@ public struct SampleRepository: DwellRepository {
     }
 
     public func markWeeklyWrapOpened(_ id: WeeklyWrap.ID) async throws {}
+
+    public func profile() async throws -> Profile {
+        SampleData.profile
+    }
+
+    public func streaks() async throws -> [Streak] {
+        SampleData.streaks
+    }
+
+    public func badges() async throws -> [Badge] {
+        SampleData.badges
+    }
+
+    public func coverage() async throws -> [ScratchCoverage] {
+        SampleData.coverage
+    }
+
+    public func scratchCells() async throws -> [ScratchCell] {
+        SampleData.scratchCells
+    }
 }

@@ -11,6 +11,23 @@ public enum ClockText {
         date.formatted(style(calendar, date: .omitted, time: .shortened))
     }
 
+    /// "6:30 PM": a time of day with no date, like an out-by target.
+    public static func time(of time: TimeOfDay, calendar: Calendar) -> String {
+        let components = DateComponents(year: 2026, month: 1, day: 15, hour: time.hour, minute: time.minute)
+        guard let date = calendar.date(from: components) else { return "\(time.hour):\(time.minute)" }
+        return self.time(date, calendar: calendar)
+    }
+
+    /// "Sun": a day under a flame or a bar.
+    public static func weekday(_ day: DwellDay, calendar: Calendar) -> String {
+        day.start(in: calendar).formatted(style(calendar).weekday(.abbreviated))
+    }
+
+    /// "Oct 19": a week, by its first day, under a flame.
+    public static func monthDay(_ day: DwellDay, calendar: Calendar) -> String {
+        day.start(in: calendar).formatted(style(calendar).month(.abbreviated).day())
+    }
+
     /// "1:31": the time without AM or PM, for voiced lines like "Here since 1:31."
     public static func bareTime(_ date: Date, calendar: Calendar) -> String {
         var text = time(date, calendar: calendar)

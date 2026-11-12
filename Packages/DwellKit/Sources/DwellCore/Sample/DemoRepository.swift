@@ -113,6 +113,51 @@ public struct DemoRepository: DwellRepository {
 
     public func markWeeklyWrapOpened(_ id: WeeklyWrap.ID) async throws {}
 
+    public func profile() async throws -> Profile {
+        try await gate()
+        return try await sample.profile()
+    }
+
+    /// The install day has nothing to count yet; every other mode is the usual Monday.
+    public func streaks() async throws -> [Streak] {
+        try await gate()
+        switch mode {
+        case .firstDay, .firstPlace: return []
+        default: return try await sample.streaks()
+        }
+    }
+
+    public func badges() async throws -> [Badge] {
+        try await gate()
+        switch mode {
+        case .firstDay, .firstPlace: return Badge.Kind.allCases.map { Badge(kind: $0, tier: nil, progress: 0) }
+        default: return try await sample.badges()
+        }
+    }
+
+    public func coverage() async throws -> [ScratchCoverage] {
+        try await gate()
+        switch mode {
+        case .firstDay: return SampleData.FirstPlace.coverage.map { coverage in
+            var coverage = coverage
+            coverage.uncovered = 0
+            coverage.uncoveredThisWeek = 0
+            return coverage
+        }
+        case .firstPlace: return SampleData.FirstPlace.coverage
+        default: return try await sample.coverage()
+        }
+    }
+
+    public func scratchCells() async throws -> [ScratchCell] {
+        try await gate()
+        switch mode {
+        case .firstDay: return []
+        case .firstPlace: return SampleData.FirstPlace.scratchCells
+        default: return try await sample.scratchCells()
+        }
+    }
+
     /// Holds or fails every load, as the mode says.
     private func gate() async throws {
         switch mode {

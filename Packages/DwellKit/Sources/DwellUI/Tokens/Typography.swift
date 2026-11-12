@@ -12,19 +12,25 @@ public enum TextRole: CaseIterable, Sendable {
     case voiceDisplay
     /// A sheet's big title: "Turn on your location". 40.
     case display
+    /// The user's name on You: "Maya Cooper". 28.
+    case profileName
     /// Today's headline sentence. 24.
     case voiceHero
     /// Insight sentences. 22.
     case voice
     /// The live timer. 40, monospaced digits (the timer itself opts out, see LiveCard).
     case dataHero
+    /// A streak's run on You: "12 evenings". 32 medium, proportional digits like the live
+    /// timer (a monospaced "1" leaves a gap at this size; QUESTIONS.md, design vs brief 11).
+    case dataDisplay
     /// Hero stat numbers. 16 medium, proportional digits as in the design (monospaced ones
     /// opened a gap after each "1": "1h 3 1m"). The brief asks for monospaced everywhere:
     /// QUESTIONS.md, design vs brief 11.
     case dataStat
     /// Durations and times in rows and callouts. 14, monospaced digits.
     case data
-    /// A pushed page's title: "Your places". 24, like Today's headline, but plain words.
+    /// A page's title ("Your places", "You") and the dial's stop name ("Plain"). 24, like
+    /// Today's headline, but plain words.
     case pageTitle
     /// Section titles: "This week", "Your day". 20.
     case title
@@ -44,7 +50,8 @@ public enum TextRole: CaseIterable, Sendable {
     public var size: CGFloat {
         switch self {
         case .display: 40
-        case .voiceDisplay: 32
+        case .voiceDisplay, .dataDisplay: 32
+        case .profileName: 28
         case .voiceHero, .pageTitle: 24
         case .voice: 22
         case .dataHero: 40
@@ -62,7 +69,8 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
-        case .display, .voiceDisplay: .largeTitle
+        case .display, .voiceDisplay, .dataDisplay: .largeTitle
+        case .profileName: .title
         case .voiceHero, .pageTitle: .title2
         case .voice: .title3
         case .dataHero: .largeTitle
@@ -77,7 +85,8 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .display, .voiceDisplay, .voiceHero, .voice, .dataHero, .dataStat, .pageTitle, .title, .body, .label, .action, .tab: .medium
+        case .display, .voiceDisplay, .profileName, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
+             .body, .label, .action, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }

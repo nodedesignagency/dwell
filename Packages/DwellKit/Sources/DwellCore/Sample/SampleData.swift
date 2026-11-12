@@ -126,20 +126,29 @@ public enum SampleData {
             value: "5:52 PM"),
     ]
 
+    /// You leads with the out-by streak at Plain, as the design does: twelve evenings out of
+    /// work by 6:30, Wednesday's 7:12 PM exit covered by a freeze (one of two left), today still
+    /// open at 2:47 PM. The others' last seven days are stand-ins until the engine sends them.
     public static let streaks: [Streak] = [
-        Streak(kind: .gymRegular, current: 3, best: 12, freezes: 1, state: .active),
-        Streak(kind: .explorerWeek, current: 4, best: 4, freezes: 0, state: .active),
+        Streak(kind: .outByTarget, current: 12, best: 14, freezes: 1, state: .active,
+               recent: lastSevenDays([.kept, .frozen, .kept, .kept, .kept, .kept, .open]),
+               target: TimeOfDay(hour: 18, minute: 30)),
+        Streak(kind: .gymRegular, current: 3, best: 12, freezes: 0, state: .active,
+               recent: lastSevenDays([.kept, .kept, .missed, .kept, .kept, .kept, .open])),
+        Streak(kind: .explorerWeek, current: 4, best: 4, freezes: 0, state: .active,
+               recent: lastSevenWeeks([.kept, .kept, .missed, .kept, .kept, .kept, .kept])),
         Streak(kind: .firstIn, current: 1, best: 4, freezes: 0, state: .active),
-        Streak(kind: .outByTarget, current: 0, best: 14, freezes: 0, state: .broken),
     ]
 
+    /// Four earned of thirteen. Counts agree with the rest of the sample: 14 places, 41 cells
+    /// in Brooklyn, 4 countries.
     public static let badges: [Badge] = [
         Badge(kind: .foundingUser, tier: .gold, progress: 1),
-        Badge(kind: .explorer, tier: .silver, progress: 0.45),
-        Badge(kind: .earlyBird, tier: .bronze, progress: 0.6),
-        Badge(kind: .cartographer, tier: .bronze, progress: 0.2),
-        Badge(kind: .marathoner, tier: nil, progress: 0.3),
-        Badge(kind: .globetrotter, tier: nil, progress: 0),
+        Badge(kind: .explorer, tier: .silver, progress: 0.45, count: 14),
+        Badge(kind: .earlyBird, tier: .bronze, progress: 0.6, count: 6),
+        Badge(kind: .cartographer, tier: .bronze, progress: 0.2, count: 41),
+        Badge(kind: .marathoner, tier: nil, progress: 0.3, count: 3),
+        Badge(kind: .globetrotter, tier: nil, progress: 0.8, count: 4),
     ]
 
     public static let records: [PersonalRecord] = [

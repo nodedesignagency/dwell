@@ -77,6 +77,8 @@ struct RootView: View {
 
 /// A page the app can open at launch, for reviewing it in the simulator.
 enum LaunchPage: String {
+    /// You, the fourth tab.
+    case you
     /// Your places, pushed from You.
     case places
 }
