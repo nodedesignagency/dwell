@@ -41,7 +41,12 @@ struct RootView: View {
 
     /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
     init(open: LaunchPage? = nil) {
-        _tab = State(initialValue: open == nil ? .today : .you)
+        let tab: Tab = switch open {
+        case nil: .today
+        case .you, .places: .you
+        case .time: .time
+        }
+        _tab = State(initialValue: tab)
         youPath = open == .places ? [.places] : []
     }
 
@@ -81,6 +86,8 @@ enum LaunchPage: String {
     case you
     /// Your places, pushed from You.
     case places
+    /// The Time tab.
+    case time
 }
 
 /// Holds a tab's place until its design arrives.

@@ -47,6 +47,17 @@ struct DayBoundaryTests {
         #expect(day.interval(in: calendar(zone)).duration == TimeInterval(hours * 3600))
     }
 
+    /// The morning the clocks spring forward, 4 AM comes three hours after midnight.
+    @Test(arguments: ["America/New_York", "Europe/Rome"])
+    func `4 AM the morning the clocks spring forward starts that day`(zone: String) {
+        let calendar = calendar(zone)
+        let springs = zone == "Europe/Rome" ? 29 : 8
+        let morning = date(calendar, 2026, 3, springs, 4, 30)
+        #expect(DwellDay(containing: morning, calendar: calendar) == DwellDay(year: 2026, month: 3, day: springs))
+        let before = DwellDay(year: 2026, month: 3, day: springs - 1)
+        #expect(before.adding(days: 1, in: calendar) == DwellDay(year: 2026, month: 3, day: springs))
+    }
+
     @Test func `adding days crosses months`() {
         let day = DwellDay(year: 2026, month: 10, day: 31).adding(days: 1, in: newYork)
         #expect(day == DwellDay(year: 2026, month: 11, day: 1))
@@ -61,6 +72,8 @@ struct DurationTextTests {
         (30, "<1m"),
         (3599, "59m"),
         (3600, "1h"),
+        (3720, "1h 02m"),
+        (97_740, "27h 09m"),
         (34_320, "9h 32m"),
         (36_779, "10h 12m"),
         (450_000, "125h"),

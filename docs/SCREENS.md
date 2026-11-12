@@ -7,7 +7,7 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 
 Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
 
-Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov); **You** (screenshot, 12 Nov).
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov); **You** (screenshot, 12 Nov); **Time** (three screenshots, 12 Nov: the whole page, the part above the fold, and "All categories" at 4×).
 
 Counts: 13 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
@@ -51,10 +51,10 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | W-0 | 0 (install) | Today: "Your day starts here" with a Now / Next / Then checklist. Map: one covered world, nothing uncovered. "Tonight you'll see your first place." | 🎨 Today: "Getting Started" (Figma, 12 Nov) before the first stop; "After few minutes of getting started" (screenshot, 12 Nov) once the first place is mapped. ⬜ Map | 🟡 Today (`DWELL_STATE=firstDay`, `firstPlace`) |
 | W-1 | 1 | Live timer, two-row timeline, "Is this home?", Map with one pin and one uncovered cell, insight "First place mapped." | 🔁 Today from "After few minutes": live timer, short timeline, "This week" waiting card until the engine's insights arrive. ⬜ "Is this home?" (T-04), the "First place mapped." insight (QUESTIONS.md, design vs brief 15), Map | 🟡 Today |
 | W-2 | 2 | First whole-day visual, "Is this work?", "Your first full day: 9h 12m at work, 2h 40m yours.", Always upgrade moment | ⬜ | ⬜ |
-| W-3 | 3 | Time: three bars, "still learning your week"; streaks "1 of 3"; set-your-dial if not done; notifications ask | ⬜ | ⬜ |
-| W-5 | 5 | Rhythm locked ("needs two weeks"); first records ("Earliest arrival so far · 8:12 AM"); first calendar matches; coverage number ("1.4% of Brooklyn") | ⬜ | ⬜ |
+| W-3 | 3 | Time: three bars, "still learning your week"; streaks "1 of 3"; set-your-dial if not done; notifications ask | 🔁 Time: "Still learning your week · 4 days to go" over the hour grid's first days. ⬜ streaks, dial, notifications | 🟡 Time |
+| W-5 | 5 | Rhythm locked ("needs two weeks"); first records ("Earliest arrival so far · 8:12 AM"); first calendar matches; coverage number ("1.4% of Brooklyn") | 🔁 Time: rhythm locked with days to go, the records wall, calendar vs reality's first ring. ⬜ Map's coverage | 🟡 Time |
 | W-7 | 7 | First weekly wrap Sunday evening; explorer week streak qualifies | 🎨 Today: the weekly wrap invite (T-16). ⬜ the wrap itself (S-06), the explorer streak | 🟡 Today (`DWELL_STATE=weeklyWrap`) |
-| W-14 | 14 | Rhythm unlocks; calendar vs reality patterns; places over time deltas | ⬜ | ⬜ |
+| W-14 | 14 | Rhythm unlocks; calendar vs reality patterns; places over time deltas | 🎨 Time: rhythm, "Worth noticing", places over time | 🟡 Time |
 
 ## Today (A.2, §7.1)
 
@@ -94,29 +94,31 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 
 ## Time (A.4, §7.3)
 
+Built from the Time screenshots (12 Nov): `Dwell/Features/Time/`, data in `DwellCore/Time/` (tested). `DWELL_OPEN=time ./scripts/run.sh` opens it; on the sample's Monday the week has one day, so pick Oct 19 – 25 from the dates for a full week.
+
 | ID | Element | States and contents | Design | Built |
 | --- | --- | --- | --- | --- |
-| TI-01 | Range | Day / Week / Month / Year | ⬜ | ⬜ |
-| TI-02 | Headline | Focus category total, signed delta vs prior period with arrow; tap → category | ⬜ | ⬜ |
-| TI-03 | Breakdown | Stacked bars by category, average line, category filters, scrub callout; sparse / single day; ≤ 7 + Everything else; audio graph | ⬜ | ⬜ |
-| TI-04 | Category rows | Icon, name, total, delta → detail | ⬜ | ⬜ |
-| TI-05 | Category detail | Calendar heatmap, records, top places; tap a day → its visits | ⬜ | ⬜ |
+| TI-01 | Range | Day / Week / Month / Year | 🎨 Time: the segmented control (`SegmentedPicker`), "Time", the date pill, share on glass. 🔁 the pill's picker (a list of periods back to the install, the system calendar for a day), share opens a stand-in until share cards are designed (S-10) | 🟡 |
+| TI-02 | Headline | Focus category total, signed delta vs prior period with arrow; tap → category | 🎨 Time: "This week, 42h 29m at work, up by 2h 44m, and 27h 09m at yours." 🔁 down / as usual / no usual yet, yours leading when there's no work, Peace and Grind [COPY NEEDED], before recording, no stops. ⬜ tap → category (the sentence isn't a control) | 🟡 |
+| TI-03 | Breakdown | Stacked bars by category, average line, category filters, scrub callout; sparse / single day; ≤ 7 + Everything else; audio graph | 🎨 Time: "Every hour of the week" grid instead of stacked bars (QUESTIONS.md, design vs brief 37). 🔁 day, month (a thin row a day) and year (a typical day a month); tap a stretch for its times, tap the legend to pick a category out; still learning; audio graph. ⬜ the brief's average line | 🟡 |
+| TI-04 | Category rows | Icon, name, total, delta → detail | 🎨 Time: badge, name, time, "↑ 2h 44m longer than usual"; Food & drink opening into Coffee, Drinks, Food. 🔁 Home included, last; the same as usual; no usual yet; AX sizes; collapse | 🟡 (rows open the category detail placeholder) |
+| TI-05 | Category detail | Calendar heatmap, records, top places; tap a day → its visits | ⬜ (rows open a placeholder) | ⬜ |
 | TI-06 | Work detail | Adds arrival and departure strips (a dot per day, median line) and office vs WFH split | ⬜ | ⬜ |
-| TI-07 | Calendar vs reality | Attended vs scheduled, meeting time vs desk time, meetings skipped or left early, days that disagree most; not connected (sells the feature) / needs 2+ weeks / populated; tap → that day; tap a series → its history | ⬜ | ⬜ |
-| TI-08 | Rhythm | Typical week as a shape: arrive, leave, eat, train, sleep; weekday vs weekend toggle; locked "needs two weeks" | ⬜ | ⬜ |
-| TI-09 | Places over time | Growing and shrinking places with deltas ("Northline Gym: up 40% this month.") → place page | ⬜ | ⬜ |
-| TI-10 | Work vs yours | Two numbers side by side with trend, never a ratio; Peace says "yours", Grind says "off" | ⬜ | ⬜ |
-| TI-11 | Records wall | Lifetime bests grid; locked records show what unlocks them; tap → record card | ⬜ | ⬜ |
-| TI-12 | Year in places | Annual wrap entry point, available after 30 days | ⬜ | ⬜ |
-| TI-13 | Time states | Still mapping / unavailable with retry / stale banner over a usable chart | ⬜ | ⬜ |
-| TI-14 | Day detail | A past day's visits, reached from heatmaps and charts | ⬜ | ⬜ |
+| TI-07 | Calendar vs reality | Attended vs scheduled, meeting time vs desk time, meetings skipped or left early, days that disagree most; not connected (sells the feature) / needs 2+ weeks / populated; tap → that day; tap a series → its history | 🎨 Time: the ring ("6/8 meetings"), attended / left early / elsewhere, "Worth noticing" with runs and missed meetings. 🔁 not connected, no meetings, patterns waiting (under two weeks), nothing to notice, Peace and Grind notes. ⬜ meeting vs desk time, days that disagree most, taps (QUESTIONS.md, design vs brief 40) | 🟡 |
+| TI-08 | Rhythm | Typical week as a shape: arrive, leave, eat, train, sleep; weekday vs weekend toggle; locked "needs two weeks" | 🎨 Time: Weekday / Weekend, the strip, Arrive · Lunch · Leave · Home by. 🔁 weekend (Out · Lunch · Home by), locked with days to go, no workdays yet. ⬜ train and sleep (design vs brief 41) | 🟡 |
+| TI-09 | Places over time | Growing and shrinking places with deltas ("Northline Gym: up 40% this month.") → place page | 🎨 Time: badge, name, time over four weeks, "↑ 40%", "Paused · Not since…". 🔁 too soon for trends | 🟡 (rows open the place page placeholder) |
+| TI-10 | Work vs yours | Two numbers side by side with trend, never a ratio; Peace says "yours", Grind says "off" | 🎨 Time: "Work and yours", the two tiles (label first), four weeks of bars. 🔁 "Off" and "On and off" at Grind [COPY NEEDED], months, days, years | 🟡 |
+| TI-11 | Records wall | Lifetime bests grid; locked records show what unlocks them; tap → record card | 🎨 Time: four won, two locked (Closer, Explorer). 🔁 a new account's all-locked wall, AX sizes one to a row. ⬜ the 3D art ([ICON NEEDED]); tap opens a placeholder (S-04) | 🟡 |
+| TI-12 | Year in places | Annual wrap entry point, available after 30 days | 🎨 Time: "2026 in places, so far · 15 places, 3.2% of Brooklyn, 4 records." "Open your year" opens a placeholder (S-07). 🔁 hidden in the first 30 days | 🟡 |
+| TI-13 | Time states | Still mapping / unavailable with retry / stale banner over a usable chart | 🔁 Time: skeleton, nothing mapped yet (waiting card), still learning your week, before recording, failed and offline with retry, stale, permission banner | 🟡 |
+| TI-14 | Day detail | A past day's visits, reached from heatmaps and charts | ⬜ (Today's day pill shows past days) | ⬜ |
 
 ## You (A.6, §7.4)
 
 | ID | Element | States and contents | Design | Built |
 | --- | --- | --- | --- | --- |
 | Y-01 | Profile | Avatar, username, city; Edit | 🎨 You (screenshot, 12 Nov): "You" and the settings button; the picture as a pin over a faded map of the city with the uncovered cells; "41 places" (→ Your places) and "3.2% mapped" (→ scratch detail, M-08) on glass; name; "@maya • Brooklyn". 🔁 the map centred on the city's middle, never home; loading (skeleton), failed (retry, the dial still works), stale (banner), dark, AX sizes (the two facts move under the city). ⬜ Edit: not in the design, assumed behind the settings button (QUESTIONS.md, design vs brief 34) | 🟡 (`DWELL_OPEN=you`) |
-| Y-02 | The dial | Continuous with named stops, live preview of today's headline, light haptic at each stop | 🎨 You: "Your dial" on glass, the three-pill art, the stop's name and line, the arc with five stops and a thumb. 🔁 continuous drag (the nearest stop names it), a tap settles on the nearest stop, `Haptic.dialStop` each time a stop is passed, name and line cross-fade, the art follows the thumb, VoiceOver adjusts a stop at a time, AX sizes (end labels only), dark. ⬜ the live preview of today's headline (QUESTIONS.md, design vs brief 26). The art is the design's Plain render, cut into its two pills so it draws every stop | 🟡 |
+| Y-02 | The dial | Continuous with named stops, live preview of today's headline, light haptic at each stop | 🎨 You: "Your dial" on glass, the three-pill art, the stop's name and line, the arc with five stops and a thumb. 🔁 continuous drag (the nearest stop names it), a tap settles on the nearest stop, `Haptic.dialStop` each time a stop is passed, name and line cross-fade, the art follows the thumb, VoiceOver adjusts a stop at a time, AX sizes (end labels only), dark. ⬜ the live preview of today's headline (QUESTIONS.md, design vs brief 37). The art is the design's Plain render, cut into its two pills so it draws every stop | 🟡 |
 | Y-03 | Streaks | Name, current, best, flame, freeze bank (max 2); empty / active / at risk / frozen / broken; opt out of the at-risk push | 🎨 You: one streak leading: its run ("12 evenings"), rule ("Home by 6:30 PM") with the pencil (→ work rules, Y-08), the last seven days as flames, Current / Best / Freezes, "View all" (→ S-09). Opt out of the at-risk push: the "Streak at risk" switch in the dial card. 🔁 a day a freeze covered (grey flame), missed and still-to-come days (outline), which streak leads at each stop, weekly streaks (seven weeks), broken ("0 evenings", best kept), empty (voiced, Peace / Plain / Grind), AX sizes (figures stack). At risk and frozen show in today's flame and the push, not a look of their own (QUESTIONS.md, design vs brief 30) | 🟡 |
 | Y-04 | Badges | Tier grid (bronze / silver / gold) with progress → badge detail | 🎨 You: "Badges", "6 of 13" (→ every badge), six in three columns: medal, name, tier • count. 🔁 earned first by tier, then locked ones nearest to unlocking ("Locked • 4 countries", grey medal), every badge locked on day 0, two columns at AX sizes; a tile opens badge detail (S-05, pending). ⬜ art for every badge but Explorer at gold (SF Symbol medals stand in) | 🟡 |
 | Y-05 | Scratch-map badges | Cartographer, Globetrotter progress | 🔁 You: in the same grid as any badge, counting cells and countries | 🟡 |
@@ -164,7 +166,7 @@ Each needs timing, easing, a Reduce Motion alternative, and its haptic where one
 | ID | Moment | Haptic | Design | Built |
 | --- | --- | --- | --- | --- |
 | MO-01 | Live timer ticking | none | 🔁 Today | 🟡 |
-| MO-02 | Day bar filling | none | 🔁 Today | 🟡 |
+| MO-02 | Day bar filling | none | 🔁 Today; Time's hour grid sweeps in from 4 AM | 🟡 |
 | MO-03 | Scratch-off reveal | light | ⬜ | ⬜ |
 | MO-04 | Place reveal on the map | none | ⬜ | ⬜ |
 | MO-05 | Insight arrival | none | 🔁 Today (deck paging) | 🟡 |

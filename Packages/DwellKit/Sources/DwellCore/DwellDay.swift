@@ -19,13 +19,14 @@ public struct DwellDay: Hashable, Comparable, Codable, Sendable {
     }
 
     /// The Dwell day a moment belongs to: 3:59 AM still counts toward yesterday.
+    ///
+    /// Goes by the clock on the wall: 4:30 AM on the morning the clocks spring forward is that
+    /// day's, though only three hours have passed since midnight. (Counting hours from midnight
+    /// put it in the day before, and stepping a day at a time through March never got past it.)
     public init(containing date: Date, calendar: Calendar) {
-        let midnight = calendar.startOfDay(for: date)
-        var start = calendar.date(byAdding: .hour, value: Self.startHour, to: midnight) ?? midnight
-        if date < start {
-            start = calendar.date(byAdding: .day, value: -1, to: start) ?? start
-        }
-        let parts = calendar.dateComponents([.year, .month, .day], from: start)
+        let hour = calendar.component(.hour, from: date)
+        let anchor = hour < Self.startHour ? (calendar.date(byAdding: .day, value: -1, to: date) ?? date) : date
+        let parts = calendar.dateComponents([.year, .month, .day], from: anchor)
         self.init(year: parts.year ?? 0, month: parts.month ?? 1, day: parts.day ?? 1)
     }
 

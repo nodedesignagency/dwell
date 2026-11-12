@@ -89,7 +89,7 @@ public struct WeeklyWrapCard: View {
 ///   matches it). Through the card only its middle shows, a soft ramp from 24% white at the
 ///   left to 12% at the right, so it's drawn as that ramp, computed from those values: a
 ///   blur 362 pt wide would cost far more for the same pixels.
-private struct WrapGlow: View {
+struct WrapGlow: View {
     static let size: CGFloat = 2036.66
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 

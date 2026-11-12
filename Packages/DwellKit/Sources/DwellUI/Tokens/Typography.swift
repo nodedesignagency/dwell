@@ -14,6 +14,8 @@ public enum TextRole: CaseIterable, Sendable {
     case display
     /// The user's name on You: "Maya Cooper". 28.
     case profileName
+    /// A card's big title: "Every hour of the week", the year in places. 28. Plain words.
+    case cardTitle
     /// Today's headline sentence. 24.
     case voiceHero
     /// Insight sentences. 22.
@@ -34,6 +36,8 @@ public enum TextRole: CaseIterable, Sendable {
     case pageTitle
     /// Section titles: "This week", "Your day". 20.
     case title
+    /// A list row that leads: Time's category names and their durations. 18 medium.
+    case rowTitle
     /// Row titles and the live caption. 16 medium.
     case body
     /// Buttons and pills. 16 medium.
@@ -51,13 +55,14 @@ public enum TextRole: CaseIterable, Sendable {
         switch self {
         case .display: 40
         case .voiceDisplay, .dataDisplay: 32
-        case .profileName: 28
+        case .profileName, .cardTitle: 28
         case .voiceHero, .pageTitle: 24
         case .voice: 22
         case .dataHero: 40
         case .dataStat: 16
         case .data: 14
         case .title: 20
+        case .rowTitle: 18
         case .body: 16
         case .label: 16
         case .action: 18
@@ -70,7 +75,8 @@ public enum TextRole: CaseIterable, Sendable {
     public var textStyle: Font.TextStyle {
         switch self {
         case .display, .voiceDisplay, .dataDisplay: .largeTitle
-        case .profileName: .title
+        case .profileName, .cardTitle: .title
+        case .rowTitle: .body
         case .voiceHero, .pageTitle: .title2
         case .voice: .title3
         case .dataHero: .largeTitle
@@ -85,8 +91,8 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .display, .voiceDisplay, .profileName, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
-             .body, .label, .action, .tab: .medium
+        case .display, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
+             .rowTitle, .body, .label, .action, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }

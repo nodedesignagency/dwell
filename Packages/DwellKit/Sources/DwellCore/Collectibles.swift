@@ -272,20 +272,69 @@ public struct Badge: Identifiable, Hashable, Sendable {
 
 /// A lifetime best on the records wall. Locked records say what unlocks them.
 public struct PersonalRecord: Identifiable, Hashable, Sendable {
+    /// What the record measures; the records wall tints each kind its own colour (Time design).
+    public enum Kind: String, CaseIterable, Hashable, Sendable {
+        /// A length of time: "Longest day · 10h 12m".
+        case duration
+        /// A time of day: "Earliest in · 8:12 AM".
+        case timeOfDay
+        /// Days in a row: "Gym streak · 12 days".
+        case streak
+        /// A count: "Places in a day · 5".
+        case count
+    }
+
+    /// The record's 3D art (Time design). Stand-ins until the art arrives.
+    public enum Icon: String, Hashable, Sendable {
+        case hourglass
+        case alarmClock
+        case flame
+        case globe
+        case sunset
+        case compass
+    }
+
     public let id: String
     public var title: String
+    public var kind: Kind
+    public var icon: Icon
     /// `nil` while locked.
     public var value: String?
+    /// When it was set, or the last day of a run.
     public var date: Date?
+    /// The first day of a run ("Sep 8 – 19"), for streaks.
+    public var startDate: Date?
     public var unlockHint: String?
 
     public var isLocked: Bool { value == nil }
 
-    public init(id: String, title: String, value: String?, date: Date? = nil, unlockHint: String? = nil) {
+    /// The same record, not yet won: for a new account. Keeps a hint of what wins it.
+    public var locked: PersonalRecord {
+        var record = self
+        record.value = nil
+        record.date = nil
+        record.startDate = nil
+        if record.unlockHint == nil { record.unlockHint = "Not set yet." } // [COPY NEEDED]
+        return record
+    }
+
+    public init(
+        id: String,
+        title: String,
+        kind: Kind = .count,
+        icon: Icon = .globe,
+        value: String?,
+        date: Date? = nil,
+        startDate: Date? = nil,
+        unlockHint: String? = nil
+    ) {
         self.id = id
         self.title = title
+        self.kind = kind
+        self.icon = icon
         self.value = value
         self.date = date
+        self.startDate = startDate
         self.unlockHint = unlockHint
     }
 }

@@ -37,6 +37,14 @@ public enum ClockText {
         return text.trimmingCharacters(in: .whitespaces.union(CharacterSet(charactersIn: "\u{202F}")))
     }
 
+    /// "4AM", "10PM": an hour on a chart's axis, without minutes or the space before AM and PM
+    /// (Time design). Locales on a 24-hour clock get "04", "22".
+    public static func hour(_ hour: Int, calendar: Calendar) -> String {
+        let date = calendar.date(from: DateComponents(year: 2026, month: 1, day: 5, hour: hour)) ?? Date(timeIntervalSince1970: 0)
+        let text = date.formatted(style(calendar).hour(.defaultDigits(amPM: .abbreviated)))
+        return text.replacingOccurrences(of: "\u{202F}", with: "").replacingOccurrences(of: " ", with: "")
+    }
+
     /// "8:02 AM – 8:59 AM" for a finished stretch, "1:31 PM → now" while it is still going.
     public static func span(from start: Date, to end: Date?, calendar: Calendar) -> String {
         guard let end else { return "\(time(start, calendar: calendar)) → now" }

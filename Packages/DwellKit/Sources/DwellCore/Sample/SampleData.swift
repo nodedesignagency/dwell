@@ -2,7 +2,11 @@ import Foundation
 
 /// A stand-in week for previews, the simulator and the fictional demo: a product manager in
 /// Brooklyn who works at Kestriva Labs (Maya from the brief, middle of the dial).
-/// Sunday night 18 October to Monday 26 October 2026, 2:47 PM, which is "now".
+/// Sunday night 18 October to Monday 26 October 2026, 2:47 PM, which is "now", written by
+/// hand; before it, seven weeks back to the day she installed Dwell (Monday 31 August),
+/// generated from her routines with a seeded dice so Time has weeks and months to compare.
+/// Every place's lifetime total and visit count is the sum of this timeline, so Your places
+/// and Time always agree.
 ///
 /// Names come from the brief. Replace this with Appendix D ("a real week") once the client
 /// sends it: it has the real string lengths, visits per day and how often gaps happen.
@@ -28,42 +32,47 @@ public enum SampleData {
 
     // MARK: Places
 
-    public static let places: [Place] = [
-        Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true,
-              lifetimeTotal: hours(412, 10), visitCount: 63, firstSeen: recordingSince),
-        Place(id: "kestriva", name: "Kestriva Labs", category: .work, role: .work, shareLevel: .venue,
-              isFavorite: true, lifetimeTotal: hours(148, 20), visitCount: 31,
-              firstSeen: date(month: 8, day: 31, minutes: 8 * 60 + 41)),
-        Place(id: "brambleline", name: "Brambleline Café", category: .foodAndDrink, shareLevel: .venue,
-              isFavorite: true, lifetimeTotal: hours(21, 40), visitCount: 34,
-              firstSeen: date(month: 9, day: 1, minutes: 8 * 60 + 5)),
-        Place(id: "northline", name: "Northline Gym", category: .fitness, role: .gym,
-              lifetimeTotal: hours(26, 10), visitCount: 22, firstSeen: date(month: 9, day: 2, minutes: 18 * 60 + 20)),
-        Place(id: "sorrel", name: "Sorrel Kitchen", category: .foodAndDrink,
-              lifetimeTotal: hours(6, 50), visitCount: 11, firstSeen: date(month: 9, day: 3, minutes: 12 * 60 + 40)),
-        Place(id: "halloway", name: "Halloway Pharmacy", category: .errands,
-              lifetimeTotal: hours(1, 20), visitCount: 7, firstSeen: date(month: 9, day: 15, minutes: 12 * 60 + 20)),
-        Place(id: "greenmarket", name: "Carroll Street Greenmarket", category: .shopping,
-              lifetimeTotal: hours(3, 5), visitCount: 8, firstSeen: date(month: 9, day: 12, minutes: 10 * 60 + 15)),
-        Place(id: "juniper", name: "Juniper & Vine", category: .foodAndDrink,
-              lifetimeTotal: hours(9, 30), visitCount: 5, firstSeen: date(month: 9, day: 26, minutes: 19 * 60)),
-        Place(id: "larkspur", name: "Larkspur Cinema", category: .entertainment,
-              lifetimeTotal: hours(4, 50), visitCount: 2, firstSeen: date(month: 10, day: 3, minutes: 19 * 60 + 30)),
-        Place(id: "prospect", name: "Prospect Park", category: .outdoors,
-              lifetimeTotal: hours(14, 15), visitCount: 9, firstSeen: date(month: 9, day: 6, minutes: 10 * 60 + 30)),
-        Place(id: "maras", name: "Mara's place", category: .social,
-              lifetimeTotal: hours(18, 40), visitCount: 6, firstSeen: date(month: 9, day: 19, minutes: 19 * 60 + 10)),
-        Place(id: "ashgrove", name: "Ashgrove Library", category: .education,
-              lifetimeTotal: hours(5, 30), visitCount: 4, firstSeen: date(month: 10, day: 4, minutes: 10 * 60)),
-        Place(id: "tidewater", name: "Tidewater Books", category: .shopping,
-              lifetimeTotal: hours(0, 39), visitCount: 1, firstSeen: date(month: 10, day: 25, minutes: 12 * 60 + 10)),
-        Place(id: "stagnes", name: "St. Agnes Community Health & Wellness Center", category: .personal,
-              isPrivate: true, lifetimeTotal: hours(2, 10), visitCount: 3,
-              firstSeen: date(month: 9, day: 22, minutes: 12 * 60 + 45)),
+    /// Every place as saved, before any time is counted: names, categories, roles and flags.
+    /// `places` adds each one's lifetime total, visits and first visit from the timeline.
+    static let definitions: [Place] = [
+        Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true),
+        Place(id: "kestriva", name: "Kestriva Labs", category: .work, role: .work, shareLevel: .venue, isFavorite: true),
+        Place(id: "brambleline", name: "Brambleline Café", category: .foodAndDrink, subcategory: .coffee,
+              shareLevel: .venue, isFavorite: true),
+        Place(id: "northline", name: "Northline Gym", category: .fitness, role: .gym),
+        Place(id: "sorrel", name: "Sorrel Kitchen", category: .foodAndDrink, subcategory: .food),
+        Place(id: "halloway", name: "Halloway Pharmacy", category: .errands),
+        Place(id: "greenmarket", name: "Carroll Street Greenmarket", category: .shopping),
+        Place(id: "juniper", name: "Juniper & Vine", category: .foodAndDrink, subcategory: .drinks),
+        Place(id: "larkspur", name: "Larkspur Cinema", category: .entertainment),
+        Place(id: "prospect", name: "Prospect Park", category: .outdoors),
+        Place(id: "maras", name: "Mara's place", category: .social),
+        Place(id: "ashgrove", name: "Ashgrove Library", category: .education),
+        Place(id: "tidewater", name: "Tidewater Books", category: .shopping),
+        Place(id: "halcyon", name: "Halcyon Pool", category: .fitness),
+        Place(id: "stagnes", name: "St. Agnes Community Health & Wellness Center", category: .personal, isPrivate: true),
     ]
+
+    /// Every place with its lifetime total, visits and first visit, counted from the timeline
+    /// up to `now`. Home dates from when Dwell started.
+    public static let places: [Place] = definitions.map { definition in
+        var place = definition
+        let visits = timeline.entries.compactMap(\.visit).filter { $0.placeID == definition.id && $0.arrival < now }
+        place.lifetimeTotal = visits.reduce(0) { $0 + $1.interval(now: now).duration }
+        place.visitCount = visits.count
+        place.firstSeen = visits.map(\.arrival).min()
+        return place
+    }
 
     public static func place(_ id: PlaceID) -> Place {
         guard let place = places.first(where: { $0.id == id }) else {
+            preconditionFailure("No sample place \(id)")
+        }
+        return place
+    }
+
+    static func definition(_ id: PlaceID) -> Place {
+        guard let place = definitions.first(where: { $0.id == id }) else {
             preconditionFailure("No sample place \(id)")
         }
         return place
@@ -151,17 +160,37 @@ public enum SampleData {
         Badge(kind: .globetrotter, tier: nil, progress: 0.8, count: 4),
     ]
 
+    /// The records wall (Time design): four won, two still to win. Values agree with the
+    /// timeline: Thursday 22 October is the longest day and the earliest in; Tuesday 20 the
+    /// most places; the gym every day from 8 to 19 September.
     public static let records: [PersonalRecord] = [
-        PersonalRecord(id: "longest-day", title: "Longest day at work", value: "10h 12m",
-                       date: date(month: 10, day: 22, minutes: 18 * 60 + 24)),
-        PersonalRecord(id: "earliest-arrival", title: "Earliest arrival", value: "8:12 AM",
-                       date: date(month: 10, day: 22, minutes: 8 * 60 + 12)),
-        PersonalRecord(id: "most-places", title: "Most places in a day", value: "5",
-                       date: date(month: 10, day: 20, minutes: 18 * 60 + 52)),
-        PersonalRecord(id: "longest-gym-streak", title: "Longest gym streak", value: "12 days"),
-        PersonalRecord(id: "longest-weekend-away", title: "Longest weekend away", value: nil,
-                       unlockHint: "Spend a weekend away from home."),
+        PersonalRecord(id: "longest-day", title: "Longest day", kind: .duration, icon: .hourglass,
+                       value: "10h 12m", date: date(month: 10, day: 22, minutes: 18 * 60 + 24)),
+        PersonalRecord(id: "earliest-in", title: "Earliest in", kind: .timeOfDay, icon: .alarmClock,
+                       value: "8:12 AM", date: date(month: 10, day: 22, minutes: 8 * 60 + 12)),
+        PersonalRecord(id: "gym-streak", title: "Gym streak", kind: .streak, icon: .flame,
+                       value: "12 days", date: date(month: 9, day: 19, minutes: 11 * 60),
+                       startDate: date(month: 9, day: 8, minutes: 18 * 60 + 20)),
+        PersonalRecord(id: "places-in-a-day", title: "Places in a day", kind: .count, icon: .globe,
+                       value: "5", date: date(month: 10, day: 20, minutes: 18 * 60 + 52)),
+        // The design's two locked records, named after the brief's badges.
+        PersonalRecord(id: "closer", title: "Closer", kind: .streak, icon: .sunset, value: nil,
+                       unlockHint: "Out by 5, five days running"),
+        PersonalRecord(id: "explorer", title: "Explorer", kind: .count, icon: .compass, value: nil,
+                       unlockHint: "A new place 4 weeks in a row"),
     ]
+
+    /// Places over time as of now: the last four weeks against the four before.
+    public static let placeTrends: [PlaceTrend] = {
+        let first = DwellDay(containing: now.addingTimeInterval(-2 * PlaceTrend.window), calendar: calendar)
+        var days: [DaySnapshot] = []
+        var day = first
+        while day <= today {
+            days.append(snapshot(for: day))
+            day = day.adding(days: 1, in: calendar)
+        }
+        return PlaceTrend.compute(places: places, days: days, now: now)
+    }()
 
     public static let coverage: [ScratchCoverage] = [
         ScratchCoverage(level: .neighborhood, area: "Brooklyn", uncovered: 41, total: 1281, uncoveredThisWeek: 1),
@@ -207,7 +236,7 @@ extension SampleData {
 // MARK: - Building the week
 
 extension SampleData {
-    private struct Flags: OptionSet, Sendable {
+    struct Flags: OptionSet, Sendable {
         let rawValue: Int
         static let approximate = Flags(rawValue: 1 << 0)
         static let workFromHome = Flags(rawValue: 1 << 1)
@@ -233,7 +262,8 @@ extension SampleData {
             .visit("kestriva", "8:41", "12:34"), .transit("12:34", "12:41"), .visit("sorrel", "12:41", "13:22"),
             .gap("13:22", "13:44"), .visit("kestriva", "13:44", "18:07"), .transit("18:07", "18:26"),
             .visit("northline", "18:26", "19:31"), .transit("19:31", "19:44"), .visit("home", "19:44", "31:58"),
-            .event("Team standup", "9:30", "9:45", .attended),
+            // Out 5 minutes early, the third Monday running (with 5 and 12 October).
+            .event("Team standup", "9:30", "9:45", .partial(arrivedLate: 0, leftEarly: 5 * 60)),
         ]),
         (20, [
             .transit("7:58", "8:20"), .visit("kestriva", "8:20", "12:15"), .transit("12:15", "12:20"),
@@ -289,19 +319,19 @@ extension SampleData {
     ]
 
     private static let timeline: (entries: [TimelineEntry], matches: [CalendarMatch]) = {
-        var entries: [TimelineEntry] = []
-        var matches: [CalendarMatch] = []
+        var (entries, matches) = history
         for (day, rows) in week {
             for (index, row) in rows.enumerated() {
                 func at(_ time: String) -> Date { date(month: 10, day: day, time: time) }
                 switch row {
                 case .visit(let id, let start, let end, let flags):
-                    let venue = place(id)
+                    let venue = definition(id)
                     entries.append(.visit(Visit(
                         id: VisitID("10-\(day)-\(index)"),
                         placeID: id,
                         placeName: venue.name,
                         category: flags.contains(.workFromHome) ? .work : venue.category,
+                        subcategory: flags.contains(.workFromHome) ? nil : venue.subcategory,
                         arrival: at(start),
                         departure: flags.contains(.ongoing) ? nil : at(end),
                         precision: flags.contains(.approximate) ? .approximate : .exact,
@@ -328,7 +358,7 @@ extension SampleData {
         return date(month: month, day: day, minutes: parts[0] * 60 + parts[1])
     }
 
-    private static func date(month: Int, day: Int, minutes: Int) -> Date {
+    static func date(month: Int, day: Int, minutes: Int) -> Date {
         let midnight = calendar.date(from: DateComponents(year: 2026, month: month, day: day)) ?? .distantPast
         return calendar.date(byAdding: .minute, value: minutes, to: midnight) ?? midnight
     }

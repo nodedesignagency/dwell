@@ -66,7 +66,15 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `privacyText` | #484848 | #AEAEB2 | The privacy line's words, and its lock (body at half, as the duotone glyph draws it) | You; dark derived |
 | `scratchCell` | #E394FF | #C77DFF | Uncovered cells on the map behind the profile | You; dark derived |
 | `bronze`, `silver`, `gold` | #E48E62, #B8BCC4, #F2B23A | same | The SF Symbol medal of a badge whose art hasn't arrived, by tier | placeholder (bronze read from the design's medal) |
-| `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
+| `segmentTrack` | #E9ECF4 | #1C1C1E | Under the range control and the Weekday / Weekend toggle | Time (screenshot); dark derived |
+| `insetSurface` | #F4F6FA | #2C2C2E | A box set into a card ("Worth noticing") | Time (screenshot); dark derived |
+| `yoursChart` | #21FE9B | #2BE38C | Yours bars in Work and yours (work's are the Work colour) | Time (screenshot); dark derived |
+| `meetingAttended`, `meetingPartial`, `meetingMissed` | #DB42A8, #F1AAD7, #E5E5E5 | #E85BB8, #9C5A86, #3A3A3C | Calendar vs reality's ring and legend | Time (screenshot); dark derived |
+| `recordDuration`, `recordTime`, `recordStreak`, `recordCount` | #FA996E, #A998FE, #6FC8FE, #F9CE6F | same | A record tile's band, by what it measures | Time (screenshot) |
+| `recordLocked` | #E9EDF2 | #2C2C2E | The box inside a record still to win | Time (screenshot); dark derived |
+| `rhythmMorning`, `rhythmLunch`, `rhythmAfternoon`, `rhythmWayHome` | #F2976F, #9170F6, #C570F5, #71C5F4 | same | Your rhythm's strip | Time (screenshot) |
+| `yearCentre`, `yearEdge` | #BD7CFD, #6323F5 | same | The year in places card's radial fill | Time (screenshot) |
+| `everythingElse` | #BDBDBD | #636366 | The chart fold bucket | Time (screenshot); dark kept |
 
 ### Category colours
 
@@ -76,7 +84,11 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | Home | #99E0FF | #7CCFF7 | 3D house, `house.fill` stand-in | Today; dark derived |
 | Food & drink | #23FC97 | #2BE38C | 3D coffee cup, `cup.and.saucer.fill` stand-in | Today; dark derived |
 | Transit | #FF9336 | #FF9F45 | `tram.fill` stand-in | Today; dark derived |
-| Shopping, Fitness, Errands, Social, Entertainment, Outdoors, Education, Travel, Personal, Other | system colours | | SF Symbol stand-ins (`placeholderSymbol`) | placeholder |
+| Fitness | #70C8FA | #64C3F5 | `figure.run` stand-in | Time (screenshot); dark derived |
+| Social | #B2A7F6 | #B9AEFA | `person.2.fill` stand-in | Time (screenshot); dark derived |
+| Shopping, Errands, Entertainment, Outdoors, Education, Travel, Personal, Other | system colours | | SF Symbol stand-ins (`placeholderSymbol`) | placeholder |
+
+**The Time design colours categories its own way** (Home peach #FFA97B, Food & drink amber #FACE72, Transit mint #A6F7B5, Work #FF7BDE). Following "use the colour styles from the other pages", Time keeps Today's colours for Work, Home, Food & drink and Transit and takes only the ones no design had set (Fitness, Social, Everything else) from Time. Fitness's blue sits near Home's light blue. Open with the user (QUESTIONS.md 32).
 
 **Contrast and colour vision still to check (brief §12).** Home (#99E0FF) and Food & drink (#23FC97) are about 1.5:1 against white, below the 3:1 WCAG asks of graphics; the legend's names carry them for now. Food & drink green and Transit orange sit close for deuteranopia. Logged in QUESTIONS.md.
 
@@ -115,21 +127,25 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | `dataDisplay` | 32 | medium, proportional digits | largeTitle | A streak's run: "12 evenings" (You; proportional like the live timer, design vs brief 35) |
 | `profileName` | 28 | medium | title | The user's name on You |
 | `display` | 40, lines 44 apart | medium | largeTitle | A sheet's title ("Turn on your location") |
-| `voiceHero` | 24 | medium | title2 | Today's headline |
+| `cardTitle` | 28 | medium | title | A card's big title: "Every hour of the week", the year in places (measured from the screenshot) |
+| `voiceHero` | 24 | medium | title2 | Today's headline; Time's headline (data runs in `textPrimary`, words in `textOnHero` at 70%, as measured) |
 | `voice` | 22 | medium | title3 | Insight sentences |
 | `pageTitle` | 24 | medium | title2 | A page's title: "Your places", "You"; the dial's stop name ("Plain"). Plain words, the size of Today's headline |
 | `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
 | `dataStat` | 16 | medium, proportional digits (as in the design; see QUESTIONS.md, design vs brief 11) | callout | Hero stat numbers |
 | `data` | 14 | regular, mono digits | subheadline | Durations in rows |
 | `title` | 20 | medium | title3 | Section titles |
+| `rowTitle` | 18 | medium (mono digits for times) | body | Time's category names and their times (measured from the 4× element) |
 | `body` | 16 | medium | callout | Place names, the live caption. Regular weight for a page header's facts ("41 places • 640h mapped") |
 | `label` | 16 | medium | callout | Buttons, the day pill |
 | `action` | 18 | medium | body | The button on a feature card: "Let's go" (measured from the screenshot) |
-| `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners; a place's facts ("Work • 48 visits"), list section labels set in capitals ("FAVOURITES"), the search field; a switch row's line, the dial's line, "View all", the privacy line. Medium weight on filter chips and the glass pills ("41 places", "Your dial") |
+| `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners; a place's facts ("Work • 48 visits"), list section labels set in capitals ("FAVOURITES"), the search field; a switch row's line, the dial's line, "View all", the privacy line; Time's axis, row labels and delta lines. Medium weight on filter chips, the glass pills ("41 places", "Your dial"), the range control and Time's date pill |
 | `footnote` | 12 | regular | caption | Legends, badges, small buttons; the dial's stop labels, the flames' days, a badge's facts |
 | `tab` | 12, line height 16 | medium selected, regular otherwise; tracking 0 | footnote | Tab bar labels |
 
 The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not worth a bundled face).
+
+**Durations** pad their minutes once there are hours: "27h 09m", "1h 07m" (Time design), everywhere, Today's timer included (`DurationText.short`).
 
 ### Motion
 
@@ -152,6 +168,10 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | Dial re-render | Voiced words cross-fade; the headline's words reflow with `Motion.standard` | Cross-fade | none here (the dial's own stops are MO-11) |
 | Day card "View more" | Rows expand in place, `Motion.standard` | Cross-fade | none |
 | Your places: a chip changes the list | Rows reorder, come and go in place, `Motion.standard`; typing in search doesn't animate | Cross-fade | none |
+| Time: hour grid appears | The rows sweep in from 4 AM (scale from the leading edge) and fade in, `Motion.reveal` | Fade only | none |
+| Time: range and Weekday / Weekend | The white pill slides to the chosen option, `Motion.standard` | Pill appears in place | none |
+| Time: a stretch or legend item tapped | The rest of the grid dims to 25%, the callout fades in, `Motion.standard` | Cross-fade | none |
+| Time: Food & drink opens | Coffee, Drinks and Food slide down and fade in, the chevron turns, `Motion.standard` | Fade | none |
 | Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll shows the sky's last colour running on below it | None needed: it moves only with the finger | none |
 | MO-11 Dial drag (You) | The thumb follows the finger along the arc with no animation of its own; the art's pills grow and darken towards the nearest of Peace, Plain and Grind as it moves; the stop's name and line cross-fade (`Motion.standard`) as the thumb crosses into the next stop's half. A tap jumps to the nearest stop with `Motion.standard`. The page follows at once; the rest of the app 0.25 s after the drag rests | No spring on a tap (it jumps); words cross-fade | `Haptic.dialStop` each time the thumb passes a stop |
 | The design's switch | The knob slides and the track's colour changes, `Motion.standard` | `Motion.reduced` (a short slide, like the system's) | none |
@@ -174,7 +194,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | Component | File | Variants and states | First used | Status |
 | --- | --- | --- | --- | --- |
 | `VoiceText` | `DwellUI/Voice/Environment.swift` | Any `VoicedLine`; cross-fades when the dial moves | Setup | Built |
-| `VoicedSentenceView` | `Components/VoicedSentenceView.swift` | A `VoicedSentence`: voiced words at 70% ink, data runs at full ink with a 3D category icon and mono digits; wraps word by word, runs included, icon kept on the run's first word; one VoiceOver label | Today headline | Built |
+| `VoicedSentenceView` | `Components/VoicedSentenceView.swift` | A `VoicedSentence`: voiced words at 70% ink, data runs at full ink (or their own `dataInk`) with a 3D category icon, a clock, the sunrise for yours or an up / down arrow (stand-in [ICON NEEDED]), mono digits; wraps word by word, runs included, icon kept on the run's first word; one VoiceOver label | Today headline; Time headline | Built |
 | `FlowLayout` | `Components/FlowLayout.swift` | Leading / centre / trailing; wraps like text | Today | Built |
 | `CategoryIcon` | `Components/CategoryIcon.swift` | `.illustration` (3D art, glyph fallback) / `.glyph` (Solar bold duotone vectors, drawn as templates so the second tone stays 50% of the ink; SF Symbol fallback); `nil` category draws a pin | Today | Built; art and glyphs for 3 of 14 categories (work, home, food & drink) |
 | `.card()` | `Components/Card.swift` | Surface, radius xl, soft shadow; hairline in dark | Today | Built |
@@ -188,7 +208,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `SoftButtonStyle` (`.soft`) | `Components/Card.swift` | Full-width capsule with sheen and edge; pressed | Today ("View more") | Built |
 | `SectionHeader` | `Components/Card.swift` | Icon + title (header trait) + optional trailing control ("This week": the design's 22-pt arrows, 8 apart, their 44-pt tap areas overlapping) | Today ("This week", "Your day") | Built |
 | `DayBarView` | `Components/DayBarView.swift` | The day so far, in a box (radius 14, padding 8, gap 10, white, ink-5% border). Ticks 4 × 32 capsules, 2 pt apart, count from width; categories in display order, ≤ 7 + Everything else; unmapped last (gaps only, never the hours still to come) as hollow capsules with 45° stripes, outline and stripes #DADADA 80%; each tick and swatch carries five stacked inner shadows in its category's glint (x 0, spread 0; y 13 / 8 / 5 / 2 / 1, blur 4 / 3 / 3 / 2 / 1, opacity 1 / 5 / 18 / 30 / 35%); legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph. SwiftUI shapes, not Swift Charts: Charts doesn't draw inner shadows, and the bar's VoiceOver and audio graph are its own | Today | Built |
-| `StatTile` | `Components/StatTile.swift` | Number, label, icon; behind the icon a 271.55-pt glow: a 133.98-pt disc of the tint fading in from the left (50%, blur 66.82) under sixteen ink rays (radial 50% → 0, fill 15%, layer 20%, as in Figma; 15% ink at the centre was tried on 12 Nov and read too heavy), clipped to the tile; stacks at AX sizes (by the caller) | Today (Figma) | Built |
+| `StatTile` | `Components/StatTile.swift` | Number, label (or label first, Time), icon; behind the icon a 271.55-pt glow: a 133.98-pt disc of the tint fading in from the left (50%, blur 66.82) under sixteen ink rays (radial 50% → 0, fill 15%, layer 20%, as in Figma; 15% ink at the centre was tried on 12 Nov and read too heavy), clipped to the tile; stacks at AX sizes (by the caller) | Today (Figma) | Built |
 | `InsightCard` | `Components/InsightCard.swift` | Topic + share and the voiced sentence 4 apart, then (12 below) a week chart or a lone number | Today | Built |
 | `WeekBarsChart` | `Components/InsightCard.swift` | Seven bars, weekday labels, zero days as a faint sliver; per-bar VoiceOver, audio graph | Today | Built (Swift Charts) |
 | `VisitRow` | `Components/TimelineRow.swift` | Icon well (32, round, #F9F9FB, ink-5% border inside, glyph 18), 8 to the span (14, grey) over the place (16 medium) 4 apart, centred on the well with the space above the span's capitals and below the place's baseline trimmed, so the two lines span the well and the row is 32-33 tall (Figma); then the design's clock (14), duration and chevron (8 × 14), grey; badges Approximate / Private / WFH; "Review this place"; duration moves under the name at AX sizes | Today ("Your day") | Built |
@@ -205,7 +225,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `WeeklyWrapCard` | `Components/WeeklyWrapCard.swift` | The weekly wrap invite: 224 tall (grows at AX sizes), radius 20, radial fill `wrapCentre` → `wrapEdge` (centred 53.7% down, reaching 46% each way), the card shadow; centred: the week (`caption`, white 90%), 2 to the voiced title (`voiceDisplay`, white, at most 280 wide so it breaks after "your"), 12 to "Let's go" (`action`, ink, white capsule 20 × 8, 44-pt tap target). Behind: the glow component in white (rays: radial 50% → 0, fill 30%, layer 50%, turning; Ellipse 39: drawn as the ramp it makes through the card, white 24% → 12% left to right). Always the light scheme, so the card and its ink stay the same in dark mode | Today ("Weekly Wrap") | Built |
 | `.card(fill:)` | `Components/Card.swift` | A card with its own fill and the same shadow and dark edge as every card | Today ("Weekly Wrap") | Built |
 | `IconWell` | `Components/RowParts.swift` | A row's round glyph well (32, page grey, ink-5% border; dashed for a gap), moved out of the timeline row so place rows share it | Today; Your places | Built |
-| `DurationTrail` | `Components/RowParts.swift` | The design's clock (14), a duration as written ("57m", "186h") and the chevron (8 × 14), grey; moved out of the timeline row | Today; Your places | Built |
+| `DurationTrail` | `Components/RowParts.swift` | The design's clock (14), a duration as written ("57m", "186h") and the chevron (8 × 14), grey; moved out of the timeline row. Large: the clock 6 from 18 medium mono, in ink (Time's category rows) | Today; Your places; Time | Built |
 | `DotLine` | `Components/RowParts.swift` | Facts with a 3-pt dot between them ("Work • 48 visits"; 8 to each dot under a place, 12 under a page title); takes the font and colour it's given; wraps between facts; one VoiceOver label | Your places | Built |
 | `PlaceRow` | `Components/PlaceRow.swift` | Well, 8 to the name (16 medium) over its facts (14, grey) 4 apart, centred on the well; the `DurationTrail` on the name's baseline at the trailing edge; 4 below; the time moves under the facts at AX sizes; one VoiceOver label ("Kestriva Labs, Work, 31 visits, 148 hours") | Your places (screenshot) | Built |
 | `SectionLabel` | `Components/PlaceRow.swift` | A list section's label: 14, grey, set in capitals, read as words; header trait | Your places ("FAVOURITES", "ALL PLACES") | Built |
@@ -231,6 +251,23 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
 
 Still expected from the brief: calendar tiles, the segmented range control, calendar match rows.
+| `SegmentedPicker`, `SelectedPill` | `Components/SegmentedPicker.swift` | The design's segmented control: `segmentTrack` capsule, the tab bar's white pill (white 80%, #F6F6F6 edge, four shadows) sliding behind the chosen option. Regular: full width, 44 tall, pill 34, 5 in, labels 14 medium. Compact: hugs its labels, 12 medium, 30 tall. A system segmented `Picker` for VoiceOver | Time (range; Weekday / Weekend) | Built |
+| `CategoryBadge` | `Components/CategoryRow.swift` | A category's glyph (18, navy in every scheme) on a 32 disc of its colour | Time | Built |
+| `DeltaLine` | `Components/CategoryRow.swift` | "↑ 2h 44m longer than usual": arrow 8 from the words, 14 grey; up / down / flat | Time | Built |
+| `CategoryRow` | `Components/CategoryRow.swift` | Badge, 8 to the name (18 medium) over its `DeltaLine` (baselines 24 apart), the time (clock 14, 6 to 18 medium mono, ink) trailing; a chevron opens the subcategories (16, glyph 18, rows 26 apart, 14 below) joined to the badge by a dashed line; tap opens the category; time under the name at AX sizes | Time ("All categories") | Built |
+| `SubcategoryGlyph` | `Components/CategoryRow.swift` | Coffee, drinks, food glyphs; SF Symbol stand-ins [ICON NEEDED] | Time | Built; art to come |
+| `PlaceTrendRow` | `Components/CategoryRow.swift` | Badge, name (16) over its four weeks' time, "↑ 40%" or "Paused" trailing | Time ("Places over time") | Built |
+| `VerticalDashedLine` | `Components/CategoryRow.swift` | `DashedDivider` standing up | Time | Built |
+| `HourGridView` | `Components/HourGridView.swift` | "Every hour of the week": axis (4AM … 4AM, 14 grey), a row per day (label column 37, rows 20 tall 4 apart; a month 8 and 3; a year 16), stretches true to their time, ≥ 5 wide, 2 apart, corners 4, the day bar's glint; gaps hatched; dashed line; legend (12, swatch 12 × 6, 16 apart, 8 in). Tap a stretch or legend item: the rest dims, a callout gives its times or total. Rows sweep in. Audio graph | Time | Built |
+| `TrendBars` | `Components/TimeCharts.swift` | Pairs of bars, work and yours, 24 wide, 6 corners; earlier periods at 40%; labels 14, the shown one in ink. Swift Charts | Time ("Work and yours") | Built |
+| `MeetingRing` | `Components/TimeCharts.swift` | A mark per meeting (106 across, 15 thick, 3° apart), "6/8 meetings" inside. Swift Charts `SectorMark` | Time ("Calendar vs reality") | Built |
+| `RhythmStrip` | `Components/TimeCards.swift` | Four stretches (to lunch, lunch, afternoon, way home) in their colours with light stripes, 3 apart, rounded ends, real lengths (≥ 10); moments under it in columns, 14 grey over 16 ink | Time ("Your rhythm") | Built |
+| `RecordTile`, `RecordArt` | `Components/TimeCards.swift` | Won: a band in the record's tint with its name in capitals (12 medium), a white card 4 in (value 18, date 14 grey, art 34); locked: dashed outline, a `recordLocked` box with what wins it. Corners 20 / 16. Art stand-ins [ICON NEEDED] | Time ("Records") | Built; art to come |
+| `YearCard` | `Components/TimeCards.swift` | Purple radial card with the wrap invite's turning white rays (`WrapGlow`), caption 14, title 28 white, "Open your year" on a white capsule; 20 in; light in every scheme | Time | Built |
+| `InsetBox` | `Components/TimeCards.swift` | `insetSurface`, corners 16, 16 × 12 in | Time ("Worth noticing") | Built |
+| `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
+
+Still expected from the brief: calendar tiles, the privacy bar, the dial, calendar match rows.
 
 ## Patterns
 
@@ -249,6 +286,8 @@ Still expected from the brief: calendar tiles, the segmented range control, cale
 - **You (screen anatomy).** No sky and no sheet: the page's grey (`background`) from the top. "You" (24 medium) and the settings button (`.glassSquare`) 17 below the status bar, 16 from the sides; the profile 15 below: the picture as a pin over a faded MapKit map of the city (centred on its middle, about 20 m to the point, muted, no points of interest, cells in lilac, fading to nothing 165 out), "41 places" tucked under the ring's left edge and "3.2% mapped" on its right, both on glass; 8 to the name (28 medium), 4 to "@maya • Brooklyn". Then the cards, 14 below, 16 apart, 20 from the sides: the dial card (its own blue sky at the top; the three pushes under the arc), Streaks, Badges; 18 to the privacy line. The dial card shows in every state, failed included, because the dial is the phone's own setting.
 - **Section card (You).** Header (`SectionHeader` with a `HeaderLink`) 14 from the top and 16 from the sides, 9 to the dashed line, 14 to the content; a framed group inside takes `Radius.box` and its own wash.
 - **You's art (12 Nov).** The 3D art came exported at 4x; each canvas is trimmed (no resampling) to 4x the frame it's shown in, centred on the art, so it shows at the design's size: `icon/streaks`, `icon/badges` (section headers, 80 px for 20 pt, like Today's), `illustration/pushpin`, `illustration/globe` (the profile's pills, 20 pt), `flame/kept`, `flame/frozen`, `flame/open` (20 × 24 pt), `badge/explorerGold` (25 pt). The dial render ("Plain") is cut into `dial/pill` and `dial/pillCurrent`, saved at 3x (the catalog has no 4x). Glyphs (`glyph/settings`, `sun`, `alarm`, `trophy`, `lock`, `pencil`) are SVG templates, duotone like the timeline's.
+- **Screen anatomy (Time).** No sky: the page's grey from the top. "Time" (24), the date pill centred on the screen (calendar art 18, 6 to the period, 14 medium, a chevron) and share on glass (`.glassSquare`), 17 below the status bar and 16 from the edges; 18 to the range control; then content 20 from the edges, everything scrolling together. The headline (24) 16 below; the "Every hour" card 14 below it; then 20 apart: "All categories" on the page, three cards (Work and yours, Calendar vs reality, Your rhythm), and, 24 apart, "Places over time" and "Records" on the page and the year card. Lists on the page take a section header, a dashed line 10 below it, rows 12 above and below, dashed lines between rows indented past the 32-pt badge. Cards are 16 in, a dashed line 12 under the header. Measured from the screenshots: the top of the page and "All categories" precisely, the cards below "All categories" from the low-resolution full page.
+- **Usual.** Time compares a period with the average of the four before it, once Dwell was recording for all of them; a period still being lived counts each earlier one only as far in ("Monday so far"). The headline's change and every row's "than usual" are the same number.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 
 ## Change log
@@ -308,3 +347,4 @@ Still expected from the brief: calendar tiles, the segmented range control, cale
 | 2026-11-12 | Your places (back button, Figma) | The back button is glass: Liquid Glass on iOS 26+ in the design's 40-pt square with 13-pt corners, the close button's drawn glass before that; arrow 20 and black; chips take 13-pt corners too, and `Radius.control` (12) is gone |
 | 2026-11-12 | You (screenshot) | The profile on a MapKit map with uncovered cells, glass pills, the dial (arc control, drawn art, sky glow), the design's switch and switch rows for the three pushes, the streak card (run, rule, flames, figures), the badge grid, the privacy bar; type roles `profileName` 28 and `dataDisplay` 32; colours for streaks, the dial, switches, the privacy bar, cells and medals |
 | 2026-11-12 | You (art) | The design's art in place: header flame and medal, push pin and globe on the profile's pills, the three flames, Explorer's gold medal, the dial's pills cut from the Plain render (they now draw every stop), the gear, sun, alarm clock, trophy and lock glyphs; `dialPill`, `dialPillCurrent` and `privacyIcon` are gone |
+| 2026-11-12 | Time (screenshots) | The Time page: `SegmentedPicker`, `HourGridView`, `CategoryRow` with subcategories, `TrendBars`, `MeetingRing`, `RhythmStrip`, `RecordTile`, `YearCard`, `InsetBox`; text roles `cardTitle` (28) and `rowTitle` (18); colours for the range track, inset box, yours bars, meetings, records, rhythm and the year card; Fitness, Social and Everything else take Time's colours, the rest of the categories keep Today's; durations pad their minutes ("27h 09m") everywhere |

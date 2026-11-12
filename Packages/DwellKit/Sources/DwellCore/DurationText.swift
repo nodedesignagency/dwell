@@ -1,12 +1,14 @@
 import Foundation
 
-/// How Dwell writes a length of time: "9h 32m", "57m", "10h".
+/// How Dwell writes a length of time: "9h 32m", "1h 07m", "57m", "10h".
 public enum DurationText {
     /// Rounds down to whole minutes, so Dwell never claims time it didn't see.
     /// Shows in monospaced digits wherever it appears (that is the UI's job).
     ///
-    /// Edge cases are open questions (docs/QUESTIONS.md): whole hours drop the
-    /// minutes ("10h"), and anything under a minute reads "<1m".
+    /// After hours, minutes take two digits ("27h 09m", "1h 07m"), as the Time design writes
+    /// them, so the minutes line up from row to row. Edge cases are open questions
+    /// (docs/QUESTIONS.md): whole hours drop the minutes ("10h"), and anything under a minute
+    /// reads "<1m".
     public static func short(_ interval: TimeInterval) -> String {
         guard interval >= 60 else { return interval > 0 ? "<1m" : "0m" }
         let minutes = Int(interval / 60)
@@ -15,7 +17,7 @@ public enum DurationText {
         switch (hours, rest) {
         case (0, _): return "\(rest)m"
         case (_, 0): return "\(hours)h"
-        default: return "\(hours)h \(rest)m"
+        default: return "\(hours)h \(rest < 10 ? "0" : "")\(rest)m"
         }
     }
 

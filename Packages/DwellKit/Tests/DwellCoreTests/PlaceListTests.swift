@@ -41,7 +41,7 @@ struct PlaceListTests {
 
     @Test func `sorts by visits and by name, ties by name`() {
         let byVisits = PlaceQuery(sort: .mostVisits).sorted(places)
-        #expect(names(Array(byVisits.prefix(3))) == ["Home", "Brambleline Café", "Kestriva Labs"])
+        #expect(names(Array(byVisits.prefix(3))) == ["Home", "Kestriva Labs", "Brambleline Café"])
         let byName = PlaceQuery(sort: .name).sorted(places)
         #expect(byName.first?.name == "Ashgrove Library")
         #expect(byName.last?.name == "Tidewater Books")
@@ -57,7 +57,7 @@ struct PlaceListTests {
         let sections = PlaceQuery(category: .foodAndDrink).sections(places)
         #expect(sections.map(\.kind) == [.favorites, .all])
         #expect(names(sections[0].places) == ["Brambleline Café"])
-        #expect(names(sections[1].places) == ["Brambleline Café", "Juniper & Vine", "Sorrel Kitchen"])
+        #expect(names(sections[1].places) == ["Brambleline Café", "Sorrel Kitchen", "Juniper & Vine"])
     }
 
     @Test func `the category menu offers only categories with places`() {
@@ -86,9 +86,9 @@ struct PlaceListTests {
     }
 
     @Test func `the header counts every place and its time`() {
-        #expect(PlacesCopy.count(places.count) == "14 places")
+        #expect(PlacesCopy.count(places.count) == "15 places")
         #expect(PlacesCopy.count(1) == "1 place")
-        #expect(PlacesCopy.mapped(places.totalTime) == "675h mapped")
+        #expect(PlacesCopy.mapped(places.totalTime) == "1285h mapped")
     }
 }
 
@@ -113,7 +113,7 @@ struct PlaceDetailsTests {
 
     @Test func `category and visits`() {
         let details = PlacesCopy.details(for: SampleData.place("kestriva"), now: now, calendar: calendar)
-        #expect(details == ["Work", "31 visits"])
+        #expect(details == ["Work", "68 visits"])
     }
 
     @Test func `home says since when`() {

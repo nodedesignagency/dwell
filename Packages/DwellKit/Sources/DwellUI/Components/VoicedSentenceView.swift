@@ -18,11 +18,17 @@ public struct VoicedSentenceView: View {
     private let sentence: VoicedSentence
     private let role: TextRole
     private let ink: Color
+    private let dataInk: Color
 
-    public init(_ sentence: VoicedSentence, role: TextRole = .voiceHero, ink: Color = Palette.textPrimary) {
+    /// - Parameters:
+    ///   - ink: the voiced words, set at 70% of it.
+    ///   - dataInk: the runs, at full strength. Today sets both on the sky's ink; Time's
+    ///     headline sets its runs in `textPrimary` (navy) by the voiced words' grey (Time design).
+    public init(_ sentence: VoicedSentence, role: TextRole = .voiceHero, ink: Color = Palette.textPrimary, dataInk: Color? = nil) {
         self.sentence = sentence
         self.role = role
         self.ink = ink
+        self.dataInk = dataInk ?? ink
     }
 
     public var body: some View {
@@ -70,6 +76,24 @@ public struct VoicedSentenceView: View {
         }
     }
 
+    @ViewBuilder
+    private func markIcon(_ mark: VoicedSentence.Run.Mark) -> some View {
+        switch mark {
+        case .clock:
+            Art.Illustration.clock.resizable().scaledToFit()
+        case .yours:
+            Art.heroYours.resizable().scaledToFit()
+        case .up, .down:
+            // [ICON NEEDED] the design's 3D grey arrow; a bold arrow in the words' grey until then.
+            Image(systemName: mark == .up ? "arrow.up" : "arrow.down")
+                .resizable()
+                .scaledToFit()
+                .fontWeight(.heavy)
+                .foregroundStyle(ink.opacity(0.7))
+                .padding(.vertical, 2)
+        }
+    }
+
     private func voiceWord(_ word: String) -> some View {
         Text(verbatim: word)
             .foregroundStyle(ink.opacity(0.7))
@@ -83,17 +107,15 @@ public struct VoicedSentenceView: View {
             if let category = piece.category {
                 CategoryIcon(category, style: .illustration)
                     .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(ink)
-            } else if piece.mark == .clock {
-                Art.Illustration.clock
-                    .resizable()
-                    .scaledToFit()
+                    .foregroundStyle(dataInk)
+            } else if let mark = piece.mark {
+                markIcon(mark)
                     .frame(width: iconSize, height: iconSize)
                     .accessibilityHidden(true)
             }
             Text(verbatim: piece.text)
                 .monospacedDigit()
-                .foregroundStyle(ink)
+                .foregroundStyle(dataInk)
         }
     }
 }

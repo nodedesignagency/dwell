@@ -35,6 +35,8 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
     public let id: PlaceID
     public var name: String
     public var category: PlaceCategory
+    /// Coffee, drinks or food within Food & drink, where known (Time's breakdown).
+    public var subcategory: PlaceSubcategory?
     public var role: Role?
     public var shareLevel: ShareLevel
     public var isFavorite: Bool
@@ -49,6 +51,7 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
         id: PlaceID,
         name: String,
         category: PlaceCategory,
+        subcategory: PlaceSubcategory? = nil,
         role: Role? = nil,
         shareLevel: ShareLevel = .category,
         isFavorite: Bool = false,
@@ -60,6 +63,7 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
         self.id = id
         self.name = name
         self.category = category
+        self.subcategory = subcategory
         self.role = role
         self.shareLevel = shareLevel
         self.isFavorite = isFavorite

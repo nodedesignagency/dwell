@@ -13,6 +13,11 @@ public struct VoicedSentence: Hashable, Sendable {
         /// An icon for a run that isn't a place's time.
         public enum Mark: Hashable, Sendable {
             case clock
+            /// A change up or down from usual: "up by 2h 44m" (Time).
+            case up
+            case down
+            /// Time that's yours: the sun over the clouds (Time's headline, Today's Yours tile).
+            case yours
         }
 
         public var category: PlaceCategory?

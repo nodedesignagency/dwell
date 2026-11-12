@@ -159,7 +159,7 @@ public struct DayBarView: View {
     /// The design's tick: five inner shadows in the glint, all at x 0 and spread 0, stacked
     /// from a faint wash 13 pt down to a crisp 1 pt line at the top edge. Figma blur is twice
     /// SwiftUI's shadow radius.
-    private static func shaded(_ fill: Color, glint: Color) -> some ShapeStyle {
+    static func shaded(_ fill: Color, glint: Color) -> some ShapeStyle {
         fill
             .shadow(.inner(color: glint.opacity(0.01), radius: 2, x: 0, y: 13))
             .shadow(.inner(color: glint.opacity(0.05), radius: 1.5, x: 0, y: 8))
@@ -191,7 +191,7 @@ private struct UnmappedCapsule: View {
 }
 
 /// Parallel lines running down to the right at 45°, `spacing` apart along the width.
-nonisolated private struct DiagonalStripes: Shape {
+nonisolated struct DiagonalStripes: Shape {
     var spacing: CGFloat
 
     func path(in rect: CGRect) -> Path {

@@ -25,7 +25,10 @@ DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPl
                                     # motionDenied
 DWELL_OPEN=you ./scripts/run.sh     # open You
 DWELL_OPEN=places ./scripts/run.sh  # open Your places (You → Your places)
+DWELL_OPEN=time ./scripts/run.sh    # open the Time tab
 ```
+
+Time opens on the week being lived, which on the sample's Monday afternoon is one day so far; tap the dates (or Week → the pill) and pick Oct 19 – 25 for a full week like the design. Behind the sample week are seven generated weeks back to the install day (31 August), so weeks, months and the year have something to compare.
 
 `DWELL_OPEN` and `DWELL_STATE` combine: `DWELL_OPEN=places DWELL_STATE=firstDay` is Your places with nothing mapped yet, `firstPlace` with one place, `loading`, `failed` and `offline` its other states. The same goes for You: `DWELL_OPEN=you DWELL_STATE=firstDay` has no streaks and every badge locked, `firstPlace` one place and one cell.
 

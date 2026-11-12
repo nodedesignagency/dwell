@@ -100,9 +100,43 @@ public enum Palette {
     public static let silver = Color("silver", bundle: .module)
     /// A gold badge's medal (stand-in until the badge art arrives) (placeholder)
     public static let gold = Color("gold", bundle: .module)
-    /// The chart fold bucket, Everything else. Not a category. (placeholder)
+    /// Time: the track under the range control (Day / Week / Month / Year) and the Weekday / Weekend toggle. Read from the screenshot
+    public static let segmentTrack = Color("segmentTrack", bundle: .module)
+    /// Time: a box set into a card (Worth noticing). Read from the screenshot
+    public static let insetSurface = Color("insetSurface", bundle: .module)
+    /// Time: the yours bars in Work and yours (work's are the Work colour). Read from the screenshot
+    public static let yoursChart = Color("yoursChart", bundle: .module)
+    /// Time: Calendar vs reality, an attended meeting on the ring. Read from the screenshot
+    public static let meetingAttended = Color("meetingAttended", bundle: .module)
+    /// Time: Calendar vs reality, a meeting left early or joined late. Read from the screenshot
+    public static let meetingPartial = Color("meetingPartial", bundle: .module)
+    /// Time: Calendar vs reality, a meeting you were elsewhere for. Read from the screenshot
+    public static let meetingMissed = Color("meetingMissed", bundle: .module)
+    /// Time: a record tile's band, for a length of time (Longest day). Read from the screenshot
+    public static let recordDuration = Color("recordDuration", bundle: .module)
+    /// Time: a record tile's band, for a time of day (Earliest in). Read from the screenshot
+    public static let recordTime = Color("recordTime", bundle: .module)
+    /// Time: a record tile's band, for days in a row (Gym streak). Read from the screenshot
+    public static let recordStreak = Color("recordStreak", bundle: .module)
+    /// Time: a record tile's band, for a count (Places in a day). Read from the screenshot
+    public static let recordCount = Color("recordCount", bundle: .module)
+    /// Time: the box inside a record still to win. Read from the screenshot
+    public static let recordLocked = Color("recordLocked", bundle: .module)
+    /// Time: Your rhythm, arrival to lunch. Read from the screenshot
+    public static let rhythmMorning = Color("rhythmMorning", bundle: .module)
+    /// Time: Your rhythm, lunch. Read from the screenshot
+    public static let rhythmLunch = Color("rhythmLunch", bundle: .module)
+    /// Time: Your rhythm, lunch to leaving. Read from the screenshot
+    public static let rhythmAfternoon = Color("rhythmAfternoon", bundle: .module)
+    /// Time: Your rhythm, leaving to home. Read from the screenshot
+    public static let rhythmWayHome = Color("rhythmWayHome", bundle: .module)
+    /// Time: the year in places card, the middle of its radial fill. Read from the screenshot
+    public static let yearCentre = Color("yearCentre", bundle: .module)
+    /// Time: the year in places card, the edge of its radial fill. Read from the screenshot
+    public static let yearEdge = Color("yearEdge", bundle: .module)
+    /// The chart fold bucket, Everything else. Not a category. Time design
     public static let everythingElse = Color("everythingElse", bundle: .module)
-    /// The tint Everything else ticks catch along their top edge (placeholder)
+    /// The tint Everything else ticks catch along their top edge
     public static let everythingElseGlint = Color("everythingElseGlint", bundle: .module)
 }
 

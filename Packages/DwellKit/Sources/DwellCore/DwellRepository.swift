@@ -28,6 +28,43 @@ public protocol DwellRepository: Sendable {
     func coverage() async throws -> [ScratchCoverage]
     /// The neighborhood cells uncovered so far, for the map behind You's profile.
     func scratchCells() async throws -> [ScratchCell]
+
+    // MARK: Time
+
+    /// Every day from `first` through `last`, in order: a week, a month or a year for Time.
+    /// Days still to come come back empty. Defaults to one `day(_:)` at a time; an engine
+    /// adapter should answer in one go.
+    func days(from first: DwellDay, through last: DwellDay) async throws -> [DaySnapshot]
+    /// Lifetime bests, unlocked and locked (Time's records wall).
+    func records() async throws -> [PersonalRecord]
+    /// The places growing, shrinking or paused over the last weeks (Time's places over time).
+    func placeTrends() async throws -> [PlaceTrend]
+    /// Whether a calendar is connected. Until one is, Calendar vs reality sells the feature.
+    func isCalendarConnected() async throws -> Bool
+}
+
+extension DwellRepository {
+    public func days(from first: DwellDay, through last: DwellDay) async throws -> [DaySnapshot] {
+        var snapshots: [DaySnapshot] = []
+        var day = first
+        while day <= last {
+            snapshots.append(try await self.day(day))
+            day = day.next
+        }
+        return snapshots
+    }
+}
+
+extension DwellDay {
+    /// The next date. Calendar dates step the same in every time zone, so no user calendar is
+    /// needed.
+    var next: DwellDay {
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = TimeZone(identifier: "UTC") ?? gregorian.timeZone
+        let noon = gregorian.date(from: DateComponents(year: year, month: month, day: day, hour: 12)) ?? .distantPast
+        let parts = gregorian.dateComponents([.year, .month, .day], from: noon.addingTimeInterval(86_400))
+        return DwellDay(year: parts.year ?? year, month: parts.month ?? month, day: parts.day ?? day)
+    }
 }
 
 /// Serves `SampleData`. Used by previews, the simulator and the fictional demo.
@@ -74,11 +111,23 @@ public struct SampleRepository: DwellRepository {
         SampleData.badges
     }
 
+    public func records() async throws -> [PersonalRecord] {
+        SampleData.records
+    }
+
+    public func placeTrends() async throws -> [PlaceTrend] {
+        SampleData.placeTrends
+    }
+
     public func coverage() async throws -> [ScratchCoverage] {
         SampleData.coverage
     }
 
     public func scratchCells() async throws -> [ScratchCell] {
         SampleData.scratchCells
+    }
+
+    public func isCalendarConnected() async throws -> Bool {
+        true
     }
 }

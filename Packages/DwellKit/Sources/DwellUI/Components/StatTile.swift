@@ -8,26 +8,39 @@ public struct StatTile<Icon: View>: View {
     private let label: String
     private let spokenValue: String
     private let tint: Color
+    private let labelFirst: Bool
     private let icon: Icon
 
-    /// - Parameter spokenValue: what VoiceOver reads for `value`, e.g. "4 hours, 40 minutes".
-    public init(value: String, label: String, spokenValue: String? = nil, tint: Color, @ViewBuilder icon: () -> Icon) {
+    /// - Parameters:
+    ///   - spokenValue: what VoiceOver reads for `value`, e.g. "4 hours, 40 minutes".
+    ///   - labelFirst: the label over the number (Time's "At work · 42h 29m"); Today's tiles
+    ///     put the number first.
+    public init(
+        value: String,
+        label: String,
+        spokenValue: String? = nil,
+        tint: Color,
+        labelFirst: Bool = false,
+        @ViewBuilder icon: () -> Icon
+    ) {
         self.value = value
         self.label = label
         self.spokenValue = spokenValue ?? value
         self.tint = tint
+        self.labelFirst = labelFirst
         self.icon = icon()
     }
 
     public var body: some View {
         HStack(spacing: Space.s) {
             VStack(alignment: .leading, spacing: Space.xs) {
-                Text(verbatim: value)
-                    .textRole(.dataStat)
-                    .foregroundStyle(Palette.textPrimary)
-                Text(verbatim: label)
-                    .textRole(.caption)
-                    .foregroundStyle(Palette.textSecondary)
+                if labelFirst {
+                    labelText
+                    valueText
+                } else {
+                    valueText
+                    labelText
+                }
             }
             Spacer(minLength: Space.xs)
             icon
@@ -55,6 +68,18 @@ public struct StatTile<Icon: View>: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityValue(spokenValue)
+    }
+
+    private var valueText: some View {
+        Text(verbatim: value)
+            .textRole(.dataStat)
+            .foregroundStyle(Palette.textPrimary)
+    }
+
+    private var labelText: some View {
+        Text(verbatim: label)
+            .textRole(.caption)
+            .foregroundStyle(Palette.textSecondary)
     }
 }
 

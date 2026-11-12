@@ -28,6 +28,8 @@ public struct Visit: Identifiable, Hashable, Codable, Sendable {
     public var placeName: String
     /// Usually the place's category; a work-from-home visit at home counts as work.
     public var category: PlaceCategory
+    /// The place's subcategory, where it has one; `nil` for a work-from-home visit.
+    public var subcategory: PlaceSubcategory?
     public var arrival: Date
     /// `nil` while the visit is still going ("→ now").
     public var departure: Date?
@@ -41,6 +43,7 @@ public struct Visit: Identifiable, Hashable, Codable, Sendable {
         placeID: PlaceID?,
         placeName: String,
         category: PlaceCategory,
+        subcategory: PlaceSubcategory? = nil,
         arrival: Date,
         departure: Date?,
         precision: Precision = .exact,
@@ -52,6 +55,7 @@ public struct Visit: Identifiable, Hashable, Codable, Sendable {
         self.placeID = placeID
         self.placeName = placeName
         self.category = category
+        self.subcategory = subcategory
         self.arrival = arrival
         self.departure = departure
         self.precision = precision

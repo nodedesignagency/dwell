@@ -34,34 +34,54 @@ public struct IconWell<Glyph: View>: View {
 /// (Today's timeline: "57m"; Your places: "186h"). VoiceOver reads the row, not this.
 public struct DurationTrail: View {
     @ScaledMetric(relativeTo: .subheadline) private var clockSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .body) private var largeClock: CGFloat = 14
     private let text: String
     private let showsChevron: Bool
+    private let isLarge: Bool
 
-    /// - Parameter text: the duration as written, "57m" or "186h".
-    public init(_ text: String, showsChevron: Bool) {
+    /// - Parameters:
+    ///   - text: the duration as written, "57m" or "186h".
+    ///   - isLarge: Time's category rows: the number in ink at 18 (`rowTitle`), the clock still
+    ///     14 and 6 from it (Time design); otherwise all grey at 14.
+    public init(_ text: String, showsChevron: Bool, isLarge: Bool = false) {
         self.text = text
         self.showsChevron = showsChevron
+        self.isLarge = isLarge
     }
 
     public var body: some View {
-        HStack(spacing: Space.xs) {
-            Art.clock
-                .resizable()
-                .scaledToFit()
-                .frame(width: clockSize, height: clockSize)
-                .accessibilityHidden(true)
-            Text(verbatim: text)
-                .monospacedDigit()
-            if showsChevron {
-                Art.chevron
+        if isLarge {
+            HStack(spacing: 6) {
+                Art.clock
                     .resizable()
                     .scaledToFit()
-                    .frame(width: clockSize * 8 / 14, height: clockSize)
+                    .frame(width: largeClock, height: largeClock)
+                    .foregroundStyle(Palette.textPrimary)
                     .accessibilityHidden(true)
+                Text(verbatim: text)
+                    .textRole(.rowTitle, monospacedDigits: true)
+                    .foregroundStyle(Palette.textPrimary)
             }
+        } else {
+            HStack(spacing: Space.xs) {
+                Art.clock
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: clockSize, height: clockSize)
+                    .accessibilityHidden(true)
+                Text(verbatim: text)
+                    .monospacedDigit()
+                if showsChevron {
+                    Art.chevron
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: clockSize * 8 / 14, height: clockSize)
+                        .accessibilityHidden(true)
+                }
+            }
+            .textRole(.data)
+            .foregroundStyle(Palette.textSecondary)
         }
-        .textRole(.data)
-        .foregroundStyle(Palette.textSecondary)
     }
 }
 

@@ -107,3 +107,30 @@ extension ChartSlice {
         return slices
     }
 }
+
+/// A finer kind of place inside a category: Time's breakdown opens Food & drink into Coffee,
+/// Drinks and Food (Time design). Not in the brief's fixed category set, which it leaves
+/// untouched: a place still counts toward its category. The engine would need to tag places
+/// with one (QUESTIONS.md); places without one simply don't break down.
+public enum PlaceSubcategory: String, CaseIterable, Codable, Sendable, Identifiable {
+    case coffee
+    case drinks
+    case food
+
+    public var id: Self { self }
+
+    /// The category it breaks down.
+    public var category: PlaceCategory {
+        switch self {
+        case .coffee, .drinks, .food: .foodAndDrink
+        }
+    }
+
+    public var name: String {
+        switch self {
+        case .coffee: "Coffee"
+        case .drinks: "Drinks"
+        case .food: "Food"
+        }
+    }
+}

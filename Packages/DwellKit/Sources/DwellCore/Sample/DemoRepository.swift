@@ -135,6 +135,23 @@ public struct DemoRepository: DwellRepository {
         }
     }
 
+    /// A new account has every record still to win.
+    public func records() async throws -> [PersonalRecord] {
+        try await gate()
+        switch mode {
+        case .firstDay, .firstPlace: return SampleData.records.map(\.locked)
+        default: return try await sample.records()
+        }
+    }
+
+    public func placeTrends() async throws -> [PlaceTrend] {
+        try await gate()
+        switch mode {
+        case .firstDay, .firstPlace: return []
+        default: return try await sample.placeTrends()
+        }
+    }
+
     public func coverage() async throws -> [ScratchCoverage] {
         try await gate()
         switch mode {
@@ -155,6 +172,15 @@ public struct DemoRepository: DwellRepository {
         case .firstDay: return []
         case .firstPlace: return SampleData.FirstPlace.scratchCells
         default: return try await sample.scratchCells()
+        }
+    }
+
+    /// New accounts haven't connected a calendar yet.
+    public func isCalendarConnected() async throws -> Bool {
+        try await gate()
+        switch mode {
+        case .firstDay, .firstPlace: return false
+        default: return try await sample.isCalendarConnected()
         }
     }
 
