@@ -80,7 +80,7 @@ public struct ConfirmationCard<Artwork: View>: View {
             let shape = RoundedRectangle(cornerRadius: Radius.xl)
             shape
                 .fill(Palette.inverseSurface)
-                .overlay { TopGlow().clipShape(shape) }
+                .overlay { InverseGlow().clipShape(shape) }
                 .overlay { SweepingSheen().clipShape(shape) }
         }
         .accessibilityElement(children: .contain)
@@ -145,66 +145,5 @@ public struct ConfirmationCard<Artwork: View>: View {
         .textRole(.footnote, weight: .semibold)
         // The pill's ink is drawn for a white pill; keep it in dark mode too.
         .environment(\.colorScheme, .light)
-    }
-}
-
-/// The light along the card's top edge: the design's five inner shadows, in the warm white
-/// #FAEFD5, read from the screenshot as 15% at the edge fading to about 1% at the bottom.
-/// Replace with the five Figma inner shadows once their values are in. [VALUES NEEDED]
-private struct TopGlow: View {
-    var body: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Palette.inverseGlow.opacity(0.15), location: 0),
-                .init(color: Palette.inverseGlow.opacity(0.11), location: 0.1),
-                .init(color: Palette.inverseGlow.opacity(0.08), location: 0.2),
-                .init(color: Palette.inverseGlow.opacity(0.055), location: 0.35),
-                .init(color: Palette.inverseGlow.opacity(0.038), location: 0.5),
-                .init(color: Palette.inverseGlow.opacity(0.018), location: 0.7),
-                .init(color: Palette.inverseGlow.opacity(0.009), location: 1),
-            ],
-            startPoint: .top,
-            endPoint: .bottom)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-    }
-}
-
-/// The card's two streaks of light, sweeping across it left to right on a steady loop, so it
-/// reads as waiting for an answer. Each pass starts just off the leading edge and ends off the
-/// trailing one, so the jump back is never seen. Under Reduce Motion they rest where the
-/// design draws them.
-private struct SweepingSheen: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        if reduceMotion {
-            Sheen()
-        } else {
-            Sheen()
-                .phaseAnimator(SweepPhase.allCases) { content, phase in
-                    let shift = phase.shift
-                    content.visualEffect { content, proxy in
-                        content.offset(x: shift * proxy.size.width)
-                    }
-                } animation: { phase in
-                    switch phase {
-                    case .after: Motion.sweep
-                    case .before: nil // off the card on both sides, so the jump is never seen
-                    }
-                }
-        }
-    }
-}
-
-nonisolated private enum SweepPhase: CaseIterable {
-    case before, after
-
-    /// Where the streaks sit, as a share of the card's width from where the design draws them.
-    var shift: CGFloat {
-        switch self {
-        case .before: -0.5
-        case .after: 1
-        }
     }
 }

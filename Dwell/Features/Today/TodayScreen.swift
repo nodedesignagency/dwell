@@ -8,6 +8,10 @@ import UIKit
 /// Loads one day from the repository and ticks once a minute, on the minute the live visit
 /// started, so the timer never lags. The day pill picks a past day; past days drop the live
 /// status, the insights and the confirmation card.
+///
+/// With location off, "Turn on your location" slides up over Today once per launch, a moment
+/// after Today has settled, and the banner's button opens it again. A modal, against brief §8.3; the client approved
+/// it (QUESTIONS.md). "Yes, turn on" goes to Settings.
 struct TodayScreen: View {
     var openProfile: () -> Void = {}
 
@@ -16,6 +20,7 @@ struct TodayScreen: View {
     @Environment(\.clockOffset) private var clockOffset
     @Environment(\.calendar) private var calendar
     @Environment(\.openURL) private var openURL
+    @Environment(\.permissions) private var permissions
 
     @State private var state: Loadable<TodayModel> = .loading
     @State private var pickedDay: DwellDay?
@@ -26,6 +31,8 @@ struct TodayScreen: View {
     @State private var openedWraps: Set<WeeklyWrap.ID> = []
     @State private var openPlace: PlaceID?
     @State private var pending: PendingSheet?
+    @State private var isAskingForLocation = false
+    @State private var hasAskedForLocation = false
 
     var body: some View {
         NavigationStack {
@@ -56,8 +63,36 @@ struct TodayScreen: View {
                 PendingView(title: sheet.title, systemImage: sheet.systemImage)
                     .presentationDetents([.medium])
             }
+            .promptSheet(isPresented: $isAskingForLocation) {
+                PromptSheet(
+                    titleLines: LocationSheetCopy.titleLines,
+                    message: LocationSheetCopy.message,
+                    art: Art.Illustration.place,
+                    actionTitle: LocationSheetCopy.action,
+                    closeLabel: LocationSheetCopy.close,
+                    onAction: {
+                        isAskingForLocation = false
+                        openSettings()
+                    },
+                    onClose: { isAskingForLocation = false })
+            }
+        }
+        .onChange(of: permissions.banner, initial: true) { _, banner in
+            guard banner == .locationDenied, !hasAskedForLocation else { return }
+            hasAskedForLocation = true
+            Task {
+                // Let Today settle on screen first, so the sheet arrives on its own.
+                try? await Task.sleep(for: .milliseconds(700))
+                isAskingForLocation = true
+            }
         }
         .haptic(.confirm, trigger: confirmed.count)
+    }
+
+    private func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            openURL(url)
+        }
     }
 
     // MARK: Loading
@@ -142,10 +177,12 @@ struct TodayScreen: View {
                 dismissed.insert(insight.id)
                 Task { try? await repository.dismissInsight(insight.id) }
             },
-            fixPermission: { _ in
-                // "Fix" will open the Always upgrade (O-08) once it is designed.
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    openURL(url)
+            fixPermission: { banner in
+                if banner == .locationDenied {
+                    isAskingForLocation = true
+                } else {
+                    // "Fix" will open the Always upgrade (O-08) once it is designed.
+                    openSettings()
                 }
             })
     }

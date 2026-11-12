@@ -250,3 +250,13 @@ public struct GettingStartedStep: Hashable, Sendable {
         self.detail = detail
     }
 }
+
+/// The sheet that asks for location when it's off (Today design, "Turn Location"). A modal,
+/// which brief §8.3 rules out; the client approved it (QUESTIONS.md). The banner stays too.
+public enum LocationSheetCopy {
+    /// Set on two lines, as designed.
+    public static let titleLines = ["Turn on", "your location"]
+    public static let message = "Mapping is disabled. Please turn on your location from the settings"
+    public static let action = "Yes, turn on"
+    public static let close = "Not now"
+}

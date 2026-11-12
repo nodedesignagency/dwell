@@ -10,6 +10,8 @@ import SwiftUI
 public enum TextRole: CaseIterable, Sendable {
     /// A big voiced line on a feature card: the weekly wrap invite. 32.
     case voiceDisplay
+    /// A sheet's big title: "Turn on your location". 40.
+    case display
     /// Today's headline sentence. 24.
     case voiceHero
     /// Insight sentences. 22.
@@ -41,6 +43,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var size: CGFloat {
         switch self {
+        case .display: 40
         case .voiceDisplay: 32
         case .voiceHero, .pageTitle: 24
         case .voice: 22
@@ -59,7 +62,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
-        case .voiceDisplay: .largeTitle
+        case .display, .voiceDisplay: .largeTitle
         case .voiceHero, .pageTitle: .title2
         case .voice: .title3
         case .dataHero: .largeTitle
@@ -74,7 +77,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .voiceDisplay, .voiceHero, .voice, .dataHero, .dataStat, .pageTitle, .title, .body, .label, .action, .tab: .medium
+        case .display, .voiceDisplay, .voiceHero, .voice, .dataHero, .dataStat, .pageTitle, .title, .body, .label, .action, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }
