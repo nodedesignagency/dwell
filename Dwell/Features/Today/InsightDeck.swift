@@ -12,6 +12,7 @@ struct InsightDeck: View {
     var onNotUseful: (Insight) -> Void = { _ in }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .title3) private var arrowSize: CGFloat = 22
     @State private var index = 0
     @State private var isForward = true
 
@@ -20,8 +21,8 @@ struct InsightDeck: View {
         VStack(spacing: Space.m) {
             SectionHeader("This week", icon: Art.thisWeek) {
                 HStack(spacing: 0) {
-                    arrow("arrow.left", label: "Previous insight", isEnabled: current > 0) { step(-1, from: current) }
-                    arrow("arrow.right", label: "Next insight", isEnabled: current < insights.count - 1) { step(1, from: current) }
+                    arrow(back: true, label: "Previous insight", isEnabled: current > 0) { step(-1, from: current) }
+                    arrow(back: false, label: "Next insight", isEnabled: current < insights.count - 1) { step(1, from: current) }
                 }
                 .padding(.vertical, -Space.m)
                 .padding(.trailing, -Space.m)
@@ -76,10 +77,14 @@ struct InsightDeck: View {
             removal: .move(edge: isForward ? .leading : .trailing).combined(with: .opacity))
     }
 
-    private func arrow(_ symbol: String, label: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
+    /// The design's arrow (22), mirrored to point back.
+    private func arrow(back: Bool, label: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: symbol)
-                .textRole(.title)
+            Art.arrow
+                .resizable()
+                .scaledToFit()
+                .frame(width: arrowSize, height: arrowSize)
+                .scaleEffect(x: back ? -1 : 1)
                 .foregroundStyle(isEnabled ? Palette.textPrimary : Palette.textSecondary.opacity(0.4))
                 .frame(width: 44, height: 44)
                 .contentShape(.rect)

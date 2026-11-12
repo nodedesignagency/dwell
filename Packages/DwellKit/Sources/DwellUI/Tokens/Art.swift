@@ -19,6 +19,13 @@ public enum Art {
     public static let thisWeek = Image("icon/thisWeek", bundle: .module)
     public static let yourDay = Image("icon/yourDay", bundle: .module)
 
+    /// Line icons from the design, drawn as templates so they take the ink they're given:
+    /// the clock by a timeline row's duration (14), the row's chevron (8 × 14), and the
+    /// arrow on "This week" (22; mirrored, it points back).
+    public static let clock = Image("glyph/clock", bundle: .module).renderingMode(.template)
+    public static let chevron = Image("glyph/chevron", bundle: .module).renderingMode(.template)
+    public static let arrow = Image("icon/arrow", bundle: .module).renderingMode(.template)
+
     /// The tab bar's icons, from the design. Drawn for light; their dark versions invert the
     /// tones (white outline, dark fill), derived by us.
     public enum Tab {

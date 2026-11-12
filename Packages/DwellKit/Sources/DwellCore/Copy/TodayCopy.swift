@@ -120,6 +120,10 @@ public enum TodayCopy {
         "Dwell was asleep · \(DurationText.short(duration))"
     }
 
+    /// The titles of the rows between visits; their span and duration sit beside them.
+    public static let transitTitle = "In transit"
+    public static let gapTitle = "Dwell was asleep"
+
     public static func transitRow(_ duration: TimeInterval) -> String {
         "In transit · \(DurationText.short(duration))"
     }

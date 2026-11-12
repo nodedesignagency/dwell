@@ -3,8 +3,8 @@ import DwellUI
 import SwiftUI
 
 /// The day as a list, newest first (Today design, "Your day"). Shows the last three visits
-/// with what came between them; "View more" opens the whole day. Transit and gaps are slim
-/// rows, and a gap always reads as a gap ("Dwell was asleep · 22m").
+/// with what came between them; "View more" opens the whole day. Transit and gaps are shaped
+/// like visits, and a gap always reads as a gap ("Dwell was asleep", its span and duration).
 struct DayTimelineCard: View {
     let snapshot: DaySnapshot
     let now: Date
@@ -69,9 +69,19 @@ struct DayTimelineCard: View {
                     if let id = visit.placeID { onOpenPlace(id) }
                 }
         case .transit(let interval):
-            TimelineNote(TodayCopy.transitRow(interval.duration), symbol: "tram.fill", isGap: false)
+            TimelineNote(
+                TodayCopy.transitTitle,
+                span: ClockText.span(from: interval.start, to: interval.end, calendar: calendar),
+                duration: interval.duration,
+                symbol: "tram.fill",
+                isGap: false)
         case .gap(let interval):
-            TimelineNote(TodayCopy.gapRow(interval.duration), symbol: "moon.zzz", isGap: true)
+            TimelineNote(
+                TodayCopy.gapTitle,
+                span: ClockText.span(from: interval.start, to: interval.end, calendar: calendar),
+                duration: interval.duration,
+                symbol: "moon.zzz.fill",
+                isGap: true)
         }
     }
 
