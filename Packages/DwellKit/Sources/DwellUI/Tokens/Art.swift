@@ -15,9 +15,23 @@ public enum Art {
     public static let heroWork = Image("heroIcon/work", bundle: .module)
     public static let heroYours = Image("heroIcon/yours", bundle: .module)
 
-    /// Section headers: the 3D calendar ("This week") and sun with a clock ("Your day").
+    /// Section headers: the 3D calendar ("This week"), sun with a clock ("Your day") and
+    /// rocket ("Getting started").
     public static let thisWeek = Image("icon/thisWeek", bundle: .module)
     public static let yourDay = Image("icon/yourDay", bundle: .module)
+    public static let gettingStarted = Image("icon/gettingStarted", bundle: .module)
+
+    /// 3D art that isn't a category's.
+    public enum Illustration {
+        /// A pin on a folded map: a place.
+        public static let place = Image("illustration/place", bundle: .module)
+        /// A pin on hexagon cells: the scratch map.
+        public static let cells = Image("illustration/cells", bundle: .module)
+        /// A clock: time in a sentence ("Stay put for 5 minutes").
+        public static let clock = Image("illustration/clock", bundle: .module)
+        /// Rising bars: insights. Not on a screen yet.
+        public static let chart = Image("illustration/chart", bundle: .module)
+    }
 
     /// Line icons from the design, drawn as templates so they take the ink they're given:
     /// the clock by a timeline row's duration (14), the row's chevron (8 × 14), and the
@@ -41,10 +55,27 @@ extension Art {
     public static func illustration(_ category: PlaceCategory) -> Image? {
         category.illustrationName.map { Image($0, bundle: .module) }
     }
+
+    /// What the Getting started shuffle turns through while Dwell waits for the first stop:
+    /// the house first (as in the design, and the one left standing under Reduce Motion),
+    /// every other category with 3D art, then a place pin and the map's cells. Category art
+    /// joins by itself once it's listed in `PlaceCategory.illustrationName`.
+    public static var firstStopIcons: [Image] {
+        var icons: [Image] = []
+        let categories = [PlaceCategory.home] + PlaceCategory.allCases.filter { $0 != .home }
+        for category in categories {
+            if let art = illustration(category) {
+                icons.append(art)
+            }
+        }
+        return icons + [Illustration.place, Illustration.cells]
+    }
 }
 
 extension PlaceCategory {
-    /// The category's 3D illustration from the design, where one exists yet.
+    /// The category's 3D illustration from the design, where one exists yet. Add each new
+    /// one here (art in `categoryIcon/`): headlines, the confirmation card and the Getting
+    /// started shuffle all pick it up.
     var illustrationName: String? {
         switch self {
         case .work: "categoryIcon/work"

@@ -85,13 +85,10 @@ public struct VoicedSentenceView: View {
                     .frame(width: iconSize, height: iconSize)
                     .foregroundStyle(ink)
             } else if piece.mark == .clock {
-                // [ICON NEEDED] the design's 3D clock.
-                Image(systemName: "clock.fill")
+                Art.Illustration.clock
                     .resizable()
                     .scaledToFit()
-                    .symbolRenderingMode(.hierarchical)
                     .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(ink)
                     .accessibilityHidden(true)
             }
             Text(verbatim: piece.text)
