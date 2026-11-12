@@ -51,8 +51,10 @@ public enum Art {
     public static let badges = Image("icon/badges", bundle: .module)
 
     /// You's flat glyphs (Solar, duotone), templates like the timeline's: the settings gear
-    /// (20), the sun, alarm clock and trophy on the push switches (18), the privacy line's lock (16).
+    /// (20), the sun, alarm clock and trophy on the push switches (18), the privacy line's lock
+    /// (16), the pencil by the out-by time (14).
     public enum Glyph {
+        public static let pencil = Image("glyph/pencil", bundle: .module).renderingMode(.template)
         public static let settings = Image("glyph/settings", bundle: .module).renderingMode(.template)
         public static let sun = Image("glyph/sun", bundle: .module).renderingMode(.template)
         public static let alarm = Image("glyph/alarm", bundle: .module).renderingMode(.template)

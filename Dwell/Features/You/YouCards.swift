@@ -97,6 +97,8 @@ struct StreakCard: View {
     var editTarget: () -> Void = {}
 
     @Environment(\.calendar) private var calendar
+    /// The design's pencil, 14, growing with the rule's text.
+    @ScaledMetric(relativeTo: .callout) private var pencilSize: CGFloat = 14
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -137,12 +139,12 @@ struct StreakCard: View {
                     .foregroundStyle(Palette.textSecondary)
                 if streak.kind == .outByTarget {
                     Button(action: editTarget) {
-                        // [ICON NEEDED] the design's pencil.
-                        Image(systemName: "pencil.line")
-                            .textRole(.caption, weight: .medium)
-                            .symbolRenderingMode(.hierarchical)
+                        Art.Glyph.pencil
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: pencilSize, height: pencilSize)
                             .foregroundStyle(Palette.textPrimary)
-                            .contentShape(Rectangle().inset(by: -12))
+                            .contentShape(Rectangle().inset(by: -15))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Change your out-by time")
