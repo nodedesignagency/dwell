@@ -42,7 +42,12 @@ public struct IconShuffle: View {
 /// The turning icon. `turns` counts half turns: at a whole number an icon faces you; on the
 /// way to the next it turns to 90°, and past the halfway mark the next icon is drawn from
 /// −90° back to facing you. SwiftUI animates `turns`, so the swap lands exactly edge-on.
+/// A little blur follows the turn, none facing you and the most edge-on, where the turn is
+/// fastest, so it reads as motion blur.
 private struct IconFlip: View, Animatable {
+    /// The blur at the edge-on moment, in points.
+    static let maxBlur: CGFloat = 3
+
     var turns: Double
     let icons: [Image]
 
@@ -55,9 +60,11 @@ private struct IconFlip: View, Animatable {
         let nearest = turns.rounded()
         let count = icons.count
         let index = ((Int(nearest) % count) + count) % count
+        let turned = turns - nearest
         icons[index]
             .resizable()
             .scaledToFit()
-            .rotation3DEffect(.degrees((turns - nearest) * 180), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
+            .rotation3DEffect(.degrees(turned * 180), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
+            .blur(radius: Self.maxBlur * abs(turned) * 2)
     }
 }
