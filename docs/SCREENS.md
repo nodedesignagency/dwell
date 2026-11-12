@@ -7,7 +7,7 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 
 Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
 
-Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81).
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov).
 
 Counts: 13 onboarding, 7 first-week moments, 15 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
@@ -48,8 +48,8 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 
 | ID | Day | What the user sees | Design | Built |
 | --- | --- | --- | --- | --- |
-| W-0 | 0 (install) | Today: "Your day starts here" with a Now / Next / Then checklist. Map: one covered world, nothing uncovered. "Tonight you'll see your first place." | 🎨 Today: "Getting Started" (Figma, 12 Nov). ⬜ Map | 🟡 Today (`DWELL_STATE=firstDay`) |
-| W-1 | 1 | Live timer, two-row timeline, "Is this home?", Map with one pin and one uncovered cell, insight "First place mapped." | ⬜ | ⬜ |
+| W-0 | 0 (install) | Today: "Your day starts here" with a Now / Next / Then checklist. Map: one covered world, nothing uncovered. "Tonight you'll see your first place." | 🎨 Today: "Getting Started" (Figma, 12 Nov) before the first stop; "After few minutes of getting started" (screenshot, 12 Nov) once the first place is mapped. ⬜ Map | 🟡 Today (`DWELL_STATE=firstDay`, `firstPlace`) |
+| W-1 | 1 | Live timer, two-row timeline, "Is this home?", Map with one pin and one uncovered cell, insight "First place mapped." | 🔁 Today from "After few minutes": live timer, short timeline, "This week" waiting card until the engine's insights arrive. ⬜ "Is this home?" (T-04), the "First place mapped." insight (QUESTIONS.md, design vs brief 15), Map | 🟡 Today |
 | W-2 | 2 | First whole-day visual, "Is this work?", "Your first full day: 9h 12m at work, 2h 40m yours.", Always upgrade moment | ⬜ | ⬜ |
 | W-3 | 3 | Time: three bars, "still learning your week"; streaks "1 of 3"; set-your-dial if not done; notifications ask | ⬜ | ⬜ |
 | W-5 | 5 | Rhythm locked ("needs two weeks"); first records ("Earliest arrival so far · 8:12 AM"); first calendar matches; coverage number ("1.4% of Brooklyn") | ⬜ | ⬜ |
@@ -60,13 +60,13 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 
 | ID | Element | States and contents | Design | Built |
 | --- | --- | --- | --- | --- |
-| T-01 | Live status | Live ("At {place} since {time}", ticking estimate timer); in transit ("In transit · 12m"); stale ("Last known: Home · last seen 2:10 PM", timer stopped); unknown ("Mapping your first place"); no permission. Tap → place page. | 🎨 Today: live. 🔁 Today: transit, stale, unknown, no permission | 🟡 |
-| T-02 | Day bar | Empty / partial / full; durations by category, total mapped; tap or scrub → callout. Must also work in the Dynamic Island, widgets and share cards. | 🎨 Today: partial, legend, unmapped look. 🔁 Today: empty, full (past day), callout, gaps as unmapped | 🟡 (`DayBarView`, ready for widgets) |
-| T-03 | Hero stats | Two big numbers chosen by the dial (Peace: work · yours; Grind: work · sessions) | 🎨 Today: work · yours. 🔁 Today: work · sessions | 🟡 |
+| T-01 | Live status | Live ("At {place} since {time}", ticking estimate timer); in transit ("In transit · 12m"); stale ("Last known: Home · last seen 2:10 PM", timer stopped); unknown ("Mapping your first place"); no permission. Tap → place page. | 🎨 Today: live (at work; at home on the install day). 🔁 Today: transit, stale, unknown, no permission | 🟡 |
+| T-02 | Day bar | Empty / partial / full; durations by category, total mapped; tap or scrub → callout. Must also work in the Dynamic Island, widgets and share cards. | 🎨 Today: partial, legend, unmapped look; one category on the install day. 🔁 Today: empty, full (past day), callout, gaps as unmapped; the install day counts from when Dwell started, never from 4 AM | 🟡 (`DayBarView`, ready for widgets) |
+| T-03 | Hero stats | Two big numbers chosen by the dial (Peace: work · yours; Grind: work · sessions) | 🎨 Today: work · yours (also at 0m · 0m on the install day). 🔁 Today: work · sessions | 🟡 |
 | T-04 | Confirmation card | Visit ("You spent 57m at Brambleline Café. Looks right?" Looks right / Pick another → picker); "Is this home?"; "Is this work?"; "Working from home today?" (Yes / No); none / queued | 🎨 Today: visit (Figma card, 12 Nov; brief's words). 🔁 floats above the tab bar. ⬜ Is this home? / work? / WFH? (need a data model) | 🟡 visit only |
-| T-05 | Insight | Hero sentence in the dial's voice, one supporting number, Share; up to four more ranked below; Not useful; day 1–3 onboarding series; fallback so it is never empty | 🎨 Today: deck with week chart. 🔁 Today: share, Not useful, lone-number card, still mapping | 🟡 (series and fallback come from the engine) |
+| T-05 | Insight | Hero sentence in the dial's voice, one supporting number, Share; up to four more ranked below; Not useful; day 1–3 onboarding series; fallback so it is never empty | 🎨 Today: deck with week chart; "Waiting for your insights" card in the first week ("After few minutes"). 🔁 Today: share, Not useful, lone-number card, Peace and Grind waiting lines [COPY NEEDED] | 🟡 (series and fallback come from the engine) |
 | T-06 | New today | New place or new scratch cell → Map; none / some | ⬜ | ⬜ |
-| T-07 | Timeline | Visits with name, span, duration, precision mark, badges (private, WFH, approximate); transit; gaps ("Dwell was asleep · 42m"); "Review this place"; current row "→ now"; long-press → visit edit; empty / partial / complete | 🎨 Today: visit rows, View more. 🔁 Today: transit, gaps, badges, Review this place, empty. ⬜ long-press → visit edit (S-01) | 🟡 |
+| T-07 | Timeline | Visits with name, span, duration, precision mark, badges (private, WFH, approximate); transit; gaps ("Dwell was asleep · 42m"); "Review this place"; current row "→ now"; long-press → visit edit; empty / partial / complete | 🎨 Today: visit rows, View more; a lone "→ now" row. 🔁 Today: transit, gaps, badges, Review this place, empty. ⬜ long-press → visit edit (S-01) | 🟡 |
 | T-08 | Calendar matches | In the timeline: attended / partial (minutes late or early) / missed (where you were instead) / unknown; not connected (Connect calendar) / no events today / matched. Tap → event detail. | ⬜ | ⬜ |
 | T-09 | Permission banner | Four types, one at a time, Fix / Open Settings | 🔁 Today | 🟡 |
 | T-10 | Sync | "Retry sync" line when offline | 🔁 Today: stale line, offline state | 🟡 |

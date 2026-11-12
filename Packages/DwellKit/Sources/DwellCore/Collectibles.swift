@@ -44,6 +44,11 @@ public struct Insight: Identifiable, Hashable, Sendable {
         self.week = week
         self.isShareable = isShareable
     }
+
+    /// A new user's first week (the Today design's "Please wait for the end of the week").
+    /// The engine decides when insights start; this only decides what an empty deck says
+    /// meanwhile: what it's waiting for, rather than nothing.
+    public static let learningPeriod: TimeInterval = 7 * 24 * 3600
 }
 
 /// One number for one day, e.g. a bar in an insight's week chart.

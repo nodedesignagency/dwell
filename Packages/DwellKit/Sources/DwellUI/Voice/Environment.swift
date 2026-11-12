@@ -42,19 +42,23 @@ public struct VoiceText: View {
 
 extension View {
     /// The sample week as if it were happening now: the clock reads Monday 26 October,
-    /// 2:47 PM in New York at `launch`, and ticks on from there. The simulator runs on this
-    /// until the client's engine is connected.
-    public func sampleWeek(launchedAt launch: Date, repository: any DwellRepository = SampleRepository()) -> some View {
+    /// 2:47 PM in New York at `launch` (or `now`, for a demo state set at another time), and
+    /// ticks on from there. The simulator runs on this until the client's engine is connected.
+    public func sampleWeek(
+        launchedAt launch: Date,
+        now: Date = SampleData.now,
+        repository: any DwellRepository = SampleRepository()
+    ) -> some View {
         environment(\.repository, repository)
-            .environment(\.clockOffset, SampleData.now.timeIntervalSince(launch))
+            .environment(\.clockOffset, now.timeIntervalSince(launch))
             .environment(\.calendar, SampleData.calendar)
             .environment(\.timeZone, SampleData.calendar.timeZone)
     }
 
-    /// The sample week, frozen at Monday 26 October, 2:47 PM, at the given dial stop.
-    public func samplePreview(_ stop: Dial.Stop = .plain) -> some View {
+    /// The sample week, frozen at Monday 26 October, 2:47 PM (or `now`), at the given dial stop.
+    public func samplePreview(_ stop: Dial.Stop = .plain, now: Date = SampleData.now) -> some View {
         environment(\.dial, Dial(stop))
-            .environment(\.fixedNow, SampleData.now)
+            .environment(\.fixedNow, now)
             .environment(\.repository, SampleRepository())
             .environment(\.calendar, SampleData.calendar)
             .environment(\.timeZone, SampleData.calendar.timeZone)

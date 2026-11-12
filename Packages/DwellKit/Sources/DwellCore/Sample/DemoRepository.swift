@@ -20,6 +20,8 @@ public struct DemoRepository: DwellRepository {
         case empty
         /// The install day: nothing mapped ever, so Today shows "Getting started".
         case firstDay
+        /// The install day, minutes after the first place: at home since 9:02 AM, 9:30 AM now.
+        case firstPlace
         /// "Today couldn't load".
         case failed
         /// "You're offline" with Retry sync.
@@ -44,6 +46,12 @@ public struct DemoRepository: DwellRepository {
             default: .full
             }
         }
+
+        /// The clock the simulator starts at: the sample week's Monday afternoon, or the
+        /// install day's morning.
+        public var now: Date {
+            self == .firstPlace ? SampleData.FirstPlace.now : SampleData.now
+        }
     }
 
     public let mode: Mode
@@ -57,6 +65,7 @@ public struct DemoRepository: DwellRepository {
         try await gate()
         switch mode {
         case .empty, .firstDay: return .unknown
+        case .firstPlace: return SampleData.FirstPlace.liveStatus
         case .transit: return .inTransit(since: SampleData.now.addingTimeInterval(-12 * 60))
         case .lastSeen: return .lastKnown(placeName: "Kestriva Labs", lastSeen: SampleData.now.addingTimeInterval(-37 * 60))
         case .locationDenied: return .noPermission
@@ -66,17 +75,28 @@ public struct DemoRepository: DwellRepository {
 
     public func day(_ day: DwellDay) async throws -> DaySnapshot {
         try await gate()
-        return mode == .empty || mode == .firstDay ? .empty(day, calendar: SampleData.calendar) : try await sample.day(day)
+        switch mode {
+        case .empty, .firstDay: return .empty(day, calendar: SampleData.calendar)
+        case .firstPlace: return SampleData.FirstPlace.snapshot(for: day)
+        default: return try await sample.day(day)
+        }
     }
 
     public func places() async throws -> [Place] {
         try await gate()
-        return mode == .firstDay ? [] : try await sample.places()
+        switch mode {
+        case .firstDay: return []
+        case .firstPlace: return SampleData.FirstPlace.places
+        default: return try await sample.places()
+        }
     }
 
     public func insights(for day: DwellDay) async throws -> [Insight] {
         try await gate()
-        return mode == .empty || mode == .firstDay ? [] : try await sample.insights(for: day)
+        switch mode {
+        case .empty, .firstDay, .firstPlace: return []
+        default: return try await sample.insights(for: day)
+        }
     }
 
     public func confirmVisit(_ id: VisitID) async throws {}

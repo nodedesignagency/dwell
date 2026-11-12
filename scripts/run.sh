@@ -4,9 +4,9 @@
 #   ./scripts/run.sh                    # the booted iPhone simulator, or the newest one
 #   ./scripts/run.sh "iPhone 18 Pro"    # a simulator by name
 #   DWELL_SKY=night ./scripts/run.sh    # force Today's sky: sunrise, day, sunset or night
-#   DWELL_STATE=empty ./scripts/run.sh  # show a state: loading, empty, firstDay, failed, offline,
-#                                       # transit, lastSeen, locationDenied, whenInUse, preciseOff,
-#                                       # motionDenied
+#   DWELL_STATE=empty ./scripts/run.sh  # show a state: loading, empty, firstDay, firstPlace, failed,
+#                                       # offline, transit, lastSeen, locationDenied, whenInUse,
+#                                       # preciseOff, motionDenied
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail

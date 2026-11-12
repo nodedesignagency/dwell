@@ -14,9 +14,10 @@ public struct DayRecap: Hashable, Sendable {
     public var home: TimeInterval
     /// Time that is yours: everything mapped except work, home and transit.
     ///
-    /// Open question (docs/QUESTIONS.md): the brief never defines "yours". This matches the
-    /// Today design (57m, the café) and the brief's day-2 line ("9h 12m at work, 2h 40m yours"),
-    /// which only add up if evenings at home are left out.
+    /// The brief never defines "yours". This matches the Today design (57m, the café) and the
+    /// brief's day-2 line ("9h 12m at work, 2h 40m yours"), which only add up if evenings at
+    /// home are left out. Home and yours are different (the user's call, 12 Nov), so the
+    /// first-place design's "28m Yours" at home reads 0m. Still open with Zac (QUESTIONS.md 11).
     public var yours: TimeInterval
     /// Separate stretches at work: "2 sessions".
     public var workSessions: Int
@@ -26,12 +27,17 @@ public struct DayRecap: Hashable, Sendable {
     public var mapped: TimeInterval
     /// The rest of the day so far: gaps, and any stretch with no entry at all.
     public var unmapped: TimeInterval
+    /// How many different places the day's visits were at, private ones included:
+    /// "and nowhere else yet" is only true at one.
+    public var placesVisited: Int
 }
 
 extension DaySnapshot {
     /// The part of the day that has happened: 4:00 AM to now, or the whole day once it is over.
+    /// On the install day it starts when Dwell began recording; days before it have none.
     public func elapsed(now: Date) -> DateInterval {
-        DateInterval(start: interval.start, end: max(interval.start, min(interval.end, now)))
+        let start = max(interval.start, recordingSince ?? interval.start)
+        return DateInterval(start: start, end: max(start, min(interval.end, now)))
     }
 
     public func recap(now: Date) -> DayRecap {
@@ -65,7 +71,8 @@ extension DaySnapshot {
             workSessions: visits.filter { $0.category == .work }.count,
             standout: standout,
             mapped: mapped,
-            unmapped: max(0, elapsed(now: now).duration - mapped))
+            unmapped: max(0, elapsed(now: now).duration - mapped),
+            placesVisited: Set(visits.map { $0.placeID?.rawValue ?? $0.placeName }).count)
     }
 
     private static func canStandOut(_ visit: Visit) -> Bool {

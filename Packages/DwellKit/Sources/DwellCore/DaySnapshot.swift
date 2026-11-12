@@ -8,16 +8,34 @@ public struct DaySnapshot: Hashable, Sendable {
     /// Chronological. Entries that cross 4:00 AM appear in both days and are clipped when totalled.
     public var entries: [TimelineEntry]
     public var calendarMatches: [CalendarMatch]
+    /// When Dwell began recording for this user. Time before it was never watched, so on the
+    /// install day the day so far starts here: it is neither mapped nor a gap. `nil` when the
+    /// engine doesn't say, and the day counts from 4:00 AM.
+    public var recordingSince: Date?
 
-    public init(day: DwellDay, interval: DateInterval, entries: [TimelineEntry], calendarMatches: [CalendarMatch] = []) {
+    public init(
+        day: DwellDay,
+        interval: DateInterval,
+        entries: [TimelineEntry],
+        calendarMatches: [CalendarMatch] = [],
+        recordingSince: Date? = nil
+    ) {
         self.day = day
         self.interval = interval
         self.entries = entries
         self.calendarMatches = calendarMatches
+        self.recordingSince = recordingSince
     }
 
-    public static func empty(_ day: DwellDay, calendar: Calendar) -> DaySnapshot {
-        DaySnapshot(day: day, interval: day.interval(in: calendar), entries: [])
+    public static func empty(_ day: DwellDay, calendar: Calendar, recordingSince: Date? = nil) -> DaySnapshot {
+        DaySnapshot(day: day, interval: day.interval(in: calendar), entries: [], recordingSince: recordingSince)
+    }
+
+    /// Dwell has been recording for less than `Insight.learningPeriod`: an empty insight deck
+    /// then says what it's waiting for instead of disappearing.
+    public func isLearning(now: Date) -> Bool {
+        guard let recordingSince else { return false }
+        return now.timeIntervalSince(recordingSince) < Insight.learningPeriod
     }
 
     /// Time per category inside this day, up to `now`. Feeds the day bar.

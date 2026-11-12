@@ -109,7 +109,9 @@ struct TodayContent: View {
             now: now,
             isToday: isToday,
             onOpenPlace: actions.openPlace)
-        if isToday, !model.insights.isEmpty {
+        // In a new user's first week, an empty deck stays and says what it's waiting for
+        // (Today design, "after a few minutes"); after that, the engine's fallback keeps it full.
+        if isToday, !model.insights.isEmpty || model.snapshot.isLearning(now: now) {
             DashedDivider()
             InsightDeck(
                 insights: model.insights,

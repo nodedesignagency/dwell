@@ -5,6 +5,9 @@ import SwiftUI
 /// The ranked insights as a stack of cards (Today design, "This week"): the top one is the
 /// hero, the next two peek out below. Arrows or a sideways swipe move through them.
 /// Tap opens the insight; long-press offers Share and Not useful.
+///
+/// With nothing to show yet (a new user's first week), it says what it's waiting for
+/// instead: "Waiting for your insights", with no arrows.
 struct InsightDeck: View {
     let insights: [Insight]
     var onOpen: (Insight) -> Void = { _ in }
@@ -20,16 +23,29 @@ struct InsightDeck: View {
         let current = min(index, max(insights.count - 1, 0))
         VStack(spacing: Space.m) {
             SectionHeader("This week", icon: Art.thisWeek) {
-                // Figma: the two 22-pt arrows 8 apart. Their 44-pt tap areas overlap to keep it.
-                HStack(spacing: Space.s - arrowInset * 2) {
-                    arrow(back: true, label: "Previous insight", isEnabled: current > 0) { step(-1, from: current) }
-                    arrow(back: false, label: "Next insight", isEnabled: current < insights.count - 1) { step(1, from: current) }
+                if !insights.isEmpty {
+                    // Figma: the two 22-pt arrows 8 apart. Their 44-pt tap areas overlap to keep it.
+                    HStack(spacing: Space.s - arrowInset * 2) {
+                        arrow(back: true, label: "Previous insight", isEnabled: current > 0) { step(-1, from: current) }
+                        arrow(back: false, label: "Next insight", isEnabled: current < insights.count - 1) { step(1, from: current) }
+                    }
+                    .padding(.vertical, -arrowInset)
+                    .padding(.trailing, -arrowInset)
                 }
-                .padding(.vertical, -arrowInset)
-                .padding(.trailing, -arrowInset)
             }
 
-            if insights.indices.contains(current) {
+            if insights.isEmpty {
+                WaitingCard(title: TodayCopy.insightsWaitingTitle, detail: TodayCopy.insightsWaitingDetail) {
+                    // [ICON NEEDED] the design's 3D chart (three bars, light to dark, a line
+                    // through them). Until it arrives, the same shape in SF Symbols.
+                    Image(systemName: "chart.bar.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(LinearGradient(
+                            colors: [Palette.textSecondary.opacity(0.4), Palette.textPrimary],
+                            startPoint: .leading, endPoint: .trailing))
+                }
+            } else if insights.indices.contains(current) {
                 let insight = insights[current]
                 let behind = min(insights.count - current - 1, 2)
                 ZStack {

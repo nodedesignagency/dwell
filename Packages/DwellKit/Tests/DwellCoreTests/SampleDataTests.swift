@@ -122,6 +122,17 @@ struct DemoRepositoryTests {
         #expect(try await SampleRepository().places().hasRecordedVisit)
     }
 
+    @Test func `the first place is home, minutes in, with no insights yet`() async throws {
+        let repository = DemoRepository(.firstPlace)
+        let today = try await repository.day(SampleData.today)
+        #expect(today.entries.compactMap(\.visit).map(\.placeName) == ["Home"])
+        #expect(try await repository.places().hasRecordedVisit)
+        #expect(try await repository.insights(for: SampleData.today).isEmpty)
+        #expect(try await repository.liveStatus() == SampleData.FirstPlace.liveStatus)
+        #expect(DemoRepository.Mode.firstPlace.now == SampleData.FirstPlace.now)
+        #expect(SkyPhase(date: DemoRepository.Mode.firstPlace.now, calendar: SampleData.calendar) == .sunrise)
+    }
+
     @Test func `saved places with no visits are still nothing mapped`() {
         let saved = Place(id: "home", name: "Home", category: .home, role: .home, lifetimeTotal: 0, visitCount: 0)
         #expect(![saved].hasRecordedVisit)

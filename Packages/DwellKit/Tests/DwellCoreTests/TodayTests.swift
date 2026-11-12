@@ -183,6 +183,9 @@ struct TodayCopyTests {
             TodayCopy.emptyToday,
             TodayCopy.emptyPastDay,
             TodayCopy.firstStopHeadline.line,
+            TodayCopy.headline(FirstPlaceTests.recap, isToday: true, dayName: "Today")!.line,
+            TodayCopy.insightsWaitingTitle,
+            TodayCopy.insightsWaitingDetail,
         ]
     }
 
@@ -220,6 +223,64 @@ struct TodayCopyTests {
         for banner in PermissionBanner.allCases {
             #expect(!banner.message.contains("!"))
         }
+    }
+}
+
+@Suite("The install day, minutes in")
+struct FirstPlaceTests {
+    static let first = SampleData.FirstPlace.self
+    static let snapshot = first.snapshot(for: SampleData.today)
+    static let recap = snapshot.recap(now: first.now)
+
+    @Test func `the day so far starts when Dwell did, not at 4 AM`() {
+        #expect(DurationText.short(Self.snapshot.elapsed(now: Self.first.now).duration) == "28m")
+        #expect(Self.recap.unmapped == 0)
+        #expect(DurationText.short(Self.recap.mapped) == "28m")
+    }
+
+    @Test func `28m at home is not yours`() {
+        #expect(DurationText.short(Self.recap.home) == "28m")
+        #expect(Self.recap.work == 0)
+        #expect(Self.recap.yours == 0)
+    }
+
+    @Test func `the bar is all home, with nothing unmapped`() {
+        let bar = DayBar(snapshot: Self.snapshot, now: Self.first.now)
+        #expect(bar.parts.map(\.segment) == [.bucket(.category(.home))])
+        #expect(Set(bar.ticks(55)) == [.bucket(.category(.home))])
+    }
+
+    @Test func `days before the install have no day so far`() {
+        let sunday = Self.first.snapshot(for: DwellDay(year: 2026, month: 10, day: 25))
+        #expect(sunday.elapsed(now: Self.first.now).duration == 0)
+        #expect(DayBar(snapshot: sunday, now: Self.first.now).ticks(55).isEmpty)
+    }
+
+    @Test func `the headline says nowhere else yet`() throws {
+        let sentence = try #require(TodayCopy.headline(Self.recap, isToday: true, dayName: "Today"))
+        #expect(sentence.text(at: .plain) == "Today, you've spent 28m at home, and nowhere else yet.")
+        #expect(sentence.runs.map(\.category) == [.home])
+    }
+
+    @Test func `nowhere else is only for one place, today`() throws {
+        var two = Self.recap
+        two.placesVisited = 2
+        let busier = try #require(TodayCopy.headline(two, isToday: true, dayName: "Today"))
+        #expect(busier.text(at: .plain) == "Today, you've spent 28m at home.")
+        let past = try #require(TodayCopy.headline(Self.recap, isToday: false, dayName: "Mon, Oct 26"))
+        #expect(!past.text(at: .plain).contains("yet"))
+    }
+
+    @Test func `one place, counted once`() {
+        #expect(Self.recap.placesVisited == 1)
+        // Home overnight, Brambleline Café, Kestriva Labs twice and the clinic.
+        #expect(SampleData.todaySnapshot.recap(now: now).placesVisited == 4)
+    }
+
+    @Test func `insights wait out the first week`() {
+        #expect(Self.snapshot.isLearning(now: Self.first.now))
+        #expect(!Self.snapshot.isLearning(now: Self.first.now.addingTimeInterval(Insight.learningPeriod)))
+        #expect(!SampleData.todaySnapshot.isLearning(now: now))
     }
 }
 

@@ -23,6 +23,16 @@ public enum TodayCopy {
         }
         guard !runs.isEmpty else { return nil }
 
+        if isToday, runs.count == 1, recap.placesVisited == 1 {
+            // One place so far, as on the install day (Today design, "after a few minutes of
+            // getting started"). [COPY NEEDED] Peace and Grind; Plain is the design's.
+            let line = VoicedLine(
+                peace: "So far today, {0}. Nowhere else yet, and no rush.",
+                plain: "Today, you've spent {0}, and nowhere else yet.",
+                grind: "Today's count: {0}. Nowhere else yet.")
+            return VoicedSentence(line: line, runs: runs)
+        }
+
         let list = slots(runs.count)
         // [COPY NEEDED] Peace and Grind, and every past-day line. Plain today is the design's.
         let line = isToday
@@ -86,6 +96,21 @@ public enum TodayCopy {
 
     /// [COPY NEEDED]
     public static let timelineEmpty = "Your stops show up here as you make them."
+
+    // MARK: Insights, first week
+
+    /// "This week" before there's anything to say (Today design, "after a few minutes of
+    /// getting started"). Empty states carry the dial's voice. [COPY NEEDED] Peace and Grind;
+    /// Plain is the design's. The wait itself is open with Zac (QUESTIONS.md, design vs brief 15).
+    public static let insightsWaitingTitle = VoicedLine(
+        peace: "Your insights are on their way",
+        plain: "Waiting for your insights",
+        grind: "Insights incoming")
+
+    public static let insightsWaitingDetail = VoicedLine(
+        peace: "They'll be ready by the end of the week.",
+        plain: "Please wait for the end of the week.",
+        grind: "Give it a week. Then the receipts.")
 
     // MARK: Live status
 

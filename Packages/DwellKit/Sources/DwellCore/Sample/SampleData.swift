@@ -19,6 +19,8 @@ public enum SampleData {
     public static let today = DwellDay(containing: now, calendar: calendar)
     /// Monday 19 to Sunday 25 October, the last full week.
     public static let lastWeek: [DwellDay] = (19...25).map { DwellDay(year: 2026, month: 10, day: $0) }
+    /// Maya has used Dwell since the end of August: long past her first week.
+    public static let recordingSince = date(month: 8, day: 31, minutes: 7 * 60 + 40)
 
     // MARK: Places
 
@@ -73,7 +75,9 @@ public enum SampleData {
             return span.start < min(interval.end, now) && span.end > interval.start
         }
         let matches = timeline.matches.filter { interval.contains($0.interval.start) }
-        return DaySnapshot(day: day, interval: interval, entries: entries, calendarMatches: matches)
+        return DaySnapshot(
+            day: day, interval: interval, entries: entries, calendarMatches: matches,
+            recordingSince: recordingSince)
     }
 
     public static var todaySnapshot: DaySnapshot { snapshot(for: today) }
@@ -148,6 +152,38 @@ public enum SampleData {
         ScratchCoverage(level: .city, area: "the United States", uncovered: 4, total: 310),
         ScratchCoverage(level: .country, area: "the world", uncovered: 4, total: 195),
     ]
+}
+
+// MARK: - The install day
+
+extension SampleData {
+    /// A new account a few minutes after its first place was mapped (Today design, "after a
+    /// few minutes of getting started"): Dwell started at 9:02 AM on Monday 26 October, at
+    /// home, saved as Home during onboarding, and it's now 9:30 AM. Nothing else, ever.
+    public enum FirstPlace {
+        public static let now = date(month: 10, day: 26, minutes: 9 * 60 + 30)
+        public static let recordingSince = date(month: 10, day: 26, minutes: 9 * 60 + 2)
+
+        public static let visit = Visit(
+            id: "10-26-first", placeID: "home", placeName: "Home", category: .home,
+            arrival: recordingSince, departure: nil)
+
+        /// Today: one visit, still going. Other days are empty, and before the install day
+        /// there's no day so far at all.
+        public static func snapshot(for day: DwellDay) -> DaySnapshot {
+            guard day == today else { return .empty(day, calendar: calendar, recordingSince: recordingSince) }
+            return DaySnapshot(
+                day: day, interval: day.interval(in: calendar), entries: [.visit(visit)],
+                recordingSince: recordingSince)
+        }
+
+        public static let liveStatus = LiveStatus.atPlace(visit)
+
+        public static let places: [Place] = [
+            Place(id: "home", name: "Home", category: .home, role: .home,
+                  lifetimeTotal: now.timeIntervalSince(recordingSince), visitCount: 1),
+        ]
+    }
 }
 
 // MARK: - Building the week
