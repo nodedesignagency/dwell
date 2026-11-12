@@ -110,7 +110,7 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | Moment | Animation | Reduce Motion alternative | Haptic |
 | --- | --- | --- | --- |
 | MO-01 Live timer ticking | Ticks on the minute the visit started; digits roll (`.numericText`) with `Motion.standard` | Digits cross-fade | none |
-| Icon shuffle (Getting started) | The 3D icons swap in one spot every 0.3 s: each pops in from 60% scale and fades in as the last grows to 120% and fades out, `Motion.shuffle` (0.25 s spring, bounce 0.3), while Dwell waits for the first stop | The house, still | none |
+| Icon shuffle (Getting started) | The 3D icons swap in one spot every 0.8 s, timed on the user's reference video (a 0.8 s loop, nothing overshoots): the arriving icon grows from 60% and fades in on a spring with no bounce (`Motion.shuffleIn`, `.smooth`, 0.6 s) while the leaving one shrinks to 60% and fades out, easing in (`Motion.shuffleOut`, 0.35 s), so one seems to turn into the next | The house, still | none |
 | Live dot | The dot (8) alone, no halo at rest, keeping the halo's 14-pt footprint and centred on the caption's capitals. While the timer runs (at a place or in transit), a disc of its colour spreads from the dot's size to 26 pt and fades from 40% to nothing, `Motion.pulse` (1.6 s ease-out), on a loop | Still dot | none |
 | Hero tile rays | The sixteen rays behind each hero tile's icon turn a full circle every 24 s, `Motion.spin` (linear), on a loop; the coloured disc stays put | Rays hold still | none |
 | MO-02 Day bar filling | Ticks grow from the baseline and fade in on appear, `Motion.reveal` | Fade in only, no growth | none |
@@ -211,3 +211,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (live status, rays, arrows) | 4 between the timer and its caption (was 16); the live dot loses its static halo and only pulses; the hero tile rays turn a full circle every 24 s; the "This week" arrows sit 8 apart |
 
 | 2026-11-12 | Today (Getting started) | Day 0 gets its own layout from the Figma "Getting Started" frame: icon shuffle, waiting title and live line, numbered Now / Next / Then cards; `step` blue; `LiveDot` moves to DwellUI |
+
+| 2026-11-12 | Today (icon shuffle timing) | The shuffle slows to one icon every 0.8 s and loses its bounce: smooth spring in, ease-in out, from the user's reference video |

@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Icons swapping in one spot, fast, each popping in as the last one leaves: the loading
+/// Icons swapping in one spot, each growing in as the last one shrinks away: the loading
 /// moment on Today before the first stop (Today design, "Getting Started"; the design team's
-/// note: "a bunch of icons rotating at full speed"). Decorative. Under Reduce Motion the first
+/// note: "a bunch of icons rotating at full speed"). Smooth rather than fast: one every 0.8 s,
+/// no bounce, timed on the user's reference video. Decorative. Under Reduce Motion the first
 /// icon stays put.
 public struct IconShuffle: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -12,7 +13,7 @@ public struct IconShuffle: View {
     /// - Parameters:
     ///   - icons: the first one is the one shown under Reduce Motion.
     ///   - interval: how long each icon stays, in seconds.
-    public init(_ icons: [Image], interval: TimeInterval = 0.3) {
+    public init(_ icons: [Image], interval: TimeInterval = 0.8) {
         self.icons = icons
         self.interval = interval
     }
@@ -29,7 +30,7 @@ public struct IconShuffle: View {
                             .id(index)
                             .transition(Self.swap)
                     }
-                    .animation(Motion.shuffle, value: index)
+                    .animation(Motion.shuffleIn, value: index)
                 }
             }
         }
@@ -45,7 +46,8 @@ public struct IconShuffle: View {
         }
     }
 
+    /// The two overlap in the same spot, so one icon seems to turn into the next.
     private static let swap = AnyTransition.asymmetric(
         insertion: .scale(scale: 0.6).combined(with: .opacity),
-        removal: .scale(scale: 1.2).combined(with: .opacity))
+        removal: .scale(scale: 0.6).combined(with: .opacity).animation(Motion.shuffleOut))
 }

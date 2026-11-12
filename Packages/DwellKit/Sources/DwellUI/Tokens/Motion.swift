@@ -16,8 +16,11 @@ public enum Motion {
     public static let arrive = Animation.spring(duration: 0.5, bounce: 0)
     /// The live dot's ring, spreading out and fading, on a loop.
     public static let pulse = Animation.easeOut(duration: 1.6)
-    /// Each icon popping in as the last one leaves, in an icon shuffle.
-    public static let shuffle = Animation.spring(duration: 0.25, bounce: 0.3)
+    /// An icon shuffle, timed on the user's reference (a 0.8 s loop, nothing overshooting):
+    /// the arriving icon grows in on a spring with no bounce and settles in about 0.6 s...
+    public static let shuffleIn = Animation.smooth(duration: 0.6)
+    /// ...while the leaving one eases in as it shrinks away, gone in 0.35 s.
+    public static let shuffleOut = Animation.easeIn(duration: 0.35)
     /// The rays behind a hero tile's icon turning a full circle, on a loop.
     public static let spin = Animation.linear(duration: 24)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
