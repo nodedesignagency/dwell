@@ -12,8 +12,10 @@ public enum Motion {
     public static let landing = Animation.spring(duration: 0.5, bounce: 0.35)
     /// Light passing across a card that's waiting for an answer, left to right, on a loop.
     public static let sweep = Animation.linear(duration: 2.4)
-    /// A card arriving from below (the confirmation card): smooth, no bounce.
+    /// A card arriving from below (the confirmation card, a bottom sheet): smooth, no bounce.
     public static let arrive = Animation.spring(duration: 0.5, bounce: 0)
+    /// A bottom sheet leaving: quicker than it came, gathering speed as it goes.
+    public static let leave = Animation.easeIn(duration: 0.25)
     /// The live dot's ring, spreading out and fading, on a loop.
     public static let pulse = Animation.easeOut(duration: 1.6)
     /// One half turn of an icon shuffle: gathers speed as the icon turns away, eases off as

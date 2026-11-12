@@ -199,18 +199,17 @@ private func locationSheet() -> some View {
 #Preview("Location sheet") {
     today(.loaded(.sample())).samplePreview()
         .environment(\.permissions, Permissions(location: .denied, isPreciseLocationOn: true, motion: .granted))
-        .blur(radius: 10)
-        .sheet(isPresented: .constant(true)) { locationSheet() }
+        .promptSheet(isPresented: .constant(true)) { locationSheet() }
 }
 
 #Preview("Location sheet · dark") {
-    Color.clear
-        .sheet(isPresented: .constant(true)) { locationSheet() }
+    today(.loaded(.sample())).samplePreview()
+        .promptSheet(isPresented: .constant(true)) { locationSheet() }
         .preferredColorScheme(.dark)
 }
 
 #Preview("Location sheet · AX3") {
-    Color.clear
-        .sheet(isPresented: .constant(true)) { locationSheet() }
+    today(.loaded(.sample())).samplePreview()
+        .promptSheet(isPresented: .constant(true)) { locationSheet() }
         .dynamicTypeSize(.accessibility3)
 }

@@ -9,8 +9,8 @@ import UIKit
 /// started, so the timer never lags. The day pill picks a past day; past days drop the live
 /// status, the insights and the confirmation card.
 ///
-/// With location off, "Turn on your location" opens over Today once per launch (blurring it),
-/// and the banner's button opens it again. A modal, against brief §8.3; the client approved
+/// With location off, "Turn on your location" slides up over Today once per launch, a moment
+/// after Today has settled, and the banner's button opens it again. A modal, against brief §8.3; the client approved
 /// it (QUESTIONS.md). "Yes, turn on" goes to Settings.
 struct TodayScreen: View {
     var openProfile: () -> Void = {}
@@ -62,7 +62,7 @@ struct TodayScreen: View {
                 PendingView(title: sheet.title, systemImage: sheet.systemImage)
                     .presentationDetents([.medium])
             }
-            .sheet(isPresented: $isAskingForLocation) {
+            .promptSheet(isPresented: $isAskingForLocation) {
                 PromptSheet(
                     titleLines: LocationSheetCopy.titleLines,
                     message: LocationSheetCopy.message,
@@ -76,13 +76,14 @@ struct TodayScreen: View {
                     onClose: { isAskingForLocation = false })
             }
         }
-        // Today softens behind the sheet, as designed.
-        .blur(radius: isAskingForLocation ? 10 : 0)
-        .motion(value: isAskingForLocation)
         .onChange(of: permissions.banner, initial: true) { _, banner in
             guard banner == .locationDenied, !hasAskedForLocation else { return }
             hasAskedForLocation = true
-            isAskingForLocation = true
+            Task {
+                // Let Today settle on screen first, so the sheet arrives on its own.
+                try? await Task.sleep(for: .milliseconds(700))
+                isAskingForLocation = true
+            }
         }
         .haptic(.confirm, trigger: confirmed.count)
     }

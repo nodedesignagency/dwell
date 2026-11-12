@@ -50,6 +50,8 @@ public enum Palette {
     public static let tabPillStroke = Color("tabPillStroke", bundle: .module)
     /// Getting started: the step numbers and their Now / Next / Then tags
     public static let step = Color("step", bundle: .module)
+    /// Dims the screen behind a bottom sheet, over a blur
+    public static let scrim = Color("scrim", bundle: .module)
     /// The grey a sheet's glow fades out to at its edges (Turn on your location)
     public static let glowShade = Color("glowShade", bundle: .module)
     /// The light rays behind a sheet's art (Turn on your location)
