@@ -11,10 +11,12 @@ struct DwellApp: App {
     private let sky = UserDefaults.standard.string(forKey: "DwellSky").flatMap(SkyPhase.init(rawValue:))
     /// `-DwellState empty` at launch shows one of Today's states (`DWELL_STATE=empty ./scripts/run.sh`).
     private let demo = UserDefaults.standard.string(forKey: "DwellState").flatMap(DemoRepository.Mode.init(rawValue:))
+    /// `-DwellOpen places` at launch opens a page (`DWELL_OPEN=places ./scripts/run.sh`).
+    private let open = UserDefaults.standard.string(forKey: "DwellOpen").flatMap(LaunchPage.init(rawValue:))
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            RootView(open: open)
                 .environment(\.dial, Dial(position: dialPosition))
                 // No tracking engine yet (CLAUDE.md): run on the sample week, clock ticking.
                 .sampleWeek(launchedAt: launch, repository: demo.map { DemoRepository($0) as any DwellRepository } ?? SampleRepository())

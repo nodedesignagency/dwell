@@ -56,6 +56,12 @@ public enum Palette {
     public static let wrapCentre = Color("wrapCentre", bundle: .module)
     /// The weekly wrap invite: the deep blue at the edge of its radial fill
     public static let wrapEdge = Color("wrapEdge", bundle: .module)
+    /// Your places: the search field's fill, raised off the page by its shadow. Read from the screenshot
+    public static let field = Color("field", bundle: .module)
+    /// Your places: the search field's magnifier. Read from the screenshot
+    public static let fieldIcon = Color("fieldIcon", bundle: .module)
+    /// Your places: the search field's placeholder (Search places). Read from the screenshot
+    public static let placeholder = Color("placeholder", bundle: .module)
     /// The chart fold bucket, Everything else. Not a category. (placeholder)
     public static let everythingElse = Color("everythingElse", bundle: .module)
     /// The tint Everything else ticks catch along their top edge (placeholder)
@@ -94,6 +100,7 @@ public nonisolated enum Radius {
     public static let l: CGFloat = 16
     public static let xl: CGFloat = 20
     public static let xxl: CGFloat = 32
+    public static let control: CGFloat = 12
 }
 
 extension SkyPhase {

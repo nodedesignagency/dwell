@@ -11,3 +11,13 @@ extension DurationText {
         return duration.formatted(.units(allowed: [.hours, .minutes], width: .wide))
     }
 }
+
+extension DurationText {
+    /// "186 hours": how VoiceOver reads a lifetime total that shows as "186h". Below ten hours,
+    /// where the total keeps its minutes ("6h 50m"), the same as `spoken`.
+    public static func spokenTotal(_ interval: TimeInterval) -> String {
+        let hours = Int(interval / 3600)
+        guard hours >= 10 else { return spoken(interval) }
+        return Duration.seconds(hours * 3600).formatted(.units(allowed: [.hours], width: .wide))
+    }
+}

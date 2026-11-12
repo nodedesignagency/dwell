@@ -35,8 +35,15 @@ struct RootView: View {
         }
     }
 
-    @State private var tab: Tab = .today
+    @State private var tab: Tab
     @State private var tabBarHeight: CGFloat = 0
+    private let youPath: [YouPage]
+
+    /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
+    init(open: LaunchPage? = nil) {
+        _tab = State(initialValue: open == nil ? .today : .you)
+        youPath = open == .places ? [.places] : []
+    }
 
     var body: some View {
         TabView(selection: $tab) {
@@ -49,7 +56,7 @@ struct RootView: View {
             TimeScreen()
                 .tag(Tab.time)
                 .toolbar(.hidden, for: .tabBar)
-            YouScreen()
+            YouScreen(path: youPath)
                 .tag(Tab.you)
                 .toolbar(.hidden, for: .tabBar)
         }
@@ -66,6 +73,12 @@ struct RootView: View {
                 .ignoresSafeArea(.keyboard)
         }
     }
+}
+
+/// A page the app can open at launch, for reviewing it in the simulator.
+enum LaunchPage: String {
+    /// Your places, pushed from You.
+    case places
 }
 
 /// Holds a tab's place until its design arrives.

@@ -7,7 +7,7 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 
 Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
 
-Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov).
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov).
 
 Counts: 13 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
@@ -32,7 +32,7 @@ Counts: 13 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 
 | O-02 | Demo gate (sheet) | "I confirm I am 16 or older"; Enter fictional demo | A.1 #1a | ⬜ | ⬜ |
 | O-03 | Account and consent | Region tick, date of birth (never stored), Sign in with Apple, core consent (required, on), training consent (optional, off, never bundled), legal links; Continue disabled until sign-in, consent and region | A.1 #2 | ⬜ | ⬜ |
 | O-04 | Under 16 | "Account setup stopped."; fixed no-data preview of Today and Time with example data | A.1 #2a | ⬜ | ⬜ |
-| O-05 | Your places | Add home, work, gym, school, family by role; favourite; Add / Continue / Skip; "Saving a place does not record a visit." | A.1 #3 | ⬜ | ⬜ |
+| O-05 | Your places | Add home, work, gym, school, family by role; favourite; Add / Continue / Skip; "Saving a place does not record a visit." | A.1 #3 | ⬜ (same name as the Your places page in You, Y-06, but a different screen: it adds places by role before any visit) | ⬜ |
 | O-06 | Start my day | When-In-Use explanation; collapsed Motion explainer; edit places link; Allow / Open Settings / Start my day; declining completes into a degraded state. Never Always here. | A.1 #4 | ⬜ | ⬜ |
 | O-07 | Set your dial | The dial with one sentence re-rendering live Peace → Grind; Set / Later. A step or a first-open moment. | A.1, §6 | ⬜ | ⬜ |
 | O-08 | Always upgrade | "See the hours after you close Dwell"; three promises; Turn on Always / Not now. Day 1–2, at most once per two weeks. | A.1 | ⬜ | ⬜ |
@@ -86,8 +86,8 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | M-03 | Scratch layer | Covered / uncovered cells at neighborhood (~250 m), city and world (countries); tap cell → date uncovered; a new cell is a moment | ⬜ | ⬜ |
 | M-04 | Map states | Loading / syncing / failed / empty ("Your map starts with your first place") / populated | ⬜ | ⬜ |
 | M-05 | Lens reading | One line in the dial's voice ("31h beyond work this week." / "5 returns to Kestriva Labs.") | ⬜ | ⬜ |
-| M-06 | Places you return to | Top five by time → place page | ⬜ | ⬜ |
-| M-07 | Place page | Name, category, total, visits, first and last seen, streaks here, share level, calendar of visits; Edit, Share level, Private | ⬜ (Today's rows and live status already open a placeholder) | ⬜ |
+| M-06 | Places you return to | Top five by time → place page | ⬜ (a "See all" can push Your places, Y-06: `YourPlacesScreen` takes the stack's own `openPlace`) | ⬜ |
+| M-07 | Place page | Name, category, total, visits, first and last seen, streaks here, share level, calendar of visits; Edit, Share level, Private | ⬜ (Today's rows and live status, and Your places' rows, already open a placeholder) | ⬜ |
 | M-08 | Scratch detail | Neighborhood / city / world coverage with %, cells this week, next milestone; Share (city silhouette) | ⬜ | ⬜ |
 | M-09 | Scratch cell detail | Date first uncovered | ⬜ | ⬜ |
 | M-10 | Privacy line | "Your map is private to you." | ⬜ | ⬜ |
@@ -120,8 +120,8 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | Y-03 | Streaks | Name, current, best, flame, freeze bank (max 2); empty / active / at risk / frozen / broken; opt out of the at-risk push | ⬜ | ⬜ |
 | Y-04 | Badges | Tier grid (bronze / silver / gold) with progress → badge detail | ⬜ | ⬜ |
 | Y-05 | Scratch-map badges | Cartographer, Globetrotter progress | ⬜ | ⬜ |
-| Y-06 | Your places | Saved places with favourites; Add / edit / archive; empty | ⬜ | ⬜ |
-| Y-07 | Places manager | All places by lifetime time → place settings sheet (rename, category, share level, private, home/work, apply to past); empty | ⬜ | ⬜ |
+| Y-06 | Your places | Saved places with favourites; Add / edit / archive; empty | 🎨 Your places (screenshot, 12 Nov): back button, header (3D sun and clock, "Your places", places count · hours mapped), search, chips (Most time, All categories, Favourites), Favourites section. 🔁 the chips' menus and the Favourites toggle, their "on" look (navy), no matches, empty (waiting card), loading, stale, failed, dark, AX sizes, a private place's "Private". ⬜ Add (by role) and archive: not in the design (QUESTIONS.md, design vs brief 24) | 🟡 (`DWELL_OPEN=places`) |
+| Y-07 | Places manager | All places by lifetime time → place settings sheet (rename, category, share level, private, home/work, apply to past); empty | 🎨 Your places: one page with Y-06, "All places" by most time, each row with its category, visits (home: "Since March") and lifetime hours. 🔁 sort by visits or A to Z. ⬜ the place settings sheet: rows open the place page (M-07) instead, whose Edit would hold it (QUESTIONS.md, design vs brief 24) | 🟡 |
 | Y-08 | Work rules | Auto-WFH per weekday, tag a day WFH or PTO, out-by target, Live Activity at the gym | ⬜ | ⬜ |
 | Y-09 | Calendar | Connect flow; choose calendars; location matching on/off; "Titles never leave your phone"; not connected / connected | ⬜ | ⬜ |
 | Y-10 | Battery | "About 1.8% today", bursts, minutes, explanation; collecting | ⬜ | ⬜ |

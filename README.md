@@ -23,7 +23,10 @@ DWELL_SKY=night ./scripts/run.sh  # force Today's sky: sunrise, day, sunset or n
 DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPlace, weeklyWrap, failed, offline,
                                     # transit, lastSeen, locationDenied, whenInUse, preciseOff,
                                     # motionDenied
+DWELL_OPEN=places ./scripts/run.sh  # open Your places (You → Your places)
 ```
+
+`DWELL_OPEN` and `DWELL_STATE` combine: `DWELL_OPEN=places DWELL_STATE=firstDay` is Your places with nothing mapped yet, `firstPlace` with one place, `loading`, `failed` and `offline` its other states.
 
 `firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the install day a few minutes after the first place was mapped (at home for 28m, nothing else yet). `weeklyWrap` is the usual Monday with last week's wrap ready and not opened yet. Every state runs on the same clock.
 

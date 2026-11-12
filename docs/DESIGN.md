@@ -46,6 +46,9 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `wrapCentre` | #67D7FF | #67D7FF | The weekly wrap invite: the middle of its radial fill | Today "Weekly Wrap" (Figma); same in dark |
 | `wrapEdge` | #00A3F3 | #00A3F3 | The weekly wrap invite: the edge of its radial fill | Today "Weekly Wrap" (Figma); same in dark |
 | `glass` | white 70% | #1C1C1E 70% | Controls on the sky (the day pill, kept light in every sky) | Today; dark derived |
+| `field` | #FAFAFB | #1C1C1E | The search field's fill: the page's grey, lit a little, raised by its shadow | Your places (read from the screenshot); dark derived |
+| `fieldIcon` | #6C6C6C | #AEAEB2 | The search field's magnifier | Your places (read from the screenshot); dark derived |
+| `placeholder` | #9A9BA3 | #6E6E73 | The search field's placeholder ("Search places") | Your places (read from the screenshot); dark derived |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
 ### Category colours
@@ -81,9 +84,9 @@ Positions are shares of the header (the horizon sits 26 pt above the sky's botto
 
 `Space`: xxs 2 · xs 4 · s 8 · m 12 · l 16 · **screen 20** · xl 24 · xxl 32 · xxxl 48. The Today design confirms the 4-pt scale and adds 20 for screen margins.
 
-`Radius` (Today): s 8 (chart bars) · m 13 (day pill) · box 14 (the day bar box) · l 16 (hero tiles, banners) · xl 20 (cards, confirmation card) · xxl 32 (the sheet's top corners).
+`Radius` (Today): s 8 (chart bars) · m 13 (day pill) · box 14 (the day bar box) · l 16 (hero tiles, banners) · xl 20 (cards, confirmation card) · xxl 32 (the sheet's top corners). Your places adds **control 12** (the back button and the filter chips, measured from the screenshot) and confirms xl 20 for its list card and the screen margin of 16 for a pushed page.
 
-Elevation: cards take one soft shadow (black 6%, radius 16, y 6), cast by the card's shape only: boxes and tiles inside a card (the day bar box, the hero tiles) have none and sit on the same white; the confirmation card no drop shadow, but a warm light along its top edge (`inverseGlow` from 15% at the edge to about 1% at the bottom, read from the screenshot; the design's five inner shadows replace it once their values are in). In dark mode the card edge (`cardStroke`) stands in for the shadow.
+Elevation: cards take one soft shadow (black 6%, radius 16, y 6), cast by the card's shape only: boxes and tiles inside a card (the day bar box, the hero tiles) have none and sit on the same white; the confirmation card no drop shadow, but a warm light along its top edge (`inverseGlow` from 15% at the edge to about 1% at the bottom, read from the screenshot; the design's five inner shadows replace it once their values are in). In dark mode the card edge (`cardStroke`) stands in for the shadow. The search field (Your places) is raised off the page rather than set on a card: its fill is close to the page's grey, lit by a 1-pt white line along its top that fades by the middle, with two shadows below, black 6% (radius 2, y 2) and 5% (radius 12, y 8). Those values are our estimate from the screenshot until the Figma ones arrive. Back button and chips: white, no shadow, no border (the card edge in dark).
 
 ### Type
 
@@ -94,14 +97,15 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | `voiceDisplay` | 32 | medium | largeTitle | The weekly wrap invite's title (measured from the screenshot) |
 | `voiceHero` | 24 | medium | title2 | Today's headline |
 | `voice` | 22 | medium | title3 | Insight sentences |
+| `pageTitle` | 24 | medium | title2 | A pushed page's title: "Your places". Plain words, the size of Today's headline |
 | `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
 | `dataStat` | 16 | medium, proportional digits (as in the design; see QUESTIONS.md, design vs brief 11) | callout | Hero stat numbers |
 | `data` | 14 | regular, mono digits | subheadline | Durations in rows |
 | `title` | 20 | medium | title3 | Section titles |
-| `body` | 16 | medium | callout | Place names, the live caption |
+| `body` | 16 | medium | callout | Place names, the live caption. Regular weight for a page header's facts ("41 places • 640h mapped") |
 | `label` | 16 | medium | callout | Buttons, the day pill |
 | `action` | 18 | medium | body | The button on a feature card: "Let's go" (measured from the screenshot) |
-| `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners |
+| `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners; a place's facts ("Work • 48 visits"), list section labels set in capitals ("FAVOURITES"), the search field. Medium weight on filter chips |
 | `footnote` | 12 | regular | caption | Legends, badges, small buttons |
 | `tab` | 12, line height 16 | medium selected, regular otherwise; tracking 0 | footnote | Tab bar labels |
 
@@ -127,6 +131,7 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | MO-13 Sky settles on open | Every launch and every return from the background: the sun or moon lifts into place (a quarter of its radius), its glow blooms, stars appear one by one 90 ms apart, `Motion.skySettle` (1.4 s ease-out) | Fade only | none |
 | Dial re-render | Voiced words cross-fade; the headline's words reflow with `Motion.standard` | Cross-fade | none here (the dial's own stops are MO-11) |
 | Day card "View more" | Rows expand in place, `Motion.standard` | Cross-fade | none |
+| Your places: a chip changes the list | Rows reorder, come and go in place, `Motion.standard`; typing in search doesn't animate | Cross-fade | none |
 | Sheet over the header | Scroll-driven: the header holds still while the sheet rises over it; overscroll shows the sky's last colour running on below it | None needed: it moves only with the finger | none |
 
 ### Haptics
@@ -168,9 +173,18 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `NoticeBanner` | `Components/NoticeBanner.swift` | Symbol, message, action; stacks at AX sizes. Permission banner and stale line | Today (derived) | Built |
 | `Avatar` | `Components/NoticeBanner.swift` | Round image or person glyph | Today | Built |
 | `DwellTabBar` | `Dwell/App/DwellTabBar.swift` | Four tabs, sliding pill, frosted bar; see Patterns | Today (Figma tabPills) | Built |
-| `Art` | `Tokens/Art.swift` | Art in `Images.xcassets`: the day pill's calendar, sample avatar, category illustrations (`categoryIcon/`), timeline glyphs (`glyph/`, SVG), hero tile art (`heroIcon/`), section header art (`icon/thisWeek`, `icon/yourDay`, `icon/gettingStarted`), other 3D art (`illustration/place`, `cells`, `clock`, `chart`; the chart not on a screen yet), the Getting started shuffle's list (`firstStopIcons`: house, every other category with art, place pin, cells), tab icons (`tab/`, with dark versions derived by inverting the tones), line icons as templates (`glyph/clock`, `glyph/chevron`, `icon/arrow`, mirrored for back), the old confirm illustration (unused since the new card) | Today | Built |
+| `Art` | `Tokens/Art.swift` | Art in `Images.xcassets`: the day pill's calendar, sample avatar, category illustrations (`categoryIcon/`), timeline glyphs (`glyph/`, SVG), hero tile art (`heroIcon/`), section header art (`icon/thisWeek`, `icon/yourDay` (also Your places' header), `icon/gettingStarted`), other 3D art (`illustration/place`, `cells`, `clock`, `chart`; the chart not on a screen yet), the Getting started shuffle's list (`firstStopIcons`: house, every other category with art, place pin, cells), tab icons (`tab/`, with dark versions derived by inverting the tones), line icons as templates (`glyph/clock`, `glyph/chevron`, `icon/arrow`, mirrored for back), the old confirm illustration (unused since the new card) | Today | Built |
 | `WeeklyWrapCard` | `Components/WeeklyWrapCard.swift` | The weekly wrap invite: 224 tall (grows at AX sizes), radius 20, radial fill `wrapCentre` → `wrapEdge` (centred 53.7% down, reaching 46% each way), the card shadow; centred: the week (`caption`, white 90%), 2 to the voiced title (`voiceDisplay`, white, at most 280 wide so it breaks after "your"), 12 to "Let's go" (`action`, ink, white capsule 20 × 8, 44-pt tap target). Behind: the glow component in white (rays: radial 50% → 0, fill 30%, layer 50%, turning; Ellipse 39: drawn as the ramp it makes through the card, white 24% → 12% left to right). Always the light scheme, so the card and its ink stay the same in dark mode | Today ("Weekly Wrap") | Built |
 | `.card(fill:)` | `Components/Card.swift` | A card with its own fill and the same shadow and dark edge as every card | Today ("Weekly Wrap") | Built |
+| `IconWell` | `Components/RowParts.swift` | A row's round glyph well (32, page grey, ink-5% border; dashed for a gap), moved out of the timeline row so place rows share it | Today; Your places | Built |
+| `DurationTrail` | `Components/RowParts.swift` | The design's clock (14), a duration as written ("57m", "186h") and the chevron (8 × 14), grey; moved out of the timeline row | Today; Your places | Built |
+| `DotLine` | `Components/RowParts.swift` | Facts with a 3-pt dot between them ("Work • 48 visits"; 8 to each dot under a place, 12 under a page title); takes the font and colour it's given; wraps between facts; one VoiceOver label | Your places | Built |
+| `PlaceRow` | `Components/PlaceRow.swift` | Well, 8 to the name (16 medium) over its facts (14, grey) 4 apart, centred on the well; the `DurationTrail` on the name's baseline at the trailing edge; 4 below; the time moves under the facts at AX sizes; one VoiceOver label ("Kestriva Labs, Work, 31 visits, 148 hours") | Your places (screenshot) | Built |
+| `SectionLabel` | `Components/PlaceRow.swift` | A list section's label: 14, grey, set in capitals, read as words; header trait | Your places ("FAVOURITES", "ALL PLACES") | Built |
+| `PageHeader` | `Components/PageHeader.swift` | A pushed page's 3D art (40), 10 to the title (`pageTitle`) over a `DotLine` of facts (16 regular, grey) 2 apart, centred on the art | Your places | Built |
+| `BackButton` | `Components/Controls.swift` | 40 square, white, radius 12, the design's arrow (22) turned round (flips for right-to-left); 44 to tap; pops the page. The app turns the edge swipe back on under it (`Dwell/App/SwipeBack.swift`) | Your places | Built |
+| `FilterChip` | `Components/Controls.swift` | 32 tall, white, radius 12, filter glyph (12, SF Symbol) 6 from the label (14 medium), 10 across; on: navy (`inverseSurface`) with white words (derived). A label for a `Menu` or `Button` | Your places ("Most time", "All categories", "Favourites") | Built; on look derived |
+| `SearchField` | `Components/Controls.swift` | 44 capsule raised off the page (see Elevation), magnifier (14, `fieldIcon`) 8 from the words (14; placeholder in `placeholder`), 14 in from the leading edge; clear button while there's text; a system `TextField` | Your places | Built; shadow estimated |
 | `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
 
 Still expected from the brief: calendar tiles, the segmented range control, the privacy bar, the dial, calendar match rows.
@@ -186,6 +200,8 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **First place (Today, install day, minutes in).** Once the first place is mapped, Today takes its usual layout with what there is: the headline names the one place "and nowhere else yet"; the live card times it, its day bar starts when Dwell did (time before install is neither mapped nor a gap) and its legend lists only what's in the bar; the hero stats can read 0m; "This week" keeps its place with a `WaitingCard` and no arrows until insights arrive (first week only; later the engine's fallback keeps the deck full); "Your day" has its one "→ now" row. No confirmation card: Home was saved in onboarding.
 - **Floating asks.** A question for the user (the confirmation card) floats 8 pt above the tab bar as a dark card, not inline, and leaves when answered (sliding down behind the bar).
 - **Tab bar.** `DwellTabBar` (app target), the design's bar laid over the system `TabView` (whose own bar is hidden): full width, standing on the home indicator with its glass running down behind it, 44-pt top corners, white 20% over a frosted material (`.regularMaterial`, every iOS version; Liquid Glass refracted the content behind it, which the design doesn't) with an ink-10% border (`tabBarStroke`); tabs 101 × 54 (height hugs at larger text), padding 8 across and 6 down, 4 between icon and label, content clipped, spread space-between (first and last flush, so on phones under 428 pt they overlap a few points, unseen); 12 from the bar's top and sides to the tabs and 24 from the tabs to the screen's bottom edge, so they reach 10 pt into the home indicator's strip; the design's icons 22 pt, the same on every tab (dark versions derived by inverting the tones), labels `tab` role, #747474 (`tabInactive`) when not selected; the selected tab's label in ink on a white-80% pill the size of the tab with a #F6F6F6 border and four soft shadows (y 26.05 / 14.37 / 5.86 / 1.2, blur 10.78 / 8.36 / 5.86 / 3.59, black 1 / 2 / 4 / 4%; Figma's fifth is 0% and draws nothing). The pill slides between tabs (`Motion.standard`); under Reduce Motion it appears in place. No haptics on tab changes. A safe-area inset on the `TabView` never reaches the screens inside it (each tab is its own UIKit host), so `RootView` measures the bar and passes its height down (`tabBarHeight`); every screen adds it to its bottom safe area with `.clearsTabBar()` inside its `NavigationStack`, on the root and each pushed page, never on a sheet. Content then scrolls up behind the glass and ends above it.
+- **Pushed page (Your places).** No system navigation bar: the design's `BackButton` sits 17 below the status bar (16 from the edge), then 18 to a `PageHeader`, 12 to the search field, 12 to the chips (8 apart, wrapping), 18 to the content. Margins 16. Everything scrolls together, back button included (as drawn; QUESTIONS.md). The edge swipe still goes back. The tab bar stays, as on every pushed page (`.clearsTabBar()`); the frame doesn't show one (QUESTIONS.md).
+- **Grouped list (Your places).** One white card, 12 down and 16 across inside; each section a `SectionLabel`, then for each row a dashed line and the row, 12 apart, each row with 4 more below it; 18 between sections. A place that is a favourite shows in Favourites and again in All places. While searching, one list; with the Favourites chip on, only Favourites. Nothing left: a card saying so with "Clear filters". Nothing mapped yet: a `WaitingCard` with the 3D place pin.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 
 ## Change log
@@ -231,3 +247,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (icon shuffle as a 3D turn) | The shuffle becomes a coin-like turn on the vertical axis, a new icon every 0.7 s, swapping edge-on; the scale-and-fade swap is gone |
 
 | 2026-11-12 | Today (more 3D art) | The headline's clock and the Getting started rocket are the design's; the shuffle turns through house, office, café, a place pin and the map's cells, and takes in new category art by itself |
+
+| 2026-11-12 | Your places (screenshot) | A pushed page: the design's back button, page header (`pageTitle` 24), raised search field (`field`, `fieldIcon`, `placeholder`), filter chips (radius `control` 12), and one card of place rows in Favourites and All places; the timeline row's well and duration become `IconWell` and `DurationTrail` so place rows share them; `DotLine` for dot-separated facts |

@@ -18,6 +18,15 @@ public enum DurationText {
         default: return "\(hours)h \(rest)m"
         }
     }
+
+    /// A lifetime total, as Your places writes it: whole hours from 10 hours up ("186h",
+    /// "640h mapped"), where the minutes are noise, and `short` below that ("6h 50m", "39m").
+    /// Rounds down, like `short`. The design shows only whole hours; the brief's format is
+    /// "9h 32m" (QUESTIONS.md, design vs brief 20).
+    public static func total(_ interval: TimeInterval) -> String {
+        let hours = Int(interval / 3600)
+        return hours >= 10 ? "\(hours)h" : short(interval)
+    }
 }
 
 /// Nothing, at any dial position, celebrates more than 12 hours of work in a day

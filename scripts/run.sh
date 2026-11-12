@@ -7,6 +7,7 @@
 #   DWELL_STATE=empty ./scripts/run.sh  # show a state: loading, empty, firstDay, firstPlace, weeklyWrap,
 #                                       # failed, offline, transit, lastSeen, locationDenied, whenInUse,
 #                                       # preciseOff, motionDenied
+#   DWELL_OPEN=places ./scripts/run.sh  # open a page: places (Your places, from You)
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail
@@ -41,5 +42,5 @@ echo "Launching on $(xcrun simctl list devices | grep "$UDID" | sed -E 's/^ +//;
 xcrun simctl boot "$UDID" 2>/dev/null || true
 open -a Simulator --args -CurrentDeviceUDID "$UDID"
 xcrun simctl install "$UDID" "$DERIVED/Build/Products/Debug-iphonesimulator/Dwell.app"
-xcrun simctl launch --terminate-running-process "$UDID" "$BUNDLE_ID" ${DWELL_SKY:+-DwellSky "$DWELL_SKY"} ${DWELL_STATE:+-DwellState "$DWELL_STATE"} >/dev/null
+xcrun simctl launch --terminate-running-process "$UDID" "$BUNDLE_ID" ${DWELL_SKY:+-DwellSky "$DWELL_SKY"} ${DWELL_STATE:+-DwellState "$DWELL_STATE"} ${DWELL_OPEN:+-DwellOpen "$DWELL_OPEN"} >/dev/null
 echo "Running."

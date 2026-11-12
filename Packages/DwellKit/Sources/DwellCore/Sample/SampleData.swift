@@ -29,34 +29,37 @@ public enum SampleData {
     // MARK: Places
 
     public static let places: [Place] = [
-        Place(id: "home", name: "Home", category: .home, role: .home,
-              lifetimeTotal: hours(412, 10), visitCount: 63),
+        Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true,
+              lifetimeTotal: hours(412, 10), visitCount: 63, firstSeen: recordingSince),
         Place(id: "kestriva", name: "Kestriva Labs", category: .work, role: .work, shareLevel: .venue,
-              isFavorite: true, lifetimeTotal: hours(148, 20), visitCount: 31),
+              isFavorite: true, lifetimeTotal: hours(148, 20), visitCount: 31,
+              firstSeen: date(month: 8, day: 31, minutes: 8 * 60 + 41)),
         Place(id: "brambleline", name: "Brambleline Café", category: .foodAndDrink, shareLevel: .venue,
-              isFavorite: true, lifetimeTotal: hours(21, 40), visitCount: 34),
+              isFavorite: true, lifetimeTotal: hours(21, 40), visitCount: 34,
+              firstSeen: date(month: 9, day: 1, minutes: 8 * 60 + 5)),
         Place(id: "northline", name: "Northline Gym", category: .fitness, role: .gym,
-              lifetimeTotal: hours(26, 10), visitCount: 22),
+              lifetimeTotal: hours(26, 10), visitCount: 22, firstSeen: date(month: 9, day: 2, minutes: 18 * 60 + 20)),
         Place(id: "sorrel", name: "Sorrel Kitchen", category: .foodAndDrink,
-              lifetimeTotal: hours(6, 50), visitCount: 11),
+              lifetimeTotal: hours(6, 50), visitCount: 11, firstSeen: date(month: 9, day: 3, minutes: 12 * 60 + 40)),
         Place(id: "halloway", name: "Halloway Pharmacy", category: .errands,
-              lifetimeTotal: hours(1, 20), visitCount: 7),
+              lifetimeTotal: hours(1, 20), visitCount: 7, firstSeen: date(month: 9, day: 15, minutes: 12 * 60 + 20)),
         Place(id: "greenmarket", name: "Carroll Street Greenmarket", category: .shopping,
-              lifetimeTotal: hours(3, 5), visitCount: 8),
+              lifetimeTotal: hours(3, 5), visitCount: 8, firstSeen: date(month: 9, day: 12, minutes: 10 * 60 + 15)),
         Place(id: "juniper", name: "Juniper & Vine", category: .foodAndDrink,
-              lifetimeTotal: hours(9, 30), visitCount: 5),
+              lifetimeTotal: hours(9, 30), visitCount: 5, firstSeen: date(month: 9, day: 26, minutes: 19 * 60)),
         Place(id: "larkspur", name: "Larkspur Cinema", category: .entertainment,
-              lifetimeTotal: hours(4, 50), visitCount: 2),
+              lifetimeTotal: hours(4, 50), visitCount: 2, firstSeen: date(month: 10, day: 3, minutes: 19 * 60 + 30)),
         Place(id: "prospect", name: "Prospect Park", category: .outdoors,
-              lifetimeTotal: hours(14, 15), visitCount: 9),
+              lifetimeTotal: hours(14, 15), visitCount: 9, firstSeen: date(month: 9, day: 6, minutes: 10 * 60 + 30)),
         Place(id: "maras", name: "Mara's place", category: .social,
-              lifetimeTotal: hours(18, 40), visitCount: 6),
+              lifetimeTotal: hours(18, 40), visitCount: 6, firstSeen: date(month: 9, day: 19, minutes: 19 * 60 + 10)),
         Place(id: "ashgrove", name: "Ashgrove Library", category: .education,
-              lifetimeTotal: hours(5, 30), visitCount: 4),
+              lifetimeTotal: hours(5, 30), visitCount: 4, firstSeen: date(month: 10, day: 4, minutes: 10 * 60)),
         Place(id: "tidewater", name: "Tidewater Books", category: .shopping,
-              lifetimeTotal: hours(0, 39), visitCount: 1),
+              lifetimeTotal: hours(0, 39), visitCount: 1, firstSeen: date(month: 10, day: 25, minutes: 12 * 60 + 10)),
         Place(id: "stagnes", name: "St. Agnes Community Health & Wellness Center", category: .personal,
-              isPrivate: true, lifetimeTotal: hours(2, 10), visitCount: 3),
+              isPrivate: true, lifetimeTotal: hours(2, 10), visitCount: 3,
+              firstSeen: date(month: 9, day: 22, minutes: 12 * 60 + 45)),
     ]
 
     public static func place(_ id: PlaceID) -> Place {
@@ -185,8 +188,9 @@ extension SampleData {
         public static let liveStatus = LiveStatus.atPlace(visit)
 
         public static let places: [Place] = [
-            Place(id: "home", name: "Home", category: .home, role: .home,
-                  lifetimeTotal: SampleData.now.timeIntervalSince(recordingSince), visitCount: 1),
+            Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true,
+                  lifetimeTotal: SampleData.now.timeIntervalSince(recordingSince), visitCount: 1,
+                  firstSeen: recordingSince),
         ]
     }
 }

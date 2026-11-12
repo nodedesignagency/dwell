@@ -22,6 +22,8 @@ public enum TextRole: CaseIterable, Sendable {
     case dataStat
     /// Durations and times in rows and callouts. 14, monospaced digits.
     case data
+    /// A pushed page's title: "Your places". 24, like Today's headline, but plain words.
+    case pageTitle
     /// Section titles: "This week", "Your day". 20.
     case title
     /// Row titles and the live caption. 16 medium.
@@ -40,7 +42,7 @@ public enum TextRole: CaseIterable, Sendable {
     public var size: CGFloat {
         switch self {
         case .voiceDisplay: 32
-        case .voiceHero: 24
+        case .voiceHero, .pageTitle: 24
         case .voice: 22
         case .dataHero: 40
         case .dataStat: 16
@@ -58,7 +60,7 @@ public enum TextRole: CaseIterable, Sendable {
     public var textStyle: Font.TextStyle {
         switch self {
         case .voiceDisplay: .largeTitle
-        case .voiceHero: .title2
+        case .voiceHero, .pageTitle: .title2
         case .voice: .title3
         case .dataHero: .largeTitle
         case .dataStat, .body, .label: .callout
@@ -72,7 +74,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .voiceDisplay, .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label, .action, .tab: .medium
+        case .voiceDisplay, .voiceHero, .voice, .dataHero, .dataStat, .pageTitle, .title, .body, .label, .action, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }

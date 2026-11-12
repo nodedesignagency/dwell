@@ -41,6 +41,9 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
     public var isPrivate: Bool
     public var lifetimeTotal: TimeInterval
     public var visitCount: Int
+    /// The first visit, or when the place was saved if it has none yet. Your places reads it
+    /// for home ("Since March"), where a count of visits says little.
+    public var firstSeen: Date?
 
     public init(
         id: PlaceID,
@@ -51,7 +54,8 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
         isFavorite: Bool = false,
         isPrivate: Bool = false,
         lifetimeTotal: TimeInterval = 0,
-        visitCount: Int = 0
+        visitCount: Int = 0,
+        firstSeen: Date? = nil
     ) {
         self.id = id
         self.name = name
@@ -62,6 +66,7 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
         self.isPrivate = isPrivate
         self.lifetimeTotal = lifetimeTotal
         self.visitCount = visitCount
+        self.firstSeen = firstSeen
     }
 
     /// Personal and private places are never on any map, the user's own included (brief §7.2).

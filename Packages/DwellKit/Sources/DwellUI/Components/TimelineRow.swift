@@ -31,7 +31,7 @@ public struct VisitRow: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: Space.s) {
             TimelineLine(span: span, title: visit.placeName, duration: duration, showsChevron: showsChevron) {
-                TimelineWell {
+                IconWell {
                     CategoryIcon(visit.placeID == nil ? nil : visit.category, style: .glyph)
                         .foregroundStyle(Palette.textPrimary)
                 }
@@ -102,7 +102,7 @@ public struct TimelineNote: View {
             duration: duration,
             showsChevron: false
         ) {
-            TimelineWell(isDashed: isGap) {
+            IconWell(isDashed: isGap) {
                 Image(systemName: symbol)
                     .resizable()
                     .scaledToFit()
@@ -146,68 +146,16 @@ private struct TimelineLine<Well: View>: View {
                     .foregroundStyle(titleColor)
                     .lineLimit(large ? nil : 2)
                 if large {
-                    TimelineDuration(duration: duration, showsChevron: showsChevron)
+                    DurationTrail(DurationText.short(duration), showsChevron: showsChevron)
                 }
             }
             .padding(.top, -capTrim)
             .padding(.bottom, large ? 0 : -baselineTrim)
             .frame(maxWidth: .infinity, alignment: .leading)
             if !large {
-                TimelineDuration(duration: duration, showsChevron: showsChevron)
+                DurationTrail(DurationText.short(duration), showsChevron: showsChevron)
             }
         }
-    }
-}
-
-/// The round well a row's glyph sits in: 32, #F9F9FB with an ink-5% border inside (Figma);
-/// dashed for a gap. The glyph is 18.
-private struct TimelineWell<Glyph: View>: View {
-    @ScaledMetric(relativeTo: .callout) private var size: CGFloat = 32
-    @ScaledMetric(relativeTo: .callout) private var glyphSize: CGFloat = 18
-    var isDashed = false
-    @ViewBuilder let glyph: Glyph
-
-    var body: some View {
-        glyph
-            .frame(width: glyphSize, height: glyphSize)
-            .frame(width: size, height: size)
-            .background(Palette.background, in: .circle)
-            .overlay {
-                if isDashed {
-                    Circle().strokeBorder(Palette.gap, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                } else {
-                    Circle().strokeBorder(Palette.outline, lineWidth: 1)
-                }
-            }
-            .accessibilityHidden(true)
-    }
-}
-
-/// The design's clock (14), the duration, and its chevron (8 × 14), all grey.
-private struct TimelineDuration: View {
-    @ScaledMetric(relativeTo: .subheadline) private var clockSize: CGFloat = 14
-    let duration: TimeInterval
-    let showsChevron: Bool
-
-    var body: some View {
-        HStack(spacing: Space.xs) {
-            Art.clock
-                .resizable()
-                .scaledToFit()
-                .frame(width: clockSize, height: clockSize)
-                .accessibilityHidden(true)
-            Text(verbatim: DurationText.short(duration))
-                .monospacedDigit()
-            if showsChevron {
-                Art.chevron
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: clockSize * 8 / 14, height: clockSize)
-                    .accessibilityHidden(true)
-            }
-        }
-        .textRole(.data)
-        .foregroundStyle(Palette.textSecondary)
     }
 }
 
