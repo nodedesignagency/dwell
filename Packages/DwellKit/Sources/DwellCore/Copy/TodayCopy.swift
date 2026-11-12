@@ -70,7 +70,9 @@ public enum TodayCopy {
             let bare = ClockText.bareTime(visit.arrival, calendar: calendar)
             return VoicedLine(
                 peace: "Here since \(bare).",
-                plain: "At \(visit.placeName) since \(time) · estimate",
+                // No "· estimate" on screen (the user's call, 12 Nov; QUESTIONS.md 14). The
+                // timer still says "estimate" to VoiceOver.
+                plain: "At \(visit.placeName) since \(time)",
                 // [COPY NEEDED] Grind away from work: Appendix B only covers "On the clock".
                 grind: visit.category == .work ? "On the clock since \(bare)." : "At \(visit.placeName) since \(bare).")
         case .inTransit:

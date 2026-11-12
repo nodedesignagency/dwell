@@ -147,10 +147,10 @@ struct TodayCopyTests {
         #expect(TodayCopy.headline(empty, isToday: true, dayName: "Today") == nil)
     }
 
-    @Test func `the live caption is Appendix B`() {
+    @Test func `the live caption is Appendix B, without "estimate"`() {
         let line = TodayCopy.liveCaption(SampleData.liveStatus, calendar: calendar)
         #expect(line.peace == "Here since 1:31.")
-        #expect(plainSpaces(line.plain) == "At Kestriva Labs since 1:31 PM · estimate")
+        #expect(plainSpaces(line.plain) == "At Kestriva Labs since 1:31 PM")
         #expect(line.grind == "On the clock since 1:31.")
     }
 

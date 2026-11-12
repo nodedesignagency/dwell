@@ -56,7 +56,12 @@ struct RootView: View {
         .environment(\.tabBarHeight, tabBarHeight)
         .overlay(alignment: .bottom) {
             DwellTabBar(selection: $tab)
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { tabBarHeight = $0 }
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
+                    // A measurement, never an animation: the screens' insets snap to it.
+                    var still = Transaction()
+                    still.disablesAnimations = true
+                    withTransaction(still) { tabBarHeight = height }
+                }
                 // Stays at the bottom under the keyboard, like the system bar.
                 .ignoresSafeArea(.keyboard)
         }

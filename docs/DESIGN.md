@@ -109,9 +109,11 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | Moment | Animation | Reduce Motion alternative | Haptic |
 | --- | --- | --- | --- |
 | MO-01 Live timer ticking | Ticks on the minute the visit started; digits roll (`.numericText`) with `Motion.standard` | Digits cross-fade | none |
+| Live dot | While the timer runs (at a place or in transit), a ring of the dot's colour spreads from 0.55× to 2.2× its halo and fades from 35% to nothing, `Motion.pulse` (1.6 s ease-out), on a loop | Still dot | none |
 | MO-02 Day bar filling | Ticks grow from the baseline and fade in on appear, `Motion.reveal` | Fade in only, no growth | none |
 | MO-05 Insight arrival | Deck pages: the card slides out the way you swiped and the next slides in, `Motion.standard` | Cross-fade | none |
-| Confirmation waiting | While the card shows, its two streaks of light rest where the design draws them for 2.4 s, leave to the right (`Motion.sweepOut`, 0.9 s ease-in) and slide back in from the left (`Motion.sweepIn`, 0.7 s ease-out), on a loop | Streaks stay at rest | none |
+| Confirmation arrives | Slides up from behind the tab bar and fades in, `Motion.arrive` (0.5 s spring, no bounce). The animation is scoped to the card: nothing else on Today animates when it loads | Fade | none |
+| Confirmation waiting | While the card shows, its two streaks of light sweep across it left to right on a steady loop (`Motion.sweep`, 2.4 s linear), from just off the leading edge to just off the trailing one | Streaks rest where the design draws them | none |
 | MO-06 Confirmation accepted | The card drops below the tab bar and fades | Fade | light (`Haptic.confirm`) |
 | MO-12 Sky phase change | When the phase changes, live or since the last open (the old sky shows for 0.5 s first): skies cross-fade while the sun and moon travel, `Motion.skyChange` (2.6 s ease-in-out). Night → sunrise: the moon climbs away, the sun rises to the horizon. Sunrise → day: the sun arcs up to the top right and shrinks. Day → sunset: it sinks back to the horizon. Sunset → night: it drops below, the moon comes down, stars come out | `Motion.skyFade` (0.8 s cross-fade), bodies fade in place | none |
 | MO-13 Sky settles on open | Every launch and every return from the background: the sun or moon lifts into place (a quarter of its radius), its glow blooms, stars appear one by one 90 ms apart, `Motion.skySettle` (1.4 s ease-out) | Fade only | none |
@@ -194,3 +196,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (card shadows, stat digits, sweep) | The card shadow is cast by the card's shape only, so the day bar box and hero tiles no longer shadow the white around them; hero stat numbers use proportional digits; the confirmation card's streaks sweep across it while it waits |
 
 | 2026-11-12 | Today (icons, row well, insight spacing) | The design's icons in place: tab bar, hero tiles (briefcase, sunrise), section headers (calendar, sun with clock), timeline glyphs (buildings, home, cup); the timeline well's border is ink 5% and its glyph 18; an insight's topic and sentence sit 4 apart |
+
+| 2026-11-12 | Today (motion fixes) | Today no longer grows in from the middle at launch (the confirmation card's animation covered the whole screen; the day bar's covered its box); the card slides up on its own; its streaks sweep on a steady loop; the live dot pulses; the live caption drops "· estimate" |

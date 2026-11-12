@@ -50,7 +50,11 @@ struct DwellTabBar: View {
             .background(.regularMaterial, in: shape)
             .ignoresSafeArea(edges: .bottom)
         }
-        .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom } action: { homeIndicator = $0 }
+        .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom } action: { inset in
+            var still = Transaction()
+            still.disablesAnimations = true
+            withTransaction(still) { homeIndicator = inset }
+        }
         .motion(value: selection)
     }
 

@@ -105,7 +105,7 @@ struct LiveStatusView: View {
                     .accessibilityLabel(big.spoken)
             }
             HStack(alignment: .firstTextBaseline, spacing: Space.xs) {
-                LiveDot(color: dotColor)
+                LiveDot(color: dotColor, pulses: big?.isLive == true)
                 VoiceText(TodayCopy.liveCaption(status, calendar: calendar))
                     .textRole(.body)
                     .foregroundStyle(Palette.textSecondary)
@@ -163,9 +163,14 @@ struct LiveStatusView: View {
     }
 }
 
+/// The dot by the live caption, in its soft halo (Today design). While the timer runs, a ring
+/// of its colour spreads from the dot and fades, on a loop, so "live" reads as live. Under
+/// Reduce Motion, and once the timer stops, the dot stays still.
 private struct LiveDot: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .callout) private var size: CGFloat = 8
     let color: Color
+    var pulses = false
 
     var body: some View {
         Circle()
@@ -173,6 +178,19 @@ private struct LiveDot: View {
             .frame(width: size, height: size)
             .padding(size * 0.375)
             .background(color.opacity(0.12), in: .circle)
+            .background {
+                if pulses && !reduceMotion {
+                    Circle()
+                        .fill(color)
+                        .phaseAnimator([false, true]) { ring, spread in
+                            ring
+                                .scaleEffect(spread ? 2.2 : 0.55)
+                                .opacity(spread ? 0 : 0.35)
+                        } animation: { spread in
+                            spread ? Motion.pulse : nil
+                        }
+                }
+            }
             .accessibilityHidden(true)
     }
 }

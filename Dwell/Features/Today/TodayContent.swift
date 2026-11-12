@@ -41,8 +41,12 @@ struct TodayContent: View {
             }
             .ignoresSafeArea(edges: .top)
             .background(Palette.background)
-            .safeAreaInset(edge: .bottom, spacing: 0) { confirmation }
-            .motion(value: confirmationID)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                // Animate the card coming and going, and nothing else: on the whole screen this
+                // also animated Today's first layout, which grew in from the middle at launch.
+                ZStack { confirmation }
+                    .motion(Motion.arrive, value: confirmationID)
+            }
         }
     }
 

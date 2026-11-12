@@ -170,9 +170,10 @@ private struct TopGlow: View {
     }
 }
 
-/// The card's two streaks of light, passing across it every few seconds so it reads as
-/// waiting for an answer: they rest where the design draws them for 2.4 s, leave to the right,
-/// and slide back in from the left. Under Reduce Motion they stay at rest.
+/// The card's two streaks of light, sweeping across it left to right on a steady loop, so it
+/// reads as waiting for an answer. Each pass starts just off the leading edge and ends off the
+/// trailing one, so the jump back is never seen. Under Reduce Motion they rest where the
+/// design draws them.
 private struct SweepingSheen: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -188,9 +189,8 @@ private struct SweepingSheen: View {
                     }
                 } animation: { phase in
                     switch phase {
-                    case .gone: Motion.sweepOut
+                    case .after: Motion.sweep
                     case .before: nil // off the card on both sides, so the jump is never seen
-                    case .rest: Motion.sweepIn
                     }
                 }
         }
@@ -198,14 +198,13 @@ private struct SweepingSheen: View {
 }
 
 nonisolated private enum SweepPhase: CaseIterable {
-    case rest, gone, before
+    case before, after
 
-    /// Where the streaks sit, as a share of the card's width from their resting place.
+    /// Where the streaks sit, as a share of the card's width from where the design draws them.
     var shift: CGFloat {
         switch self {
-        case .rest: 0
-        case .gone: 1
         case .before: -0.5
+        case .after: 1
         }
     }
 }

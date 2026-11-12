@@ -59,7 +59,6 @@ public struct DayBarView: View {
                 .strokeBorder(Palette.outline, lineWidth: 1)
         }
         .onAppear { grown = true }
-        .motion(Motion.reveal, value: grown)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
         .accessibilityValue(spokenParts)
@@ -82,6 +81,8 @@ public struct DayBarView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .drawingGroup()
         .opacity(grown ? 1 : 0)
+        // Only the ticks animate: on the whole box, its first layout grew in too.
+        .motion(Motion.reveal, value: grown)
         .contentShape(.rect)
         .onTapGesture { location in
             let segment = segment(at: location.x, width: width, in: segments)

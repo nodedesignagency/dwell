@@ -22,7 +22,7 @@ Questions for the user or the client (Zac), and any place a design and the brief
 11. **What "yours" means.** The brief never defines it. We count everything mapped except work, home and transit (`DayRecap.yours`). That matches the Today design (57m, the café) and the day-2 line "9h 12m at work, 2h 40m yours", which only adds up without evenings at home. But Peace celebrates "reclaimed evenings", which happen at home. Should home time after work count as yours?
 12. **Gap copy in the timeline.** Appendix B voices the gap ("Dwell was asleep for 22m. That time isn't counted." at Peace), but §6 says timeline rows never carry character. Timeline rows use the Plain line at every position; the voiced variants wait for a voiced surface.
 13. **Grind live caption away from work.** Appendix B's Grind line is "On the clock since 1:31.", which only fits work. Elsewhere Grind says "At {place} since 1:31." [COPY NEEDED].
-14. **"Estimate" at Peace and Grind.** §7.1 says the live timer is "marked as an estimate"; Appendix B has "· estimate" only in the Plain line. VoiceOver says "estimate" at every position; on screen only Plain does. Does the mark need to show at every position?
+14. **"Estimate" on the live status.** §7.1 says the live timer is "marked as an estimate"; Appendix B has "· estimate" in the Plain line. On the user's call (12 Nov) it's gone from the screen at every position, as in the design; VoiceOver still says "estimate" with the timer. Check with Zac.
 
 ## For the user
 
@@ -40,7 +40,7 @@ Questions for the user or the client (Zac), and any place a design and the brief
 
 Found in the Today design (Figma 69:81). Settled with the user before building unless marked open.
 
-1. **Live status drops "estimate".** The design reads "At Kestriva Labs since 9:02 AM"; §7.1 and Appendix B mark the timer as an estimate. Built with Appendix B's three voices, Plain including "· estimate". (See 14.)
+1. **Live status drops "estimate".** The design reads "At Kestriva Labs since 9:02 AM"; §7.1 and Appendix B mark the timer as an estimate. First built with Plain's "· estimate"; removed on the user's call (12 Nov), kept for VoiceOver. Open with Zac. (See 14.)
 2. **The headline and live caption don't follow the dial.** The design shows one voice. The headline gets Peace and Grind placeholders [COPY NEEDED]; the caption uses Appendix B.
 3. **The timeline shows no gaps and no badges.** §7.1: gaps are shown honestly; approximate stays visibly approximate. Built with gap and transit rows and Approximate / Private / WFH badges, plus "Review this place".
 4. **Title Case.** "This Week", "Your Day", "View More", "→ Now" are now sentence case per §8.6.
