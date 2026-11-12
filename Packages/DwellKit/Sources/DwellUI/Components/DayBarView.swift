@@ -2,8 +2,9 @@ import Accessibility
 import DwellCore
 import SwiftUI
 
-/// The day bar (brief §7.1, Today design): the day so far as a strip of slim ticks, one colour
-/// per category in display order, unmapped time hatched at the end, and a legend.
+/// The day bar (brief §7.1, Today design): the whole day as a strip of slim ticks, one colour
+/// per category in display order, unmapped time (gaps and the hours still to come) as hollow
+/// striped ticks at the end, and a legend, in a box with an ink-5% border.
 ///
 /// Each tick (and legend swatch) carries the design's five stacked inner shadows in its
 /// category's glint, so it catches light along its top edge. The ticks are SwiftUI shapes
@@ -33,13 +34,12 @@ public struct DayBarView: View {
     }
 
     public var body: some View {
-        VStack(spacing: Space.s) {
+        VStack(spacing: 10) {
             GeometryReader { proxy in
                 let count = Int((proxy.size.width + Self.tickSpacing) / (Self.tickWidth + Self.tickSpacing))
                 ticks(bar.ticks(max(count, 1)), width: proxy.size.width)
             }
             .frame(height: Self.height)
-            .padding(.bottom, Space.xs)
 
             DashedDivider()
 
@@ -52,10 +52,11 @@ public struct DayBarView: View {
             }
             .frame(minHeight: 16)
         }
-        .padding(9)
+        .padding(Space.s)
+        .background(Palette.surface, in: .rect(cornerRadius: Radius.box))
         .overlay {
-            RoundedRectangle(cornerRadius: Radius.l)
-                .strokeBorder(Palette.separator, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.box)
+                .strokeBorder(Palette.outline, lineWidth: 1)
         }
         .onAppear { grown = true }
         .motion(Motion.reveal, value: grown)
@@ -72,8 +73,7 @@ public struct DayBarView: View {
         let height = grown || reduceMotion ? 1.0 : 0.001
         return HStack(spacing: Self.tickSpacing) {
             ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
-                Capsule()
-                    .fill(Self.style(for: segment))
+                Self.capsule(segment)
                     .frame(width: Self.tickWidth)
                     .scaleEffect(x: 1, y: height, anchor: .bottom)
                     .opacity(selection == nil || selection == segment ? 1 : 0.25)
@@ -134,20 +134,24 @@ public struct DayBarView: View {
     }
 
     private func swatch(_ segment: DayBar.Segment) -> some View {
-        Capsule()
-            .fill(Self.style(for: segment))
+        Self.capsule(segment)
             .frame(width: swatchWidth, height: swatchWidth / 2)
     }
 
     // MARK: Colour
 
-    /// Category colour; "Everything else" its own grey; unmapped a pale hatch, so a gap
-    /// never looks like a category. Names always travel with these in the legend.
-    static func style(for segment: DayBar.Segment) -> AnyShapeStyle {
+    /// A tick or swatch: the category's colour with its glint; "Everything else" its own grey;
+    /// unmapped hollow and striped, so it never looks like a category. Names always travel
+    /// with these in the legend.
+    @ViewBuilder
+    static func capsule(_ segment: DayBar.Segment) -> some View {
         switch segment {
-        case .bucket(.category(let category)): AnyShapeStyle(shaded(category.color, glint: category.glint))
-        case .bucket(.everythingElse): AnyShapeStyle(shaded(Palette.everythingElse, glint: Palette.everythingElseGlint))
-        case .unmapped: AnyShapeStyle(hatch)
+        case .bucket(.category(let category)):
+            Capsule().fill(shaded(category.color, glint: category.glint))
+        case .bucket(.everythingElse):
+            Capsule().fill(shaded(Palette.everythingElse, glint: Palette.everythingElseGlint))
+        case .unmapped:
+            UnmappedCapsule()
         }
     }
 
@@ -163,20 +167,41 @@ public struct DayBarView: View {
             .shadow(.inner(color: glint.opacity(0.35), radius: 0.5, x: 0, y: 1))
     }
 
-    private static let hatch: LinearGradient = {
-        let bands = 14
-        let stops = (0..<bands).flatMap { band -> [Gradient.Stop] in
-            let color = band.isMultiple(of: 2) ? Palette.gap : Palette.gap.opacity(0.4)
-            return [
-                Gradient.Stop(color: color, location: Double(band) / Double(bands)),
-                Gradient.Stop(color: color, location: Double(band + 1) / Double(bands)),
-            ]
-        }
-        return LinearGradient(stops: stops, startPoint: .topLeading, endPoint: .bottomTrailing)
-    }()
-
     private var spokenParts: String {
         bar.parts.map { "\($0.segment.name), \(DurationText.spoken($0.duration))" }.joined(separator: "; ")
+    }
+}
+
+/// Unmapped time (Today design): a hollow capsule with diagonal stripes, outline and stripes
+/// both #DADADA at 80% (`Palette.unmapped`).
+private struct UnmappedCapsule: View {
+    var body: some View {
+        Capsule()
+            .fill(Palette.surface)
+            .overlay {
+                DiagonalStripes(spacing: 2.6)
+                    .stroke(Palette.unmapped, lineWidth: 0.8)
+                    .clipShape(Capsule())
+            }
+            .overlay {
+                Capsule().strokeBorder(Palette.unmapped, lineWidth: 0.75)
+            }
+    }
+}
+
+/// Parallel lines running down to the right at 45°, `spacing` apart along the width.
+nonisolated private struct DiagonalStripes: Shape {
+    var spacing: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        var x = rect.minX - rect.height
+        while x < rect.maxX {
+            path.move(to: CGPoint(x: x, y: rect.minY))
+            path.addLine(to: CGPoint(x: x + rect.height, y: rect.maxY))
+            x += spacing
+        }
+        return path
     }
 }
 

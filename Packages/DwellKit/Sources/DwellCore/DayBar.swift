@@ -1,17 +1,18 @@
 import Foundation
 
-/// Today's day bar (brief §7.1): the day so far by category, drawn as a strip of equal ticks.
+/// Today's day bar (brief §7.1): the whole Dwell day, 4:00 AM to 4:00 AM, as a strip of equal
+/// ticks that fills in by category as the day goes (the brief's empty / partial / full).
 ///
 /// Categories run in display order, at most seven plus "Everything else", and the unmapped
-/// time comes last. The bar covers 4:00 AM to now, or the whole day once it is over.
+/// time comes last.
 public struct DayBar: Hashable, Sendable {
     public enum Segment: Hashable, Sendable, Identifiable {
         case bucket(ChartBucket)
-        /// Time inside the day with no record: gaps ("Dwell was asleep"), and any stretch with
-        /// no entry at all. Never folded into a category, never hidden.
+        /// Everything not mapped: gaps ("Dwell was asleep"), stretches with no entry, and the
+        /// hours still to come, as the design draws it. Never folded into a category.
         ///
-        /// Open question (docs/QUESTIONS.md): the design labels this "Unmapped"; we read it as
-        /// gaps only, not the part of the day still to come.
+        /// Open question (docs/QUESTIONS.md): should the hours still to come look different
+        /// from gaps, which are missing data?
         case unmapped
 
         public var id: String {
@@ -53,7 +54,8 @@ public struct DayBar: Hashable, Sendable {
             Self.rank(lhs.bucket, order) < Self.rank(rhs.bucket, order)
         }
         var parts = slices.map { Part(segment: .bucket($0.bucket), duration: $0.total) }
-        let unmapped = snapshot.recap(now: now).unmapped
+        let mapped = slices.reduce(0) { $0 + $1.total }
+        let unmapped = max(0, snapshot.interval.duration - mapped)
         if unmapped >= 60 {
             parts.append(Part(segment: .unmapped, duration: unmapped))
         }

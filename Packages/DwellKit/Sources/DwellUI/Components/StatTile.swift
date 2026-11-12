@@ -74,13 +74,13 @@ private struct TileGlow: View {
                 .offset(x: 11.8, y: -0.4)
                 .blur(radius: 33.4)
                 .opacity(0.5)
-            // "Vector": rays of ink, radial from 50% at the centre to nothing at the edge,
-            // fill 15%, layer 20%.
+            // "Vector": rays of ink, radial from the centre to nothing at the edge. Figma's
+            // fill 15% × layer 20% read too faint on the phone; raised to 10% ink at the centre.
             Rays(count: 16, share: 0.6)
                 .fill(RadialGradient(
                     colors: [Palette.textPrimary.opacity(0.5), Palette.textPrimary.opacity(0)],
                     center: .center, startRadius: 0, endRadius: Self.size / 2))
-                .opacity(0.15 * 0.2)
+                .opacity(0.2)
         }
         .allowsHitTesting(false)
     }

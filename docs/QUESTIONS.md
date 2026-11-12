@@ -26,7 +26,7 @@ Questions for the user or the client (Zac), and any place a design and the brief
 
 ## For the user
 
-15. **"Unmapped" on the day bar.** You asked to come back to this. We built it as gaps only (time inside the day so far with no record), never the rest of the day still to come. On the sample Monday there are no gaps, so no grey shows. What did the designer mean by Unmapped?
+15. **"Unmapped" on the day bar.** You asked to come back to this. First built as gaps only; on your call (12 Nov) the bar now spans the whole 4 AM to 4 AM day, and everything not mapped shows as Unmapped, gaps and the hours still to come alike, as the design draws it. Still to settle with the designer: should the hours still to come look different from a gap? A gap is missing data; this evening isn't.
 16. **The day pill picks a past day.** Built as you chose: a calendar sheet; a past day shows its headline, day bar, hero stats and timeline, without the live status, insights or confirmation card. The brief puts past days in Time (TI-14), so this is new to the client. Worth checking with Zac.
 17. **"This week" over the insight deck.** The deck's title is "This week", but insights cover today too (a new cell, an early exit), and on Monday the chart is last week's Monday to Sunday. Should the title follow the top insight's period?
 18. **Assets we couldn't get from Figma.** The Figma MCP Starter plan stopped after four calls. Still needed, exported as PNG at 3× (or PDF): the 3D briefcase and sunrise from the hero stats, the 3D calendar ("This week") and sun-with-clock ("Your day") headers, the four tab icons, the Solar duotone glyphs (buildings, home, cup hot) and the linear clock from the timeline rows. Stand-ins are SF Symbols marked `[ICON NEEDED]`.

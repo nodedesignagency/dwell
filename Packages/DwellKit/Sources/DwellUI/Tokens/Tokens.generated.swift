@@ -16,12 +16,16 @@ public enum Palette {
     public static let textSecondary = Color("textSecondary", bundle: .module)
     /// Today's headline over the sunrise
     public static let textOnHero = Color("textOnHero", bundle: .module)
-    /// Hairlines and dashed dividers
+    /// Dashed dividers and hairlines: ink at 10%
     public static let separator = Color("separator", bundle: .module)
+    /// Border of a framed group inside a card (the day bar box): ink at 5%
+    public static let outline = Color("outline", bundle: .module)
     /// Card edge; only drawn in dark, where shadows don't show
     public static let cardStroke = Color("cardStroke", bundle: .module)
-    /// Unmapped time on the day bar; skeletons
+    /// Skeletons; the dashed outline of a gap row
     public static let gap = Color("gap", bundle: .module)
+    /// Unmapped ticks on the day bar: outline and stripes, #DADADA at 80%
+    public static let unmapped = Color("unmapped", bundle: .module)
     /// Tint, primary actions, insight charts; also the app's AccentColor
     public static let accent = Color("accent", bundle: .module)
     /// The live dot next to the timer
@@ -68,6 +72,7 @@ public nonisolated enum Space {
 public nonisolated enum Radius {
     public static let s: CGFloat = 8
     public static let m: CGFloat = 13
+    public static let box: CGFloat = 14
     public static let l: CGFloat = 16
     public static let xl: CGFloat = 20
     public static let xxl: CGFloat = 32
