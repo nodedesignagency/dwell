@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Icons swapping in one spot, each growing in as the last one shrinks away: the loading
-/// moment on Today before the first stop (Today design, "Getting Started"; the design team's
-/// note: "a bunch of icons rotating at full speed"). Smooth rather than fast: one every 0.8 s,
-/// no bounce, timed on the user's reference video. Decorative. Under Reduce Motion the first
-/// icon stays put.
+/// Icons turning in one spot like a coin, a new one each half turn: the loading moment on
+/// Today before the first stop (Today design, "Getting Started"; the design team's note: "a
+/// bunch of icons rotating at full speed"). Each icon faces you for a moment, turns away on
+/// its vertical axis, and the next turns in from the far edge: the swap happens edge-on, where
+/// nothing shows. Decorative. Under Reduce Motion the first icon stays put.
 public struct IconShuffle: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let icons: [Image]
@@ -12,8 +12,9 @@ public struct IconShuffle: View {
 
     /// - Parameters:
     ///   - icons: the first one is the one shown under Reduce Motion.
-    ///   - interval: how long each icon stays, in seconds.
-    public init(_ icons: [Image], interval: TimeInterval = 0.8) {
+    ///   - interval: how often a new icon turns in, in seconds; the turn itself is
+    ///     `Motion.flip`, and the icon rests facing you for the rest.
+    public init(_ icons: [Image], interval: TimeInterval = 0.7) {
         self.icons = icons
         self.interval = interval
     }
@@ -21,33 +22,42 @@ public struct IconShuffle: View {
     public var body: some View {
         Group {
             if reduceMotion || icons.count < 2 {
-                icon(0)
+                if let first = icons.first {
+                    first
+                        .resizable()
+                        .scaledToFit()
+                }
             } else {
                 TimelineView(.periodic(from: Date(timeIntervalSinceReferenceDate: 0), by: interval)) { context in
-                    let index = Int(context.date.timeIntervalSinceReferenceDate / interval) % icons.count
-                    ZStack {
-                        icon(index)
-                            .id(index)
-                            .transition(Self.swap)
-                    }
-                    .animation(Motion.shuffleIn, value: index)
+                    let turn = Int(context.date.timeIntervalSinceReferenceDate / interval)
+                    IconFlip(turns: Double(turn), icons: icons)
+                        .animation(Motion.flip, value: turn)
                 }
             }
         }
         .accessibilityHidden(true)
     }
+}
 
-    @ViewBuilder
-    private func icon(_ index: Int) -> some View {
-        if icons.indices.contains(index) {
-            icons[index]
-                .resizable()
-                .scaledToFit()
-        }
+/// The turning icon. `turns` counts half turns: at a whole number an icon faces you; on the
+/// way to the next it turns to 90°, and past the halfway mark the next icon is drawn from
+/// −90° back to facing you. SwiftUI animates `turns`, so the swap lands exactly edge-on.
+private struct IconFlip: View, Animatable {
+    var turns: Double
+    let icons: [Image]
+
+    nonisolated var animatableData: Double {
+        get { turns }
+        set { turns = newValue }
     }
 
-    /// The two overlap in the same spot, so one icon seems to turn into the next.
-    private static let swap = AnyTransition.asymmetric(
-        insertion: .scale(scale: 0.6).combined(with: .opacity),
-        removal: .scale(scale: 0.6).combined(with: .opacity).animation(Motion.shuffleOut))
+    var body: some View {
+        let nearest = turns.rounded()
+        let count = icons.count
+        let index = ((Int(nearest) % count) + count) % count
+        icons[index]
+            .resizable()
+            .scaledToFit()
+            .rotation3DEffect(.degrees((turns - nearest) * 180), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
+    }
 }
