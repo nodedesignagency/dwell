@@ -36,6 +36,13 @@ public enum Art {
     }
 }
 
+extension Art {
+    /// A category's 3D illustration, where the design has one yet.
+    public static func illustration(_ category: PlaceCategory) -> Image? {
+        category.illustrationName.map { Image($0, bundle: .module) }
+    }
+}
+
 extension PlaceCategory {
     /// The category's 3D illustration from the design, where one exists yet.
     var illustrationName: String? {

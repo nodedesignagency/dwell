@@ -47,14 +47,42 @@ public enum TodayCopy {
     public static let emptyPastDay = VoicedLine(fixed: "No stops that day.")
 
     /// The install-day promise (brief §3.1). [COPY NEEDED] Peace and Grind variants.
-    public static let stillMapping = VoicedLine(fixed: "Your day starts here. Tonight you'll see your first place.")
+    // MARK: Getting started (day 0, before the first stop)
 
-    /// What Today is waiting for before the first insight, and how long (brief §3.1).
-    /// [COPY NEEDED]
-    public static func waitingForInsights(_ progress: MappingProgress) -> String {
-        let days = progress.daysToGo == 1 ? "1 day" : "\(progress.daysToGo) days"
-        return "Your first insight comes after your first full day · \(days) to go"
+    /// How long a stop has to last to count as a place. From the design; the engine's real
+    /// threshold is still to confirm (QUESTIONS.md).
+    public static let firstStopMinutes = 5
+
+    /// Today's headline before anything is mapped (Today design, "Getting Started").
+    public static var firstStopHeadline: VoicedSentence {
+        VoicedSentence(
+            line: VoicedLine(
+                // [COPY NEEDED] Peace and Grind; Plain is the design's.
+                peace: "Nothing mapped yet. Settle somewhere for {0} and it will be.",
+                plain: "Nothing mapped yet. Stay put for {0} and it won't be.",
+                grind: "Zero places so far. Hold still for {0} and fix that."),
+            runs: [VoicedSentence.Run(mark: .clock, text: "\(firstStopMinutes) minutes")])
     }
+
+    /// Under the shuffling icons. From the design.
+    public static let waitingForFirstStop = "Waiting for your first stop"
+    public static let mappingRightNow = "Mapping right now."
+
+    /// Sentence case, as everywhere (the design says "Getting Started").
+    public static let gettingStarted = "Getting started"
+
+    /// The Now / Next / Then checklist (brief §3.1, day 0), in the design's words.
+    public static let gettingStartedSteps: [GettingStartedStep] = [
+        GettingStartedStep(
+            tag: "Now", title: "Leave Dwell running",
+            detail: "Works in the background, about 1.8% battery a day."),
+        GettingStartedStep(
+            tag: "Next", title: "Please wait",
+            detail: "A wait of \(firstStopMinutes) minutes counts as a place"),
+        GettingStartedStep(
+            tag: "Then", title: "Check back tonight",
+            detail: "First place mapped, first cell unlocked."),
+    ]
 
     /// [COPY NEEDED]
     public static let timelineEmpty = "Your stops show up here as you make them."
@@ -168,5 +196,18 @@ extension PermissionBanner {
         case .whenInUseOnly: "Fix"
         case .locationDenied, .preciseOff, .motionDenied: "Open Settings"
         }
+    }
+}
+
+/// One line of the day-0 checklist: "Now · Leave Dwell running · Works in the background…".
+public struct GettingStartedStep: Hashable, Sendable {
+    public var tag: String
+    public var title: String
+    public var detail: String
+
+    public init(tag: String, title: String, detail: String) {
+        self.tag = tag
+        self.title = title
+        self.detail = detail
     }
 }

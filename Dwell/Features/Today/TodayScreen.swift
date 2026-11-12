@@ -80,6 +80,11 @@ struct TodayScreen: View {
     private func load(_ day: DwellDay, isToday: Bool) async {
         do {
             let snapshot = try await repository.day(day)
+            if isToday, snapshot.entries.isEmpty, try await !repository.places().hasRecordedVisit {
+                // Day 0: nothing mapped, ever. "Getting started" rather than an empty day.
+                state = .stillMapping(MappingProgress(daysCollected: 0, daysNeeded: 1))
+                return
+            }
             var liveStatus: LiveStatus?
             var insights: [Insight] = []
             if isToday {

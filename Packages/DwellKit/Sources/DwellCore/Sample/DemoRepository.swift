@@ -11,13 +11,15 @@ public struct LoadError: Error, Hashable, Sendable {
 }
 
 /// The sample week bent into one of Today's states, for reviewing them in the simulator:
-/// `DWELL_STATE=empty ./scripts/run.sh`. Previews cover the rest (still mapping, stale).
+/// `DWELL_STATE=empty ./scripts/run.sh`. Previews cover the rest (stale).
 public struct DemoRepository: DwellRepository {
     public enum Mode: String, CaseIterable, Sendable {
         /// Never finishes loading: the skeleton.
         case loading
         /// No visits yet today.
         case empty
+        /// The install day: nothing mapped ever, so Today shows "Getting started".
+        case firstDay
         /// "Today couldn't load".
         case failed
         /// "You're offline" with Retry sync.
@@ -54,7 +56,7 @@ public struct DemoRepository: DwellRepository {
     public func liveStatus() async throws -> LiveStatus {
         try await gate()
         switch mode {
-        case .empty: return .unknown
+        case .empty, .firstDay: return .unknown
         case .transit: return .inTransit(since: SampleData.now.addingTimeInterval(-12 * 60))
         case .lastSeen: return .lastKnown(placeName: "Kestriva Labs", lastSeen: SampleData.now.addingTimeInterval(-37 * 60))
         case .locationDenied: return .noPermission
@@ -64,17 +66,17 @@ public struct DemoRepository: DwellRepository {
 
     public func day(_ day: DwellDay) async throws -> DaySnapshot {
         try await gate()
-        return mode == .empty ? .empty(day, calendar: SampleData.calendar) : try await sample.day(day)
+        return mode == .empty || mode == .firstDay ? .empty(day, calendar: SampleData.calendar) : try await sample.day(day)
     }
 
     public func places() async throws -> [Place] {
         try await gate()
-        return try await sample.places()
+        return mode == .firstDay ? [] : try await sample.places()
     }
 
     public func insights(for day: DwellDay) async throws -> [Insight] {
         try await gate()
-        return mode == .empty ? [] : try await sample.insights(for: day)
+        return mode == .empty || mode == .firstDay ? [] : try await sample.insights(for: day)
     }
 
     public func confirmVisit(_ id: VisitID) async throws {}

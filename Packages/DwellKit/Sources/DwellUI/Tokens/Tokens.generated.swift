@@ -48,6 +48,8 @@ public enum Palette {
     public static let tabPill = Color("tabPill", bundle: .module)
     /// The selected tab's pill border
     public static let tabPillStroke = Color("tabPillStroke", bundle: .module)
+    /// Getting started: the step numbers and their Now / Next / Then tags
+    public static let step = Color("step", bundle: .module)
     /// Controls over the sunrise (the day pill)
     public static let glass = Color("glass", bundle: .module)
     /// The chart fold bucket, Everything else. Not a category. (placeholder)

@@ -7,13 +7,21 @@ import Foundation
 /// same at every position. Each variant of `line` must use every slot, `{0}`, `{1}`…, exactly
 /// once, so the numbers can never differ between Peace and Grind.
 public struct VoicedSentence: Hashable, Sendable {
-    /// One piece of data in the sentence: "4h 40m at work", shown with its category's icon.
+    /// One piece of data in the sentence: "4h 40m at work", shown with its category's icon,
+    /// or "5 minutes" with a clock.
     public struct Run: Hashable, Sendable {
+        /// An icon for a run that isn't a place's time.
+        public enum Mark: Hashable, Sendable {
+            case clock
+        }
+
         public var category: PlaceCategory?
+        public var mark: Mark?
         public var text: String
 
-        public init(category: PlaceCategory? = nil, text: String) {
+        public init(category: PlaceCategory? = nil, mark: Mark? = nil, text: String) {
             self.category = category
+            self.mark = mark
             self.text = text
         }
     }

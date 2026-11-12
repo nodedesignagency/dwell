@@ -48,6 +48,7 @@ public struct VoicedSentenceView: View {
         var text: String
         var isData = false
         var category: PlaceCategory?
+        var mark: VoicedSentence.Run.Mark?
         var prefix = ""
     }
 
@@ -62,7 +63,7 @@ public struct VoicedSentenceView: View {
                 let words = (run.text + suffix).split(separator: " ").map(String.init)
                 return words.enumerated().map { offset, word in
                     offset == 0
-                        ? Piece(text: word, isData: true, category: run.category, prefix: prefix)
+                        ? Piece(text: word, isData: true, category: run.category, mark: run.mark, prefix: prefix)
                         : Piece(text: word, isData: true)
                 }
             }
@@ -83,6 +84,15 @@ public struct VoicedSentenceView: View {
                 CategoryIcon(category, style: .illustration)
                     .frame(width: iconSize, height: iconSize)
                     .foregroundStyle(ink)
+            } else if piece.mark == .clock {
+                // [ICON NEEDED] the design's 3D clock.
+                Image(systemName: "clock.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .symbolRenderingMode(.hierarchical)
+                    .frame(width: iconSize, height: iconSize)
+                    .foregroundStyle(ink)
+                    .accessibilityHidden(true)
             }
             Text(verbatim: piece.text)
                 .monospacedDigit()

@@ -182,7 +182,7 @@ struct TodayCopyTests {
             TodayCopy.confirmVisit(placeName: "Brambleline Café", duration: 57 * 60),
             TodayCopy.emptyToday,
             TodayCopy.emptyPastDay,
-            TodayCopy.stillMapping,
+            TodayCopy.firstStopHeadline.line,
         ]
     }
 

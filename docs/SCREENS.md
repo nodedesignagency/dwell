@@ -48,7 +48,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 
 | ID | Day | What the user sees | Design | Built |
 | --- | --- | --- | --- | --- |
-| W-0 | 0 (install) | Today: "Your day starts here" with a Now / Next / Then checklist. Map: one covered world, nothing uncovered. "Tonight you'll see your first place." | ⬜ | ⬜ |
+| W-0 | 0 (install) | Today: "Your day starts here" with a Now / Next / Then checklist. Map: one covered world, nothing uncovered. "Tonight you'll see your first place." | 🎨 Today: "Getting Started" (Figma, 12 Nov). ⬜ Map | 🟡 Today (`DWELL_STATE=firstDay`) |
 | W-1 | 1 | Live timer, two-row timeline, "Is this home?", Map with one pin and one uncovered cell, insight "First place mapped." | ⬜ | ⬜ |
 | W-2 | 2 | First whole-day visual, "Is this work?", "Your first full day: 9h 12m at work, 2h 40m yours.", Always upgrade moment | ⬜ | ⬜ |
 | W-3 | 3 | Time: three bars, "still learning your week"; streaks "1 of 3"; set-your-dial if not done; notifications ask | ⬜ | ⬜ |
@@ -70,7 +70,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | T-08 | Calendar matches | In the timeline: attended / partial (minutes late or early) / missed (where you were instead) / unknown; not connected (Connect calendar) / no events today / matched. Tap → event detail. | ⬜ | ⬜ |
 | T-09 | Permission banner | Four types, one at a time, Fix / Open Settings | 🔁 Today | 🟡 |
 | T-10 | Sync | "Retry sync" line when offline | 🔁 Today: stale line, offline state | 🟡 |
-| T-11 | First day | Now / Next / Then checklist | ⬜ (Today's still-mapping state stands in: promise line and "1 day to go") | ⬜ |
+| T-11 | First day | Now / Next / Then checklist | 🎨 Today: "Getting Started": headline with a 5-minute run, shuffling icons, "Waiting for your first stop" with the live dot, numbered Now / Next / Then cards. 🔁 Peace and Grind headlines [COPY NEEDED], dark, AX sizes, permission banner | 🟡 |
 | T-12 | Empty and failed | "No stops yet today" / "Today couldn't load" + Retry | 🔁 Today | 🟡 |
 | T-13 | Quiet day | A day with little movement still teaches something | 🔁 Today (same layout; headline drops absent runs) | 🟡 |
 | T-14 | Loading | Skeleton within 600 ms of cold launch | 🔁 Today | 🟡 |

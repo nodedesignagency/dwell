@@ -114,6 +114,19 @@ struct DemoRepositoryTests {
         #expect(try await repository.liveStatus() == .unknown)
     }
 
+    @Test func `the first day has nothing mapped, ever`() async throws {
+        let repository = DemoRepository(.firstDay)
+        #expect(try await repository.day(SampleData.today).entries.isEmpty)
+        #expect(try await !repository.places().hasRecordedVisit)
+        #expect(try await repository.liveStatus() == .unknown)
+        #expect(try await SampleRepository().places().hasRecordedVisit)
+    }
+
+    @Test func `saved places with no visits are still nothing mapped`() {
+        let saved = Place(id: "home", name: "Home", category: .home, role: .home, lifetimeTotal: 0, visitCount: 0)
+        #expect(![saved].hasRecordedVisit)
+    }
+
     @Test func `failed and offline say which`() async {
         await #expect(throws: LoadError(.unavailable)) { try await DemoRepository(.failed).day(SampleData.today) }
         await #expect(throws: LoadError(.offline)) { try await DemoRepository(.offline).liveStatus() }

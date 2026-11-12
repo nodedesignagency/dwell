@@ -94,8 +94,35 @@ private let monday19 = DwellDay(year: 2026, month: 10, day: 19)
     today(.empty).samplePreview(.grind)
 }
 
-#Preview("Still mapping") {
-    today(.stillMapping(MappingProgress(daysCollected: 0, daysNeeded: 1))).samplePreview()
+// MARK: Getting started (day 0, nothing mapped yet)
+
+private let firstDay = Loadable<TodayModel>.stillMapping(MappingProgress(daysCollected: 0, daysNeeded: 1))
+
+#Preview("Getting started · Peace") {
+    today(firstDay).samplePreview(.peace)
+}
+
+#Preview("Getting started · Plain") {
+    today(firstDay).samplePreview(.plain)
+}
+
+#Preview("Getting started · Grind") {
+    today(firstDay).samplePreview(.grind)
+}
+
+#Preview("Getting started · dark") {
+    today(firstDay).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Getting started · AX3") {
+    today(firstDay).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Getting started · location denied") {
+    today(firstDay).samplePreview()
+        .environment(\.permissions, Permissions(location: .denied, isPreciseLocationOn: true, motion: .granted))
 }
 
 #Preview("Failed · retry") {

@@ -91,11 +91,8 @@ struct LiveStatusView: View {
 
     @Environment(\.calendar) private var calendar
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// Half the caption's cap height (16-pt type).
-    @ScaledMetric(relativeTo: .callout) private var captionCapHalf: CGFloat = 5.6
 
     var body: some View {
-        let capHalf = captionCapHalf
         // Figma: 4 between the timer and the caption (16.8 from the timer's baseline to the
         // top of the caption's letters).
         VStack(spacing: Space.xs) {
@@ -109,10 +106,7 @@ struct LiveStatusView: View {
                     .motion(value: big.text)
                     .accessibilityLabel(big.spoken)
             }
-            HStack(alignment: .firstTextBaseline, spacing: Space.xs) {
-                LiveDot(color: dotColor, pulses: big?.isLive == true)
-                    // Centred on the caption's first line of capitals, as in the design.
-                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + capHalf }
+            LiveLabel(color: dotColor, pulses: big?.isLive == true) {
                 VoiceText(TodayCopy.liveCaption(status, calendar: calendar))
                     .textRole(.body)
                     .foregroundStyle(Palette.textSecondary)
@@ -167,38 +161,5 @@ struct LiveStatusView: View {
         case .inTransit: PlaceCategory.transit.color
         case .lastKnown, .unknown, .noPermission: Palette.textSecondary
         }
-    }
-}
-
-/// The dot by the live caption (Today design). The design's soft halo stands for the pulse:
-/// while the timer runs, a disc of the dot's colour spreads from it and fades, on a loop, and
-/// there is no halo at rest. The dot keeps the halo's 14-pt footprint, so the caption sits
-/// where the design puts it. Under Reduce Motion, and once the timer stops, the dot is still.
-private struct LiveDot: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .callout) private var size: CGFloat = 8
-    let color: Color
-    var pulses = false
-
-    var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: size, height: size)
-            .padding(size * 0.375)
-            .background {
-                if pulses && !reduceMotion {
-                    Circle()
-                        .fill(color)
-                        .phaseAnimator([false, true]) { ring, spread in
-                            // From the dot's own size (8 of the 14-pt footprint) out to 26.
-                            ring
-                                .scaleEffect(spread ? 1.9 : 0.57)
-                                .opacity(spread ? 0 : 0.4)
-                        } animation: { spread in
-                            spread ? Motion.pulse : nil
-                        }
-                }
-            }
-            .accessibilityHidden(true)
     }
 }

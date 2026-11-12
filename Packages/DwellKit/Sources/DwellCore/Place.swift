@@ -84,3 +84,12 @@ public enum SharePolicy {
         }
     }
 }
+
+extension Collection where Element == Place {
+    /// Whether any place has a recorded visit yet. Places saved in onboarding don't count:
+    /// saving a place doesn't record a visit (brief A.1). False only before the first stop,
+    /// when Today shows "Getting started".
+    public var hasRecordedVisit: Bool {
+        contains { $0.visitCount > 0 }
+    }
+}

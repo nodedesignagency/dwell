@@ -56,7 +56,7 @@ struct TodayContent: View {
         switch state {
         case .loading: return .placeholder
         case .failed: return .none
-        case .stillMapping: return .line(TodayCopy.stillMapping)
+        case .stillMapping: return .sentence(TodayCopy.firstStopHeadline)
         case .empty: return .line(isToday ? TodayCopy.emptyToday : TodayCopy.emptyPastDay)
         case .loaded(let model, _):
             let recap = model.snapshot.recap(now: now)
@@ -78,8 +78,8 @@ struct TodayContent: View {
                 TodaySkeleton()
             case .empty:
                 loaded(.empty(day, isToday: isToday, calendar: calendar), staleSince: nil)
-            case .stillMapping(let progress):
-                stillMapping(progress)
+            case .stillMapping:
+                gettingStarted
             case .failed(let failure):
                 banners(staleSince: nil)
                 failed(failure)
@@ -126,28 +126,52 @@ struct TodayContent: View {
             onReview: actions.pickAnother)
     }
 
-    /// The install day: no visits yet, so say what Today is waiting for and how long.
+    /// Day 0, before the first stop (Today design, "Getting Started"; brief §3.1): icons
+    /// shuffling while Dwell waits, "Waiting for your first stop" over the live dot, then the
+    /// Now / Next / Then checklist. No live card, day bar or timeline: nothing to show yet.
     @ViewBuilder
-    private func stillMapping(_ progress: MappingProgress) -> some View {
-        let empty = TodayModel.empty(day, isToday: true, calendar: calendar)
+    private var gettingStarted: some View {
         banners(staleSince: nil)
-        LiveCard(status: .unknown, snapshot: empty.snapshot, now: now, isToday: true, showsStats: false)
-        DashedDivider()
-        VStack(alignment: .leading, spacing: Space.m) {
-            SectionHeader("This week", icon: Art.thisWeek)
-            Text(verbatim: TodayCopy.waitingForInsights(progress))
-                .textRole(.caption)
-                .foregroundStyle(Palette.textSecondary)
-            ProgressView(value: progress.fraction)
-                .tint(Palette.accent)
-                .accessibilityLabel("Days mapped")
-                .accessibilityValue("\(progress.daysCollected) of \(progress.daysNeeded)")
+        // Figma: the icon (80) 26 below the sheet's top, 16 to the title (22), 6 to the line.
+        VStack(spacing: 0) {
+            IconShuffle(Self.firstStopIcons)
+                .frame(width: 80, height: 80)
+            Text(verbatim: TodayCopy.waitingForFirstStop)
+                .textRole(.voice)
+                .foregroundStyle(Palette.textPrimary)
+                .multilineTextAlignment(.center)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.top, Space.l)
+            LiveLabel(color: Palette.live, pulses: true) {
+                Text(verbatim: TodayCopy.mappingRightNow)
+                    .textRole(.body)
+                    .foregroundStyle(Palette.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
+            .padding(.top, 6)
         }
-        .padding(Space.l)
-        .card()
+        .padding(.top, 10)
+        .padding(.bottom, Space.xs)
+        .frame(maxWidth: .infinity)
+
         DashedDivider()
-        DayTimelineCard(snapshot: empty.snapshot, now: now, isToday: true)
+
+        // Figma: the header 16 above the first step, steps 10 apart.
+        VStack(alignment: .leading, spacing: Space.l) {
+            // [ICON NEEDED] the design's 3D rocket.
+            SectionHeader(TodayCopy.gettingStarted, icon: Image(systemName: "sparkles"))
+            VStack(spacing: 10) {
+                ForEach(Array(TodayCopy.gettingStartedSteps.enumerated()), id: \.offset) { offset, step in
+                    StepRow(number: offset + 1, tag: step.tag, title: step.title, detail: step.detail)
+                }
+            }
+        }
     }
+
+    /// What the shuffle cycles through, the house first (and alone under Reduce Motion).
+    /// [ICON NEEDED] the design's set; these are the 3D icons we have.
+    private static let firstStopIcons: [Image] =
+        [PlaceCategory.home, .work, .foodAndDrink].compactMap(Art.illustration) + [Art.heroWork, Art.heroYours]
 
     private func failed(_ failure: LoadFailure) -> some View {
         ContentUnavailableView {
