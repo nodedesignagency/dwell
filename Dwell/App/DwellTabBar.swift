@@ -90,6 +90,32 @@ struct DwellTabBar: View {
     }
 }
 
+extension EnvironmentValues {
+    /// How tall `DwellTabBar` stands above the home indicator, measured by `RootView`.
+    /// Zero where there's no bar (previews of a single screen, sheets).
+    @Entry var tabBarHeight: CGFloat = 0
+}
+
+extension View {
+    /// Keeps a tab's content clear of `DwellTabBar` by adding the bar's height to the bottom
+    /// safe area: scroll views end above the bar and still scroll up behind its glass, and
+    /// anything inset at the bottom (the confirmation card) floats above it.
+    ///
+    /// Apply inside the screen's `NavigationStack`, on its root and on each pushed page, never
+    /// on a sheet (sheets cover the bar).
+    func clearsTabBar() -> some View {
+        modifier(TabBarClearance())
+    }
+}
+
+private struct TabBarClearance: ViewModifier {
+    @Environment(\.tabBarHeight) private var height
+
+    func body(content: Content) -> some View {
+        content.safeAreaPadding(.bottom, height)
+    }
+}
+
 /// Figma's glass: Liquid Glass on iOS 26, an ultra-thin material before it.
 private struct TabBarGlass<S: Shape>: ViewModifier {
     let shape: S

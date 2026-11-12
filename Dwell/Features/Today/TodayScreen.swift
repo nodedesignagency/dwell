@@ -46,8 +46,10 @@ struct TodayScreen: View {
                     }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .clearsTabBar()
             .navigationDestination(item: $openPlace) { _ in
                 PendingView(title: "Place page", systemImage: "mappin.and.ellipse")
+                    .clearsTabBar()
             }
             .sheet(item: $pending) { sheet in
                 PendingView(title: sheet.title, systemImage: sheet.systemImage)

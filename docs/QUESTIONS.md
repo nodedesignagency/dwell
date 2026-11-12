@@ -46,7 +46,7 @@ Found in the Today design (Figma 69:81). Settled with the user before building u
 4. **Title Case.** "This Week", "Your Day", "View More", "→ Now" are now sentence case per §8.6.
 5. **Confirmation buttons.** The hidden Figma card says "Yes / Wrong place", "Looks right ?" and "47 min at Diggin Cafe". Built with the brief's "Looks right / Pick another", Appendix B's sentence and `9h 32m` durations. Placement (not visible in the design) settled with the user: floating above the tab bar.
 6. **Insights lack Share and Not useful.** Settled with the user: a share button by each card's topic, Not useful in the long-press menu.
-7. **Custom tab bar.** Kept the native `TabView` with the design's icons; on iOS 26 the system bar floats like the design's.
+7. **Custom tab bar.** Settled with the user: the design's own bar (`DwellTabBar`) over the system `TabView`, which still holds the screens.
 8. **SN Pro on the day pill.** A non-system face for one label; set in SF Pro Rounded instead.
 9. **The design's numbers disagree with each other** ("since 9:02" vs "9:30 → now", the café at 57m in the headline and 14m in the timeline). Not a brief conflict; the build shows the sample week's numbers, which agree everywhere.
 10. **Insight below the fold.** The brief wants the fresh fact "right after where they are", before scrolling. The design puts the recap headline first and the insight deck third; on a 6.1" phone the deck's sentence is just above the tab bar, on smaller phones and at large text sizes it's below. Built as designed. Open.

@@ -4,7 +4,10 @@ import SwiftUI
 /// The four v1 surfaces in the brief's fixed order: Today first, You last.
 ///
 /// The system `TabView` holds the screens; its own bar is hidden for `DwellTabBar`, the
-/// design's glass bar, which sits in the bottom safe area so content scrolls up behind it.
+/// design's glass bar, laid over the bottom. A safe-area inset on the `TabView` never reaches
+/// the screens inside it (each tab is its own UIKit host), so the bar's measured height goes
+/// down through the environment and each screen adds it with `.clearsTabBar()`: content
+/// scrolls up behind the glass, and the confirmation card floats above it.
 struct RootView: View {
     enum Tab: Hashable, CaseIterable {
         case today
@@ -33,6 +36,7 @@ struct RootView: View {
     }
 
     @State private var tab: Tab = .today
+    @State private var tabBarHeight: CGFloat = 0
 
     var body: some View {
         TabView(selection: $tab) {
@@ -49,8 +53,12 @@ struct RootView: View {
                 .tag(Tab.you)
                 .toolbar(.hidden, for: .tabBar)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+        .environment(\.tabBarHeight, tabBarHeight)
+        .overlay(alignment: .bottom) {
             DwellTabBar(selection: $tab)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { tabBarHeight = $0 }
+                // Stays at the bottom under the keyboard, like the system bar.
+                .ignoresSafeArea(.keyboard)
         }
     }
 }
@@ -64,6 +72,7 @@ struct PendingScreen: View {
         NavigationStack {
             PendingView(title: title, systemImage: systemImage)
                 .navigationTitle(title)
+                .clearsTabBar()
         }
     }
 }
