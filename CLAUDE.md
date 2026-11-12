@@ -38,6 +38,19 @@ The project uses synchronized folders: any file added under `Dwell/` or the pack
 - If something in a design conflicts with the brief, stop and tell the user instead of guessing. Log it in `docs/QUESTIONS.md`.
 - The user will design about 15–20 screens. Everything else is derived from them. After each page, mark in `docs/SCREENS.md` what the design covered directly and what we derived from it. When the designs are done, report everything still marked missing so nothing is left out of the app. At that point also walk the user through `docs/QUESTIONS.md`: they have said some of those questions are not needed and want to go through them together then.
 
+### Working with the user (agreed while building Today)
+
+- **After every change you push, end your reply with the command for the user's Mac**, using your own branch:
+  ```bash
+  cd ~/dwell && git fetch origin && git checkout <your-branch> && git pull && ./scripts/run.sh
+  ```
+  The user has a clone at `~/dwell` and reviews every change in the simulator. `DWELL_STATE=<state>` and `DWELL_SKY=<phase>` before `./scripts/run.sh` open a screen state or sky (see README).
+- **Exact values win.** When the user pastes Figma values (colours, shadows, blur, opacity, spacing), use them exactly. Don't "improve" them, and don't swap in an estimate you made earlier; ask if one looks wrong on the phone. Figma blur is twice SwiftUI's shadow or blur radius.
+- **Build the design's version of system components.** Where the design draws its own control (the tab bar is one), build that, keeping the system component underneath for behaviour. Don't keep the system look because the brief prefers native components; ask if unsure.
+- **Answer the question asked.** "Why did you add X?" wants the reason, not a change.
+- **Figma MCP is on the Starter plan**, a handful of calls a month. Spend them on `get_design_context` for the sections you need and download the assets at once (the URLs expire). Otherwise build from the screenshot and ask the user for the exact values and assets.
+- **Pages are built in parallel**, each in its own chat and branch. Start from `main` once the previous pages are merged. Shared files will conflict: `design/tokens.json`, `docs/*.md`, `DwellUI` tokens and components, `DwellCore` models. Keep edits to them small and additive. After merging `main` in, rerun `python3 scripts/tokens.py` instead of hand-merging the generated files.
+
 ### Definition of done for a page
 
 1. Previews with the sample week (`.samplePreview(.peace / .plain / .grind)`) for every state: loading, empty, still mapping, stale, failed with retry, and the permission banner where it applies.
@@ -99,5 +112,5 @@ Everything in `DwellUI` and `Dwell/` is only compiled when the user builds in Xc
 ## Git
 
 - `main` holds the setup and finished pages.
-- Each page is built on its own branch, one commit per page, then summarised for the user.
+- Each page is built on its own branch. Commit and push each change as you make it (the user pulls after every one), then summarise the page when it's done.
 - Never commit `.build/`, `DerivedData/` or `xcuserdata/`.
