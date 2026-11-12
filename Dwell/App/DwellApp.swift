@@ -17,10 +17,7 @@ struct DwellApp: App {
             RootView()
                 .environment(\.dial, Dial(position: dialPosition))
                 // No tracking engine yet (CLAUDE.md): run on the sample week, clock ticking.
-                .sampleWeek(
-                    launchedAt: launch,
-                    now: demo?.now ?? SampleData.now,
-                    repository: demo.map { DemoRepository($0) as any DwellRepository } ?? SampleRepository())
+                .sampleWeek(launchedAt: launch, repository: demo.map { DemoRepository($0) as any DwellRepository } ?? SampleRepository())
                 .environment(\.skyPhase, sky)
                 .environment(\.permissions, demo?.permissions ?? .full)
         }

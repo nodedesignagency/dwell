@@ -158,11 +158,12 @@ public enum SampleData {
 
 extension SampleData {
     /// A new account a few minutes after its first place was mapped (Today design, "after a
-    /// few minutes of getting started"): Dwell started at 9:02 AM on Monday 26 October, at
-    /// home, saved as Home during onboarding, and it's now 9:30 AM. Nothing else, ever.
+    /// few minutes of getting started"): Dwell started at 2:19 PM on Monday 26 October, at
+    /// home, saved as Home during onboarding. Nothing else, ever. It runs on the sample week's
+    /// own clock (2:47 PM), like every other state, so the sky and header match the rest of
+    /// Today; the design's "since 9:02 AM" becomes 2:19 PM, the same 28m.
     public enum FirstPlace {
-        public static let now = date(month: 10, day: 26, minutes: 9 * 60 + 30)
-        public static let recordingSince = date(month: 10, day: 26, minutes: 9 * 60 + 2)
+        public static let recordingSince = date(month: 10, day: 26, minutes: 14 * 60 + 19)
 
         public static let visit = Visit(
             id: "10-26-first", placeID: "home", placeName: "Home", category: .home,
@@ -181,7 +182,7 @@ extension SampleData {
 
         public static let places: [Place] = [
             Place(id: "home", name: "Home", category: .home, role: .home,
-                  lifetimeTotal: now.timeIntervalSince(recordingSince), visitCount: 1),
+                  lifetimeTotal: SampleData.now.timeIntervalSince(recordingSince), visitCount: 1),
         ]
     }
 }

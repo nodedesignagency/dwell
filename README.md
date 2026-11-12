@@ -25,7 +25,7 @@ DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPl
                                     # motionDenied
 ```
 
-`firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the same morning a few minutes after the first place was mapped (at home since 9:02 AM; its clock starts at 9:30 AM).
+`firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the install day a few minutes after the first place was mapped (at home for 28m, nothing else yet). Every state runs on the same clock.
 
 Today's sky follows the clock. Running again with a different `DWELL_SKY` plays the change between the two skies, as the app does when the phase changes since you last looked.
 

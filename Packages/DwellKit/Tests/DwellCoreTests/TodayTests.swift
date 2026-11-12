@@ -230,10 +230,10 @@ struct TodayCopyTests {
 struct FirstPlaceTests {
     static let first = SampleData.FirstPlace.self
     static let snapshot = first.snapshot(for: SampleData.today)
-    static let recap = snapshot.recap(now: first.now)
+    static let recap = snapshot.recap(now: now)
 
     @Test func `the day so far starts when Dwell did, not at 4 AM`() {
-        #expect(DurationText.short(Self.snapshot.elapsed(now: Self.first.now).duration) == "28m")
+        #expect(DurationText.short(Self.snapshot.elapsed(now: now).duration) == "28m")
         #expect(Self.recap.unmapped == 0)
         #expect(DurationText.short(Self.recap.mapped) == "28m")
     }
@@ -245,15 +245,15 @@ struct FirstPlaceTests {
     }
 
     @Test func `the bar is all home, with nothing unmapped`() {
-        let bar = DayBar(snapshot: Self.snapshot, now: Self.first.now)
+        let bar = DayBar(snapshot: Self.snapshot, now: now)
         #expect(bar.parts.map(\.segment) == [.bucket(.category(.home))])
         #expect(Set(bar.ticks(55)) == [.bucket(.category(.home))])
     }
 
     @Test func `days before the install have no day so far`() {
         let sunday = Self.first.snapshot(for: DwellDay(year: 2026, month: 10, day: 25))
-        #expect(sunday.elapsed(now: Self.first.now).duration == 0)
-        #expect(DayBar(snapshot: sunday, now: Self.first.now).ticks(55).isEmpty)
+        #expect(sunday.elapsed(now: now).duration == 0)
+        #expect(DayBar(snapshot: sunday, now: now).ticks(55).isEmpty)
     }
 
     @Test func `the headline says nowhere else yet`() throws {
@@ -278,8 +278,8 @@ struct FirstPlaceTests {
     }
 
     @Test func `insights wait out the first week`() {
-        #expect(Self.snapshot.isLearning(now: Self.first.now))
-        #expect(!Self.snapshot.isLearning(now: Self.first.now.addingTimeInterval(Insight.learningPeriod)))
+        #expect(Self.snapshot.isLearning(now: now))
+        #expect(!Self.snapshot.isLearning(now: now.addingTimeInterval(Insight.learningPeriod)))
         #expect(!SampleData.todaySnapshot.isLearning(now: now))
     }
 }

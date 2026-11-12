@@ -80,7 +80,7 @@ extension TodayModel {
             insights: isToday ? SampleData.insights : [])
     }
 
-    /// The install day, minutes after the first place was mapped: at home since 9:02 AM,
+    /// The install day, minutes after the first place was mapped: at home for 28m,
     /// no insights yet (Today design, "after a few minutes of getting started").
     static var firstPlace: TodayModel {
         TodayModel(

@@ -125,53 +125,48 @@ private let firstDay = Loadable<TodayModel>.stillMapping(MappingProgress(daysCol
         .environment(\.permissions, Permissions(location: .denied, isPreciseLocationOn: true, motion: .granted))
 }
 
-// MARK: First place (the install day, minutes in: at home since 9:02 AM, 9:30 AM now)
+// MARK: First place (the install day, minutes in: at home for 28m, nothing else yet)
 
 private let firstPlace = Loadable<TodayModel>.loaded(.firstPlace)
-private let firstPlaceNow = SampleData.FirstPlace.now
-
-private func firstPlaceToday(_ state: Loadable<TodayModel> = firstPlace) -> some View {
-    today(state, now: firstPlaceNow)
-}
 
 #Preview("First place · Peace") {
-    firstPlaceToday().samplePreview(.peace, now: firstPlaceNow)
+    today(firstPlace).samplePreview(.peace)
 }
 
 #Preview("First place · Plain") {
-    firstPlaceToday().samplePreview(.plain, now: firstPlaceNow)
+    today(firstPlace).samplePreview(.plain)
 }
 
 #Preview("First place · Grind") {
-    firstPlaceToday().samplePreview(.grind, now: firstPlaceNow)
+    today(firstPlace).samplePreview(.grind)
 }
 
 #Preview("First place · dark") {
-    firstPlaceToday().samplePreview(now: firstPlaceNow)
+    today(firstPlace).samplePreview()
         .preferredColorScheme(.dark)
 }
 
 #Preview("First place · AX3") {
-    firstPlaceToday().samplePreview(.peace, now: firstPlaceNow)
+    today(firstPlace).samplePreview(.peace)
         .dynamicTypeSize(.accessibility3)
 }
 
 #Preview("First place · Grind · AX3 · dark") {
-    firstPlaceToday().samplePreview(.grind, now: firstPlaceNow)
+    today(firstPlace).samplePreview(.grind)
         .dynamicTypeSize(.accessibility3)
         .preferredColorScheme(.dark)
 }
 
 #Preview("First place · When-In-Use") {
-    firstPlaceToday().samplePreview(now: firstPlaceNow)
+    today(firstPlace).samplePreview()
         .environment(\.permissions, Permissions(location: .whenInUse, isPreciseLocationOn: true, motion: .granted))
 }
 
 #Preview("First place · stale") {
     var model = TodayModel.firstPlace
-    let lastSeen = firstPlaceNow.addingTimeInterval(-12 * 60)
+    let lastSeen = SampleData.now.addingTimeInterval(-12 * 60)
     model.liveStatus = .lastKnown(placeName: "Home", lastSeen: lastSeen)
-    return firstPlaceToday(.loaded(model, staleSince: lastSeen)).samplePreview(now: firstPlaceNow)
+    return today(.loaded(model, staleSince: lastSeen)).samplePreview()
 }
 
 #Preview("Failed · retry") {

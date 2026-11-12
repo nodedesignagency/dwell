@@ -20,7 +20,7 @@ public struct DemoRepository: DwellRepository {
         case empty
         /// The install day: nothing mapped ever, so Today shows "Getting started".
         case firstDay
-        /// The install day, minutes after the first place: at home since 9:02 AM, 9:30 AM now.
+        /// The install day, minutes after the first place: at home for 28m, nothing else yet.
         case firstPlace
         /// "Today couldn't load".
         case failed
@@ -45,12 +45,6 @@ public struct DemoRepository: DwellRepository {
             case .motionDenied: Permissions(location: .always, isPreciseLocationOn: true, motion: .denied)
             default: .full
             }
-        }
-
-        /// The clock the simulator starts at: the sample week's Monday afternoon, or the
-        /// install day's morning.
-        public var now: Date {
-            self == .firstPlace ? SampleData.FirstPlace.now : SampleData.now
         }
     }
 
