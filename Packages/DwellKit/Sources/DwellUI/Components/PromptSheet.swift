@@ -4,14 +4,14 @@ import SwiftUI
 /// grey line under it, 3D art over a glow of turning light rays, and one navy button, with a
 /// close button in the corner. White, corners 32. Present it with `.promptSheet(isPresented:)`.
 ///
-/// Measured from the design at 373 × 519: the title (40, lines 44 apart) starts 32 from the
-/// top, the message (20, grey, at most 300 wide) 10 under it, the art (200) 17 under that,
-/// the button (44) 71 under the art, 10.5 in from the sides and 16 above the bottom. The
-/// close button is 44 on glass, the cross 24 inside 10 of padding, 16 in from the top and side.
+/// Measured from the design's screenshots at 373 × 519 (glyph positions, not Figma's boxes):
+/// the title (40, lines 44 apart) starts 32 from the top, the message (20, grey, at most 300
+/// wide) 8 under it, the art (200) 10 under that, the button (44) 78 under the art, 10.5 in
+/// from the sides and 16 above the bottom. The close button is 44 on glass, 16 in from the
+/// top and side.
 public struct PromptSheet: View {
     @ScaledMetric(relativeTo: .largeTitle) private var titleLineGap: CGFloat = -3.8
     @ScaledMetric(relativeTo: .largeTitle) private var artSize: CGFloat = 200
-    @ScaledMetric(relativeTo: .title3) private var closeGlyph: CGFloat = 24
 
     private let titleLines: [String]
     private let message: String
@@ -67,7 +67,7 @@ public struct PromptSheet: View {
                 .foregroundStyle(Palette.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
-                .padding(.top, 10)
+                .padding(.top, 8)
                 .padding(.horizontal, Space.l)
                 .zIndex(1)
 
@@ -82,12 +82,12 @@ public struct PromptSheet: View {
                     SheetGlow()
                         .offset(y: -artSize * 0.14)
                 }
-                .padding(.top, 17)
+                .padding(.top, 10)
                 .zIndex(0)
 
             Button(actionTitle, action: onAction)
                 .buttonStyle(.primary)
-                .padding(.top, 71)
+                .padding(.top, 78)
                 .padding(.horizontal, 10.5)
                 .zIndex(1)
         }
@@ -96,15 +96,9 @@ public struct PromptSheet: View {
         .background(Palette.surface)
         .overlay(alignment: .topTrailing) {
             Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: closeGlyph * 0.75, weight: .medium))
-                    .foregroundStyle(Palette.textPrimary)
-                    .frame(width: closeGlyph, height: closeGlyph)
-                    .padding(10)
-                    .contentShape(.circle)
-                    .glassControl(in: Circle())
+                CloseCross()
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.glassCircle)
             .accessibilityLabel(closeLabel)
             .padding(Space.l)
         }
@@ -112,18 +106,25 @@ public struct PromptSheet: View {
     }
 }
 
-/// Behind the art (Figma "Frame 2147239465", as on the hero tiles, in light): a 726-pt disc
-/// fading from clear at its centre to grey at its edge at 50%, under sixteen light rays at
-/// 30%, radial from 50% to nothing over 1018 pt.
+/// Behind the art (Figma "Frame 2147239465", as on the hero tiles, in light): grey over the
+/// whole card, a little deeper at the pin, under sixteen light rays at 30%, radial from 50%
+/// to nothing over 1018 pt. The grey's falloff is read from the design's screenshot (#D8
+/// at the pin to #E6 at the corners over white); Figma's own numbers for its disc don't
+/// render the same outside Figma.
 private struct SheetGlow: View {
     var body: some View {
         ZStack {
             Circle()
                 .fill(RadialGradient(
-                    colors: [Palette.glowShade.opacity(0), Palette.glowShade],
-                    center: .center, startRadius: 0, endRadius: 363))
-                .frame(width: 726, height: 726)
-                .opacity(0.5)
+                    stops: [
+                        .init(color: Palette.glowShade.opacity(0.47), location: 0),
+                        .init(color: Palette.glowShade.opacity(0.42), location: 0.25),
+                        .init(color: Palette.glowShade.opacity(0.33), location: 0.5),
+                        .init(color: Palette.glowShade.opacity(0.28), location: 0.7),
+                        .init(color: Palette.glowShade.opacity(0.25), location: 1),
+                    ],
+                    center: .center, startRadius: 0, endRadius: 600))
+                .frame(width: 1200, height: 1200)
             // Big enough to reach the corners of the card; the gradient keeps Figma's
             // 1018-pt fade.
             TurningRays(color: Palette.glowRays, size: 760, fadeRadius: 1018)
@@ -131,6 +132,29 @@ private struct SheetGlow: View {
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+}
+
+/// The close button's cross (Figma): 14 across in a 24 box, a 1.5 stroke with round ends, ink.
+private struct CloseCross: View {
+    @ScaledMetric(relativeTo: .title3) private var box: CGFloat = 24
+
+    var body: some View {
+        Cross()
+            .stroke(Palette.textPrimary, style: StrokeStyle(lineWidth: box / 16, lineCap: .round))
+            .frame(width: box * 14 / 24, height: box * 14 / 24)
+            .frame(width: box, height: box)
+    }
+}
+
+nonisolated private struct Cross: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        return path
     }
 }
 
