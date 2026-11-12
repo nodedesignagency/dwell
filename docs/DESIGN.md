@@ -36,6 +36,9 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `yours` | #6EE36A | #3DBF4A | Wash on the Yours hero stat | Today; dark derived |
 | `inverseSurface` | #353535 | #3A3A3C | The confirmation card | Today (hidden layer); dark derived |
 | `inverseText` | #FFFFFF | #FFFFFF | Text on `inverseSurface` | Today |
+| `tabBar` | white 20% | #1C1C1E 20% | Tint over the tab bar's glass | Today (Figma); dark derived |
+| `tabPill` | white 80% | #3A3A3C 80% | The selected tab's pill | Today (Figma); dark derived |
+| `tabPillStroke` | #F6F6F6 | #48484A | The selected tab's pill border | Today (Figma); dark derived |
 | `glass` | white 70% | #1C1C1E 70% | Controls on the sky (the day pill, kept light in every sky) | Today; dark derived |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
@@ -92,6 +95,7 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | `label` | 16 | medium | callout | Buttons, the day pill |
 | `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners |
 | `footnote` | 12 | regular | caption | Legends, badges, small buttons |
+| `tab` | 13 | medium selected, regular otherwise; tracking 0 | footnote | Tab bar labels |
 
 The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not worth a bundled face).
 
@@ -136,8 +140,8 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `Sheen` | `Components/Card.swift` | Two blurred diagonal streaks; white on dark, separator on light | Today | Built |
 | `SoftButtonStyle` (`.soft`) | `Components/Card.swift` | Full-width capsule with sheen and edge; pressed | Today ("View more") | Built |
 | `SectionHeader` | `Components/Card.swift` | Icon + title (header trait) + optional trailing control | Today ("This week", "Your day") | Built |
-| `DayBarView` | `Components/DayBarView.swift` | The whole day, 4 AM to 4 AM, in a box (radius 14, padding 8, gap 10, white, ink-5% border). Ticks 4 × 32 capsules, 2 pt apart, count from width; categories in display order, ≤ 7 + Everything else; unmapped last (gaps and the hours still to come) as hollow capsules with 45° stripes, outline and stripes #DADADA 80%; each tick and swatch carries five stacked inner shadows in its category's glint (x 0, spread 0; y 13 / 8 / 5 / 2 / 1, blur 4 / 3 / 3 / 2 / 1, opacity 1 / 5 / 18 / 30 / 35%); legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph. SwiftUI shapes, not Swift Charts: Charts doesn't draw inner shadows, and the bar's VoiceOver and audio graph are its own | Today | Built |
-| `StatTile` | `Components/StatTile.swift` | Number, label, icon; behind the icon a 271.55-pt glow: a 133.98-pt disc of the tint fading in from the left (50%, blur 66.82) under sixteen ink rays (radial from the centre to nothing; raised from Figma's 15% × 20% to 10% ink at the centre, which read too faint on the phone), clipped to the tile; stacks at AX sizes (by the caller) | Today (Figma) | Built |
+| `DayBarView` | `Components/DayBarView.swift` | The day so far, in a box (radius 14, padding 8, gap 10, white, ink-5% border). Ticks 4 × 32 capsules, 2 pt apart, count from width; categories in display order, ≤ 7 + Everything else; unmapped last (gaps only, never the hours still to come) as hollow capsules with 45° stripes, outline and stripes #DADADA 80%; each tick and swatch carries five stacked inner shadows in its category's glint (x 0, spread 0; y 13 / 8 / 5 / 2 / 1, blur 4 / 3 / 3 / 2 / 1, opacity 1 / 5 / 18 / 30 / 35%); legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph. SwiftUI shapes, not Swift Charts: Charts doesn't draw inner shadows, and the bar's VoiceOver and audio graph are its own | Today | Built |
+| `StatTile` | `Components/StatTile.swift` | Number, label, icon; behind the icon a 271.55-pt glow: a 133.98-pt disc of the tint fading in from the left (50%, blur 66.82) under sixteen ink rays (radial 50% → 0, fill 15%, layer 20%, as in Figma), clipped to the tile; stacks at AX sizes (by the caller) | Today (Figma) | Built |
 | `InsightCard` | `Components/InsightCard.swift` | Topic + share, voiced sentence, then a week chart or a lone number | Today | Built |
 | `WeekBarsChart` | `Components/InsightCard.swift` | Seven bars, weekday labels, zero days as a faint sliver; per-bar VoiceOver, audio graph | Today | Built (Swift Charts) |
 | `VisitRow` | `Components/TimelineRow.swift` | Icon well, span, place, duration, chevron; badges Approximate / Private / WFH; "Review this place"; duration moves under the name at AX sizes | Today ("Your day") | Built |
@@ -145,6 +149,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `ConfirmationCard` | `Components/ConfirmationCard.swift` | Dark card, art, voiced question, Looks right (white pill) / Pick another (underlined) | Today (hidden Figma layer) | Built |
 | `NoticeBanner` | `Components/NoticeBanner.swift` | Symbol, message, action; stacks at AX sizes. Permission banner and stale line | Today (derived) | Built |
 | `Avatar` | `Components/NoticeBanner.swift` | Round image or person glyph | Today | Built |
+| `DwellTabBar` | `Dwell/App/DwellTabBar.swift` | Four tabs, sliding pill, glass bar; see Patterns | Today (Figma tabPills) | Built; icons are stand-ins |
 | `Art` | `Tokens/Art.swift` | Raster art in `Images.xcassets`: calendar, confirm art, sample avatar, category illustrations | Today | Built |
 | `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
 
@@ -157,7 +162,7 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **Privacy line.** "Only you can see this." / "Your map is private to you." where it applies.
 - **Screen anatomy (Today).** A full-bleed sky for the time of day runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down shows the sky's last colour running on below it, never a gap. No pull-to-refresh on a pinned header (its spinner would sit behind the sky); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
 - **Floating asks.** A question for the user (the confirmation card) floats above the tab bar as a dark card, not inline, and leaves when answered.
-- **Tab bar.** The system `TabView`, which on iOS 26 floats with a pill behind the selected tab like the design. Outlined symbols (house, map, clock, person; never the filled variants), labels in SF Pro Rounded medium 12, ink when selected and grey (`textSecondary`) otherwise. The design's own icons and glass and shadow values wait until there's reason to replace the system bar.
+- **Tab bar.** `DwellTabBar` (app target), the design's bar over the system `TabView` (whose own bar is hidden): full width in the bottom safe area, 44-pt top corners, white 20% over glass (Liquid Glass on iOS 26, ultra-thin material before) with an ink-10% border; tabs 54 tall, 12 below the top, 11.5 in from the sides; outlined icons 22 pt, labels `tab` role; the selected tab in ink on a white-80% pill with a #F6F6F6 border and four soft shadows (y 26.05 / 14.37 / 5.86 / 1.2, blur 10.78 / 8.36 / 5.86 / 3.59, black 1 / 2 / 4 / 4%; Figma's fifth is 0% and draws nothing). The pill slides between tabs (`Motion.standard`); under Reduce Motion it appears in place. No haptics on tab changes.
 - **Stand-ins.** Missing art uses an SF Symbol marked `[ICON NEEDED]` in code; missing copy is marked `[COPY NEEDED]`; pages and sheets without a design open `PendingView` ("Waiting for the design.").
 
 ## Change log
@@ -171,3 +176,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (Figma tick and tile specs) | Work is #FA51D0; ticks and swatches get five inner shadows in a per-category glint; hero tiles get the disc-and-rays glow behind the icon; the day bar draws with SwiftUI shapes |
 
 | 2026-11-12 | Today (Figma borders, unmapped, nav) | The day bar spans the whole day with unmapped ticks hollow and striped (#DADADA 80%); its box border is ink 5%, dashed lines ink 10%; radius box 14; rays stronger; tab bar outlined icons and rounded labels |
+
+| 2026-11-12 | Today (Figma tab bar) | The design's tab bar replaces the system bar's look; the day bar is back to gaps only for Unmapped; the rays are back to Figma's values |

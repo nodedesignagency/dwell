@@ -2,9 +2,9 @@ import Accessibility
 import DwellCore
 import SwiftUI
 
-/// The day bar (brief §7.1, Today design): the whole day as a strip of slim ticks, one colour
-/// per category in display order, unmapped time (gaps and the hours still to come) as hollow
-/// striped ticks at the end, and a legend, in a box with an ink-5% border.
+/// The day bar (brief §7.1, Today design): the day so far as a strip of slim ticks, one colour
+/// per category in display order, gaps as hollow striped ticks at the end, and a legend, in a
+/// box with an ink-5% border.
 ///
 /// Each tick (and legend swatch) carries the design's five stacked inner shadows in its
 /// category's glint, so it catches light along its top edge. The ticks are SwiftUI shapes

@@ -23,7 +23,7 @@ struct LiveCard: View {
                     .padding(.top, Space.screen)
                     .padding(.bottom, 19)
             }
-            DayBarView(DayBar(snapshot: snapshot, now: now), title: isToday ? "Today" : "The day")
+            DayBarView(DayBar(snapshot: snapshot, now: now), title: isToday ? "Today so far" : "The day")
             if showsStats {
                 let stats = HeroStat.pair(for: dial.stop)
                 let layout = dynamicTypeSize.isAccessibilitySize

@@ -2,16 +2,34 @@ import DwellUI
 import SwiftUI
 
 /// The four v1 surfaces in the brief's fixed order: Today first, You last.
-/// Tab icons follow the Today design's tab bar: outlined house, map, clock, person, never
-/// the filled variants the system would pick. The system tab bar stays: on iOS 26 it already
-/// floats like the design's, with a pill behind the selected tab. Labels are styled in
-/// DwellApp (SF Pro Rounded, grey until selected).
+///
+/// The system `TabView` holds the screens; its own bar is hidden for `DwellTabBar`, the
+/// design's glass bar, which sits in the bottom safe area so content scrolls up behind it.
 struct RootView: View {
-    enum Tab: Hashable {
+    enum Tab: Hashable, CaseIterable {
         case today
         case map
         case time
         case you
+
+        var title: String {
+            switch self {
+            case .today: "Today"
+            case .map: "Map"
+            case .time: "Time"
+            case .you: "You"
+            }
+        }
+
+        /// Outlined, as in the design's tab bar.
+        var symbol: String {
+            switch self {
+            case .today: "house"
+            case .map: "map"
+            case .time: "clock"
+            case .you: "person"
+            }
+        }
     }
 
     @State private var tab: Tab = .today
@@ -19,19 +37,21 @@ struct RootView: View {
     var body: some View {
         TabView(selection: $tab) {
             TodayScreen(openProfile: { tab = .you })
-                .tabItem { Label("Today", systemImage: "house").environment(\.symbolVariants, .none) }
                 .tag(Tab.today)
+                .toolbar(.hidden, for: .tabBar)
             MapScreen()
-                .tabItem { Label("Map", systemImage: "map").environment(\.symbolVariants, .none) }
                 .tag(Tab.map)
+                .toolbar(.hidden, for: .tabBar)
             TimeScreen()
-                .tabItem { Label("Time", systemImage: "clock").environment(\.symbolVariants, .none) }
                 .tag(Tab.time)
+                .toolbar(.hidden, for: .tabBar)
             YouScreen()
-                .tabItem { Label("You", systemImage: "person").environment(\.symbolVariants, .none) }
                 .tag(Tab.you)
+                .toolbar(.hidden, for: .tabBar)
         }
-        .tint(Palette.textPrimary)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            DwellTabBar(selection: $tab)
+        }
     }
 }
 

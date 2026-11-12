@@ -1,7 +1,6 @@
 import DwellCore
 import DwellUI
 import SwiftUI
-import UIKit
 
 @main
 struct DwellApp: App {
@@ -12,18 +11,6 @@ struct DwellApp: App {
     private let sky = UserDefaults.standard.string(forKey: "DwellSky").flatMap(SkyPhase.init(rawValue:))
     /// `-DwellState empty` at launch shows one of Today's states (`DWELL_STATE=empty ./scripts/run.sh`).
     private let demo = UserDefaults.standard.string(forKey: "DwellState").flatMap(DemoRepository.Mode.init(rawValue:))
-
-    init() {
-        // Tab labels as in the design: SF Pro Rounded medium, grey until selected. The
-        // selected colour follows RootView's tint (ink).
-        let size: CGFloat = 12
-        let system = UIFont.systemFont(ofSize: size, weight: .medium)
-        let rounded = system.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: size) } ?? system
-        for state in [UIControl.State.normal, .selected] {
-            UITabBarItem.appearance().setTitleTextAttributes([.font: rounded], for: state)
-        }
-        UITabBar.appearance().unselectedItemTintColor = UIColor(Palette.textSecondary)
-    }
 
     var body: some Scene {
         WindowGroup {

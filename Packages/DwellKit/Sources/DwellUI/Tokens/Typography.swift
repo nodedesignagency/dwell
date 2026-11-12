@@ -28,6 +28,8 @@ public enum TextRole: CaseIterable, Sendable {
     case caption
     /// Legends and small buttons. 12.
     case footnote
+    /// Tab bar labels. 13.
+    case tab
 
     public var size: CGFloat {
         switch self {
@@ -41,6 +43,7 @@ public enum TextRole: CaseIterable, Sendable {
         case .label: 16
         case .caption: 14
         case .footnote: 12
+        case .tab: 13
         }
     }
 
@@ -53,12 +56,13 @@ public enum TextRole: CaseIterable, Sendable {
         case .data, .caption: .subheadline
         case .title: .title3
         case .footnote: .caption
+        case .tab: .footnote
         }
     }
 
     public var weight: Font.Weight {
         switch self {
-        case .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label: .medium
+        case .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }

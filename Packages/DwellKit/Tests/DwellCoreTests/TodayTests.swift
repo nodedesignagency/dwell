@@ -63,14 +63,13 @@ struct DayBarTests {
     @Test func `categories run in display order, not by size`() {
         #expect(today.parts.map(\.segment) == [
             .bucket(.category(.work)), .bucket(.category(.home)), .bucket(.category(.foodAndDrink)),
-            .bucket(.category(.transit)), .bucket(.category(.personal)), .unmapped,
+            .bucket(.category(.transit)), .bucket(.category(.personal)),
         ])
     }
 
-    @Test func `the bar spans the whole day, the rest of it unmapped`() {
-        #expect(today.total == 24 * 3600)
-        #expect(today.parts.last?.segment == .unmapped)
-        #expect(DurationText.short(today.parts.last?.duration ?? 0) == "13h 13m")
+    @Test func `the bar is the day so far, with no unmapped tail`() {
+        #expect(today.total == SampleData.todaySnapshot.elapsed(now: now).duration)
+        #expect(!today.parts.contains { $0.segment == .unmapped })
     }
 
     @Test func `unmapped time comes last`() {
@@ -94,17 +93,15 @@ struct DayBarTests {
         #expect(ticks.last == .unmapped)
     }
 
-    @Test func `an empty day is all unmapped`() {
+    @Test func `an empty day so far is all unmapped`() {
         let empty = DayBar(snapshot: .empty(SampleData.today, calendar: calendar), now: now)
         #expect(empty.parts.map(\.segment) == [.unmapped])
-        #expect(DurationText.short(empty.total) == "24h")
+        #expect(DurationText.short(empty.total) == "10h 47m")
     }
 
-    @Test func `at 4 AM every tick is unmapped`() {
+    @Test func `nothing to draw at 4 AM`() {
         let start = SampleData.today.start(in: calendar)
-        let ticks = DayBar(snapshot: .empty(SampleData.today, calendar: calendar), now: start).ticks(55)
-        #expect(ticks.count == 55)
-        #expect(ticks.allSatisfy { $0 == .unmapped })
+        #expect(DayBar(snapshot: .empty(SampleData.today, calendar: calendar), now: start).ticks(55).isEmpty)
     }
 }
 
