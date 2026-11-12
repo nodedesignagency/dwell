@@ -170,8 +170,15 @@ struct TodayContent: View {
 
     /// What the shuffle cycles through, the house first (and alone under Reduce Motion).
     /// [ICON NEEDED] the design's set; these are the 3D icons we have.
-    private static let firstStopIcons: [Image] =
-        [PlaceCategory.home, .work, .foodAndDrink].compactMap(Art.illustration) + [Art.heroWork, Art.heroYours]
+    private static var firstStopIcons: [Image] {
+        var icons: [Image] = []
+        for category in [PlaceCategory.home, .work, .foodAndDrink] {
+            if let art = Art.illustration(category) {
+                icons.append(art)
+            }
+        }
+        return icons + [Art.heroWork, Art.heroYours]
+    }
 
     private func failed(_ failure: LoadFailure) -> some View {
         ContentUnavailableView {

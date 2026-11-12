@@ -27,8 +27,15 @@ else
 fi
 
 echo "Building Dwell…"
-xcodebuild -project Dwell.xcodeproj -scheme Dwell -configuration Debug \
-  -destination "id=$UDID" -derivedDataPath "$DERIVED" -quiet build
+mkdir -p "$DERIVED"
+LOG="$DERIVED/build.log"
+if ! xcodebuild -project Dwell.xcodeproj -scheme Dwell -configuration Debug \
+  -destination "id=$UDID" -derivedDataPath "$DERIVED" -quiet build >"$LOG" 2>&1; then
+  # Only the errors, not the compiler's command lines; the whole log stays on disk.
+  grep -E "error:" "$LOG" | sort -u || tail -40 "$LOG"
+  echo "Build failed. Full log: $LOG"
+  exit 1
+fi
 
 echo "Launching on $(xcrun simctl list devices | grep "$UDID" | sed -E 's/^ +//; s/ \(.*//')…"
 xcrun simctl boot "$UDID" 2>/dev/null || true
