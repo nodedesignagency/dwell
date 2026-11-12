@@ -16,32 +16,14 @@ public struct InsightCard: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: Space.m) {
-            HStack(alignment: .center) {
-                if let topic = insight.topic {
-                    Text(verbatim: topic)
-                        .textRole(.caption)
-                        .foregroundStyle(Palette.textSecondary)
-                }
-                Spacer(minLength: Space.s)
-                if insight.isShareable {
-                    Button(action: onShare) {
-                        Image(systemName: "square.and.arrow.up")
-                            .textRole(.caption)
-                            .foregroundStyle(Palette.textSecondary)
-                            .frame(width: 44, height: 44)
-                            .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.vertical, -14)
-                    .padding(.trailing, -Space.m)
-                    .accessibilityLabel("Share")
-                }
+            // Figma: the topic and the sentence stack 4 apart.
+            VStack(alignment: .leading, spacing: Space.xs) {
+                topicRow
+                VoiceText(insight.line)
+                    .textRole(.voice)
+                    .foregroundStyle(Palette.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-
-            VoiceText(insight.line)
-                .textRole(.voice)
-                .foregroundStyle(Palette.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
 
             if !insight.week.isEmpty {
                 WeekBarsChart(insight.week)
@@ -55,6 +37,30 @@ public struct InsightCard: View {
         .padding(Space.l)
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+
+    private var topicRow: some View {
+        HStack(alignment: .center) {
+            if let topic = insight.topic {
+                Text(verbatim: topic)
+                    .textRole(.caption)
+                    .foregroundStyle(Palette.textSecondary)
+            }
+            Spacer(minLength: Space.s)
+            if insight.isShareable {
+                Button(action: onShare) {
+                    Image(systemName: "square.and.arrow.up")
+                        .textRole(.caption)
+                        .foregroundStyle(Palette.textSecondary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, -14)
+                .padding(.trailing, -Space.m)
+                .accessibilityLabel("Share")
+            }
+        }
     }
 }
 

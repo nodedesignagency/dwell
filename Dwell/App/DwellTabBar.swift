@@ -13,7 +13,6 @@ import SwiftUI
 /// tabs hang below it by the difference and the glass runs on to the bottom edge.
 ///
 /// Replaces the system bar's look; `RootView` keeps the system `TabView` for the screens.
-/// Icons are outlined SF Symbols until the design's tab icons are exported. [ICON NEEDED]
 struct DwellTabBar: View {
     @Binding var selection: RootView.Tab
 
@@ -61,14 +60,12 @@ struct DwellTabBar: View {
             selection = tab
         } label: {
             VStack(spacing: Space.xs) {
-                // Ink on every tab, as in the design; only the label greys out.
-                Image(systemName: tab.symbol)
+                // The same icon on every tab, as in the design; only the label greys out.
+                tab.icon
                     .resizable()
                     .scaledToFit()
-                    .symbolVariant(.none)
-                    .fontWeight(.medium)
                     .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(Palette.textPrimary)
+                    .accessibilityHidden(true)
                 Text(verbatim: tab.title)
                     .textRole(.tab, weight: isSelected ? .medium : .regular, tracking: 0)
                     .foregroundStyle(isSelected ? Palette.textPrimary : Palette.tabInactive)

@@ -9,7 +9,8 @@ import SwiftUI
 public struct VisitRow: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .callout) private var wellSize: CGFloat = 32
-    @ScaledMetric(relativeTo: .callout) private var glyphSize: CGFloat = 16
+    /// Figma: a 32-pt well, #F9F9FB with an ink-5% border inside, round; the glyph 18.
+    @ScaledMetric(relativeTo: .callout) private var glyphSize: CGFloat = 18
 
     private let visit: Visit
     private let span: String
@@ -35,7 +36,7 @@ public struct VisitRow: View {
                 .frame(width: glyphSize, height: glyphSize)
                 .frame(width: wellSize, height: wellSize)
                 .background(Palette.background, in: .circle)
-                .overlay { Circle().strokeBorder(Palette.separator, lineWidth: 1) }
+                .overlay { Circle().strokeBorder(Palette.outline, lineWidth: 1) }
 
             VStack(alignment: .leading, spacing: Space.xs) {
                 Text(verbatim: span)

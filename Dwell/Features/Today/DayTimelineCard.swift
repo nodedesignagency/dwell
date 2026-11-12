@@ -21,8 +21,7 @@ struct DayTimelineCard: View {
         let all = Array(snapshot.entries.reversed())
         let shown = isExpanded ? all : Self.collapsed(all)
         VStack(alignment: .leading, spacing: Space.m) {
-            // [ICON NEEDED] the design's 3D sun and clock.
-            SectionHeader("Your day", icon: Image(systemName: "sun.max.fill"))
+            SectionHeader("Your day", icon: Art.yourDay)
             DashedDivider()
 
             if all.isEmpty {

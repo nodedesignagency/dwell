@@ -8,7 +8,8 @@ public struct CategoryIcon: View {
         /// The 3D illustration (Today's headline). Falls back to the glyph for categories
         /// whose art hasn't been designed yet.
         case illustration
-        /// The flat glyph (timeline rows).
+        /// The flat glyph (timeline rows). Falls back to an SF Symbol for categories whose
+        /// glyph hasn't been designed yet.
         case glyph
     }
 
@@ -25,6 +26,11 @@ public struct CategoryIcon: View {
         Group {
             if style == .illustration, let name = category?.illustrationName {
                 Image(name, bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+            } else if style == .glyph, let name = category?.glyphName {
+                Image(name, bundle: .module)
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
             } else {

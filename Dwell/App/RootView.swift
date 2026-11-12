@@ -24,13 +24,13 @@ struct RootView: View {
             }
         }
 
-        /// Outlined, as in the design's tab bar.
-        var symbol: String {
+        /// The design's tab icons: the same on every tab, selected or not.
+        var icon: Image {
             switch self {
-            case .today: "house"
-            case .map: "map"
-            case .time: "clock"
-            case .you: "person"
+            case .today: Art.Tab.today
+            case .map: Art.Tab.map
+            case .time: Art.Tab.time
+            case .you: Art.Tab.you
             }
         }
     }

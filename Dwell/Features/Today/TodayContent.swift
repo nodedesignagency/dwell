@@ -130,7 +130,7 @@ struct TodayContent: View {
         LiveCard(status: .unknown, snapshot: empty.snapshot, now: now, isToday: true, showsStats: false)
         DashedDivider()
         VStack(alignment: .leading, spacing: Space.m) {
-            SectionHeader("This week", icon: Image(systemName: "calendar"))
+            SectionHeader("This week", icon: Art.thisWeek)
             Text(verbatim: TodayCopy.waitingForInsights(progress))
                 .textRole(.caption)
                 .foregroundStyle(Palette.textSecondary)

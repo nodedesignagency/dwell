@@ -43,8 +43,8 @@ struct LiveCard: View {
         .card()
     }
 
-    /// Labels are plain labels, never voiced. Icons are stand-ins until the design's 3D
-    /// briefcase and sunrise are exported. [ICON NEEDED]
+    /// Labels are plain labels, never voiced. The design's 3D briefcase and sunrise; Sessions
+    /// (Grind) has no art of its own yet, so it keeps a stand-in. [ICON NEEDED]
     @ViewBuilder
     private func tile(_ stat: HeroStat, _ recap: DayRecap) -> some View {
         switch stat {
@@ -52,18 +52,24 @@ struct LiveCard: View {
             StatTile(
                 value: DurationText.short(recap.work), label: "At work",
                 spokenValue: DurationText.spoken(recap.work), tint: PlaceCategory.work.color
-            ) { standIn("briefcase.fill") }
+            ) { art(Art.heroWork) }
         case .yours:
             StatTile(
                 value: DurationText.short(recap.yours), label: "Yours",
                 spokenValue: DurationText.spoken(recap.yours), tint: Palette.yours
-            ) { standIn("sun.horizon.fill") }
+            ) { art(Art.heroYours) }
         case .sessions:
             StatTile(
                 value: "\(recap.workSessions)", label: recap.workSessions == 1 ? "Session" : "Sessions",
                 tint: PlaceCategory.work.color
             ) { standIn("repeat") }
         }
+    }
+
+    private func art(_ image: Image) -> some View {
+        image
+            .resizable()
+            .scaledToFit()
     }
 
     private func standIn(_ symbol: String) -> some View {

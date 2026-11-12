@@ -18,8 +18,7 @@ struct InsightDeck: View {
     var body: some View {
         let current = min(index, max(insights.count - 1, 0))
         VStack(spacing: Space.m) {
-            // [ICON NEEDED] the design's 3D calendar.
-            SectionHeader("This week", icon: Image(systemName: "calendar")) {
+            SectionHeader("This week", icon: Art.thisWeek) {
                 HStack(spacing: 0) {
                     arrow("arrow.left", label: "Previous insight", isEnabled: current > 0) { step(-1, from: current) }
                     arrow("arrow.right", label: "Next insight", isEnabled: current < insights.count - 1) { step(1, from: current) }
