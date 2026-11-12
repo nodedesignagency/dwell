@@ -41,13 +41,15 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 
 | Category | Light | Dark | Icon | Status |
 | --- | --- | --- | --- | --- |
-| Work | #F857CE | #FF6AD5 | 3D building (headline), `building.2.fill` stand-in (rows) | Today; dark derived |
+| Work | #FA51D0 | #FF6AD5 | 3D building (headline), `building.2.fill` stand-in (rows) | Today (Figma); dark derived |
 | Home | #99E0FF | #7CCFF7 | 3D house, `house.fill` stand-in | Today; dark derived |
 | Food & drink | #23FC97 | #2BE38C | 3D coffee cup, `cup.and.saucer.fill` stand-in | Today; dark derived |
 | Transit | #FF9336 | #FF9F45 | `tram.fill` stand-in | Today; dark derived |
 | Shopping, Fitness, Errands, Social, Entertainment, Outdoors, Education, Travel, Personal, Other | system colours | | SF Symbol stand-ins (`placeholderSymbol`) | placeholder |
 
 **Contrast and colour vision still to check (brief §12).** Home (#99E0FF) and Food & drink (#23FC97) are about 1.5:1 against white, below the 3:1 WCAG asks of graphics; the legend's names carry them for now. Food & drink green and Transit orange sit close for deuteranopia. Logged in QUESTIONS.md.
+
+Each category also has a **glint** (`PlaceCategory.glint`, `categoryGlint` in the colour catalog): the light tint its day bar ticks catch along their top edge. Work's is from Figma (#FFB8ED on #FA51D0); the rest are derived the same way, 60% of the way to white.
 
 The design uses two icon styles per category: **3D illustrations** (grayscale, soft, in the headline and hero stats) and **flat duotone glyphs** (the Solar set, in timeline rows). Only work, home and food & drink have 3D art so far (`Images.xcassets/categoryIcon`); `CategoryIcon` falls back to the glyph for the rest.
 
@@ -132,8 +134,8 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `Sheen` | `Components/Card.swift` | Two blurred diagonal streaks; white on dark, separator on light | Today | Built |
 | `SoftButtonStyle` (`.soft`) | `Components/Card.swift` | Full-width capsule with sheen and edge; pressed | Today ("View more") | Built |
 | `SectionHeader` | `Components/Card.swift` | Icon + title (header trait) + optional trailing control | Today ("This week", "Your day") | Built |
-| `DayBarView` | `Components/DayBarView.swift` | Ticks 4 pt wide, 2 pt apart, 32 tall, count from width; categories in display order, ≤ 7 + Everything else, unmapped hatched last; legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph | Today | Built (Swift Charts) |
-| `StatTile` | `Components/StatTile.swift` | Number, label, icon, tint wash; stacks at AX sizes (by the caller) | Today (hero stats) | Built |
+| `DayBarView` | `Components/DayBarView.swift` | Ticks 4 × 32 capsules, 2 pt apart, count from width; categories in display order, ≤ 7 + Everything else, unmapped hatched last; each tick and swatch carries five stacked inner shadows in its category's glint (x 0, spread 0; y 13 / 8 / 5 / 2 / 1, blur 4 / 3 / 3 / 2 / 1, opacity 1 / 5 / 18 / 30 / 35%); legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph. SwiftUI shapes, not Swift Charts: Charts doesn't draw inner shadows, and the bar's VoiceOver and audio graph are its own | Today | Built |
+| `StatTile` | `Components/StatTile.swift` | Number, label, icon; behind the icon a 271.55-pt glow: a 133.98-pt disc of the tint fading in from the left (50%, blur 66.82) under sixteen ink rays (radial 50% → 0, fill 15%, layer 20%), clipped to the tile; stacks at AX sizes (by the caller) | Today (Figma) | Built |
 | `InsightCard` | `Components/InsightCard.swift` | Topic + share, voiced sentence, then a week chart or a lone number | Today | Built |
 | `WeekBarsChart` | `Components/InsightCard.swift` | Seven bars, weekday labels, zero days as a faint sliver; per-bar VoiceOver, audio graph | Today | Built (Swift Charts) |
 | `VisitRow` | `Components/TimelineRow.swift` | Icon well, span, place, duration, chevron; badges Approximate / Private / WFH; "Review this place"; duration moves under the name at AX sizes | Today ("Your day") | Built |
@@ -162,3 +164,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-10-29 | Setup | Placeholder tokens, type roles, motion, haptics |
 | 2026-10-29 | Today (Figma 69:81) | Colours for background, surface, text, separators, accent, live, work/home/food & drink/transit; radius scale; screen margin; SF Pro Rounded type scale; card, divider, sheen, soft button, section header, day bar, stat tile, insight card and week chart, timeline rows, confirmation card, banner, avatar; motion for MO-01, 02, 05, 06 |
 | 2026-11-11 | Sky images (sunrise, day, sunset, night) | Header sky drawn in code with four phases by the clock, sky tokens, MO-12 and MO-13; header ink follows the sky; the sunrise image is gone |
+
+| 2026-11-12 | Today (Figma tick and tile specs) | Work is #FA51D0; ticks and swatches get five inner shadows in a per-category glint; hero tiles get the disc-and-rays glow behind the icon; the day bar draws with SwiftUI shapes |

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A hero stat: one number, its label, and an icon on a soft wash of colour (Today design:
+/// A hero stat: one number, its label, and an icon with a glow behind it (Today design:
 /// "4h 29m · At work", "57m · Yours"). The label is a plain label, never voiced.
 public struct StatTile<Icon: View>: View {
     @ScaledMetric(relativeTo: .callout) private var iconSize: CGFloat = 33
@@ -37,9 +37,14 @@ public struct StatTile<Icon: View>: View {
         .padding(13)
         .frame(maxWidth: .infinity)
         .background {
-            ZStack {
-                LinearGradient(colors: [Palette.surface, tint.opacity(0.22)], startPoint: .leading, endPoint: .trailing)
-                RadialGradient(colors: [tint.opacity(0.22), .clear], center: .trailing, startRadius: 0, endRadius: 90)
+            GeometryReader { proxy in
+                ZStack {
+                    Palette.surface
+                    TileGlow(tint: tint)
+                        .frame(width: TileGlow.size, height: TileGlow.size)
+                        // Centred on the icon, as in the design.
+                        .position(x: proxy.size.width - 13 - iconSize / 2, y: proxy.size.height / 2)
+                }
             }
             .clipShape(.rect(cornerRadius: Radius.l))
         }
@@ -50,5 +55,55 @@ public struct StatTile<Icon: View>: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityValue(spokenValue)
+    }
+}
+
+/// The glow behind a hero stat's icon (Today design, Figma "Frame 2147239465", 271.55 pt
+/// square): a blurred disc of the tile's colour, and over it sixteen faint rays of ink.
+private struct TileGlow: View {
+    static let size: CGFloat = 271.55
+    let tint: Color
+
+    var body: some View {
+        ZStack {
+            // "Ellipse 39": 133.98 pt, 11.8 pt right of centre, the tint fading in from the
+            // left, layer 50%, layer blur 66.82 (SwiftUI radius is half of Figma's blur).
+            Circle()
+                .fill(LinearGradient(colors: [tint.opacity(0), tint], startPoint: .leading, endPoint: .trailing))
+                .frame(width: 133.98, height: 133.98)
+                .offset(x: 11.8, y: -0.4)
+                .blur(radius: 33.4)
+                .opacity(0.5)
+            // "Vector": rays of ink, radial from 50% at the centre to nothing at the edge,
+            // fill 15%, layer 20%.
+            Rays(count: 16, share: 0.6)
+                .fill(RadialGradient(
+                    colors: [Palette.textPrimary.opacity(0.5), Palette.textPrimary.opacity(0)],
+                    center: .center, startRadius: 0, endRadius: Self.size / 2))
+                .opacity(0.15 * 0.2)
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// Wedges from the centre out to the edge, evenly spaced, each filling `share` of its slice.
+nonisolated private struct Rays: Shape {
+    var count: Int
+    var share: Double
+
+    func path(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+        let step = 2 * Double.pi / Double(count)
+        let half = step * share / 2
+        var path = Path()
+        for index in 0..<count {
+            let middle = Double(index) * step - Double.pi / 2
+            path.move(to: center)
+            path.addLine(to: CGPoint(x: center.x + radius * cos(middle - half), y: center.y + radius * sin(middle - half)))
+            path.addLine(to: CGPoint(x: center.x + radius * cos(middle + half), y: center.y + radius * sin(middle + half)))
+            path.closeSubpath()
+        }
+        return path
     }
 }

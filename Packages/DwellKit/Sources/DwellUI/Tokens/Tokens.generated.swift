@@ -36,12 +36,19 @@ public enum Palette {
     public static let glass = Color("glass", bundle: .module)
     /// The chart fold bucket, Everything else. Not a category. (placeholder)
     public static let everythingElse = Color("everythingElse", bundle: .module)
+    /// The tint Everything else ticks catch along their top edge (placeholder)
+    public static let everythingElseGlint = Color("everythingElseGlint", bundle: .module)
 }
 
 extension PlaceCategory {
     /// Never the only carrier of identity: pair it with the category's icon or name.
     public var color: Color {
         Color("category/\(rawValue)", bundle: .module)
+    }
+
+    /// The light tint this category's day bar ticks catch along their top edge.
+    public var glint: Color {
+        Color("categoryGlint/\(rawValue)", bundle: .module)
     }
 }
 

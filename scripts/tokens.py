@@ -116,6 +116,9 @@ def main():
     write_json(CATALOG / "category" / "Contents.json", {"info": INFO, "properties": {"provides-namespace": True}})
     for name, token in tokens["category"].items():
         write_colorset(CATALOG / "category" / f"{name}.colorset", token)
+    write_json(CATALOG / "categoryGlint" / "Contents.json", {"info": INFO, "properties": {"provides-namespace": True}})
+    for name, token in tokens["category"].items():
+        write_colorset(CATALOG / "categoryGlint" / f"{name}.colorset", token["glint"])
 
     write_colorset(ACCENT, tokens["color"]["accent"])
 
@@ -138,6 +141,11 @@ def main():
         "    /// Never the only carrier of identity: pair it with the category's icon or name.",
         "    public var color: Color {",
         '        Color("category/\\(rawValue)", bundle: .module)',
+        "    }",
+        "",
+        "    /// The light tint this category's day bar ticks catch along their top edge.",
+        "    public var glint: Color {",
+        '        Color("categoryGlint/\\(rawValue)", bundle: .module)',
         "    }",
         "}",
         "",

@@ -1,10 +1,14 @@
 import Accessibility
-import Charts
 import DwellCore
 import SwiftUI
 
 /// The day bar (brief §7.1, Today design): the day so far as a strip of slim ticks, one colour
 /// per category in display order, unmapped time hatched at the end, and a legend.
+///
+/// Each tick (and legend swatch) carries the design's five stacked inner shadows in its
+/// category's glint, so it catches light along its top edge. The ticks are SwiftUI shapes
+/// rather than Swift Charts marks: inner shadows are a SwiftUI shape style Charts doesn't
+/// draw, and the bar's VoiceOver and audio graph were already its own.
 ///
 /// Tap or scrub (press, then slide) to swap the legend for a callout with that part's time.
 /// The ticks grow in when the bar appears; under Reduce Motion they fade in instead.
@@ -63,31 +67,20 @@ public struct DayBarView: View {
 
     // MARK: Ticks
 
-    private struct Tick: Identifiable {
-        let id: Int
-        let segment: DayBar.Segment
-    }
-
     private func ticks(_ segments: [DayBar.Segment], width: CGFloat) -> some View {
-        let ticks = segments.enumerated().map { Tick(id: $0.offset, segment: $0.element) }
-        let count = max(ticks.count, 1)
         // Under Reduce Motion the bar never grows; the fade is the whole transition.
-        let height = grown || reduceMotion ? 1.0 : 0.0
-        return Chart(ticks) { tick in
-            BarMark(
-                x: .value("Time of day", Double(tick.id)),
-                yStart: .value("Base", 0),
-                yEnd: .value("Top", height),
-                width: .fixed(Self.tickWidth))
-                .foregroundStyle(Self.style(for: tick.segment))
-                .cornerRadius(Self.tickWidth / 2)
-                .opacity(selection == nil || selection == tick.segment ? 1 : 0.25)
+        let height = grown || reduceMotion ? 1.0 : 0.001
+        return HStack(spacing: Self.tickSpacing) {
+            ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
+                Capsule()
+                    .fill(Self.style(for: segment))
+                    .frame(width: Self.tickWidth)
+                    .scaleEffect(x: 1, y: height, anchor: .bottom)
+                    .opacity(selection == nil || selection == segment ? 1 : 0.25)
+            }
         }
-        .chartXScale(domain: -0.5 ... Double(count) - 0.5)
-        .chartYScale(domain: 0 ... 1)
-        .chartXAxis(.hidden)
-        .chartYAxis(.hidden)
-        .chartLegend(.hidden)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .drawingGroup()
         .opacity(grown ? 1 : 0)
         .contentShape(.rect)
         .onTapGesture { location in
@@ -152,10 +145,22 @@ public struct DayBarView: View {
     /// never looks like a category. Names always travel with these in the legend.
     static func style(for segment: DayBar.Segment) -> AnyShapeStyle {
         switch segment {
-        case .bucket(.category(let category)): AnyShapeStyle(category.color)
-        case .bucket(.everythingElse): AnyShapeStyle(Palette.everythingElse)
+        case .bucket(.category(let category)): AnyShapeStyle(shaded(category.color, glint: category.glint))
+        case .bucket(.everythingElse): AnyShapeStyle(shaded(Palette.everythingElse, glint: Palette.everythingElseGlint))
         case .unmapped: AnyShapeStyle(hatch)
         }
+    }
+
+    /// The design's tick: five inner shadows in the glint, all at x 0 and spread 0, stacked
+    /// from a faint wash 13 pt down to a crisp 1 pt line at the top edge. Figma blur is twice
+    /// SwiftUI's shadow radius.
+    private static func shaded(_ fill: Color, glint: Color) -> some ShapeStyle {
+        fill
+            .shadow(.inner(color: glint.opacity(0.01), radius: 2, x: 0, y: 13))
+            .shadow(.inner(color: glint.opacity(0.05), radius: 1.5, x: 0, y: 8))
+            .shadow(.inner(color: glint.opacity(0.18), radius: 1.5, x: 0, y: 5))
+            .shadow(.inner(color: glint.opacity(0.30), radius: 1, x: 0, y: 2))
+            .shadow(.inner(color: glint.opacity(0.35), radius: 0.5, x: 0, y: 1))
     }
 
     private static let hatch: LinearGradient = {
