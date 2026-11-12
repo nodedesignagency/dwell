@@ -8,9 +8,15 @@ extension View {
     /// line of text inside would cast one too, greying the white around them (the day bar box
     /// and hero tiles did, until 12 Nov).
     public func card(radius: CGFloat = Radius.xl) -> some View {
+        card(radius: radius, fill: Palette.surface)
+    }
+
+    /// A card with a fill of its own (the weekly wrap invite's blue): the same shadow and
+    /// dark-mode edge as every other card.
+    public func card(radius: CGFloat = Radius.xl, fill: some ShapeStyle) -> some View {
         background {
             RoundedRectangle(cornerRadius: radius)
-                .fill(Palette.surface)
+                .fill(fill)
                 .shadow(color: .black.opacity(0.06), radius: 16, y: 6)
         }
         .overlay {

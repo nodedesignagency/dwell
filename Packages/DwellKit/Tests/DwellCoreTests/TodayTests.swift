@@ -186,6 +186,7 @@ struct TodayCopyTests {
             TodayCopy.headline(FirstPlaceTests.recap, isToday: true, dayName: "Today")!.line,
             TodayCopy.insightsWaitingTitle,
             TodayCopy.insightsWaitingDetail,
+            TodayCopy.wrapInviteTitle,
         ]
     }
 
@@ -313,6 +314,14 @@ struct ClockTextTests {
 
     @Test func `bare times drop AM and PM`() {
         #expect(ClockText.bareTime(arrival.arrival, calendar: calendar) == "8:02")
+    }
+
+    @Test func `a week reads like Oct 19 – 25`() {
+        let wrap = SampleData.weeklyWrap
+        #expect(ClockText.dayRange(wrap.firstDay, wrap.lastDay, calendar: calendar) == "Oct 19 – 25")
+        let across = ClockText.dayRange(
+            DwellDay(year: 2026, month: 9, day: 28), DwellDay(year: 2026, month: 10, day: 4), calendar: calendar)
+        #expect(across == "Sep 28 – Oct 4")
     }
 
     @Test func `days read like Mon, Oct 19`() {

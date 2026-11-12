@@ -22,6 +22,8 @@ public struct DemoRepository: DwellRepository {
         case firstDay
         /// The install day, minutes after the first place: at home for 28m, nothing else yet.
         case firstPlace
+        /// Last week's wrap is ready and not opened yet: Today invites the user in.
+        case weeklyWrap
         /// "Today couldn't load".
         case failed
         /// "You're offline" with Retry sync.
@@ -96,6 +98,20 @@ public struct DemoRepository: DwellRepository {
     public func confirmVisit(_ id: VisitID) async throws {}
 
     public func dismissInsight(_ id: Insight.ID) async throws {}
+
+    public func weeklyWrap() async throws -> WeeklyWrap? {
+        try await gate()
+        switch mode {
+        case .firstDay, .firstPlace: return nil
+        case .weeklyWrap:
+            var wrap = SampleData.weeklyWrap
+            wrap.isOpened = false
+            return wrap
+        default: return try await sample.weeklyWrap()
+        }
+    }
+
+    public func markWeeklyWrapOpened(_ id: WeeklyWrap.ID) async throws {}
 
     /// Holds or fails every load, as the mode says.
     private func gate() async throws {

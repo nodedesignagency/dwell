@@ -97,6 +97,20 @@ public enum TodayCopy {
     /// [COPY NEEDED]
     public static let timelineEmpty = "Your stops show up here as you make them."
 
+    // MARK: Weekly wrap invite
+
+    /// The card at the top of Today once last week's wrap is ready (Today design, "Weekly
+    /// Wrap"). The weekly wrap carries the dial's voice. Plain is the design's, without its
+    /// "!!!" (brief §5: exclamation marks are for records only). Peace and Grind borrow
+    /// Appendix B's weekly wrap openers until the copy deck writes invites of their own.
+    public static let wrapInviteTitle = VoicedLine(
+        peace: "Your week, gently.",
+        plain: "It's time for your weekly wrap-up.",
+        grind: "The week. Receipts inside.")
+
+    /// The design's "Let's Go", in sentence case.
+    public static let wrapInviteAction = "Let's go"
+
     // MARK: Insights, first week
 
     /// "This week" before there's anything to say (Today design, "after a few minutes of

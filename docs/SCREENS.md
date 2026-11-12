@@ -7,9 +7,9 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 
 Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
 
-Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov).
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov).
 
-Counts: 13 onboarding, 7 first-week moments, 15 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
+Counts: 13 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
 ## Cross-cutting (every screen)
 
@@ -53,7 +53,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | W-2 | 2 | First whole-day visual, "Is this work?", "Your first full day: 9h 12m at work, 2h 40m yours.", Always upgrade moment | ⬜ | ⬜ |
 | W-3 | 3 | Time: three bars, "still learning your week"; streaks "1 of 3"; set-your-dial if not done; notifications ask | ⬜ | ⬜ |
 | W-5 | 5 | Rhythm locked ("needs two weeks"); first records ("Earliest arrival so far · 8:12 AM"); first calendar matches; coverage number ("1.4% of Brooklyn") | ⬜ | ⬜ |
-| W-7 | 7 | First weekly wrap Sunday evening; explorer week streak qualifies | ⬜ | ⬜ |
+| W-7 | 7 | First weekly wrap Sunday evening; explorer week streak qualifies | 🎨 Today: the weekly wrap invite (T-16). ⬜ the wrap itself (S-06), the explorer streak | 🟡 Today (`DWELL_STATE=weeklyWrap`) |
 | W-14 | 14 | Rhythm unlocks; calendar vs reality patterns; places over time deltas | ⬜ | ⬜ |
 
 ## Today (A.2, §7.1)
@@ -75,6 +75,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | T-13 | Quiet day | A day with little movement still teaches something | 🔁 Today (same layout; headline drops absent runs) | 🟡 |
 | T-14 | Loading | Skeleton within 600 ms of cold launch | 🔁 Today | 🟡 |
 | T-15 | Day picker | The day pill opens a calendar; a past day shows its headline, day bar, hero stats and timeline, without live status, insights or confirmation. Not in the brief (QUESTIONS.md). | 🎨 Today: the pill. 🔁 system calendar sheet | 🟡 |
+| T-16 | Weekly wrap invite | Once last week's wrap is ready (Sunday 6 PM on) and until it's opened: a blue card leading the sheet with the week, a voiced invite and "Let's go" → the wrap (S-06). Today only. Not in the brief's Today list; the brief's way in is the Sunday push (§10). | 🎨 Today: "Weekly Wrap" (12 Nov). 🔁 Peace and Grind (Appendix B's wrap openers), the week as its label, dark, AX sizes, leaves once opened | 🟡 (`DWELL_STATE=weeklyWrap`) |
 
 ## Map (A.3, §7.2)
 
@@ -137,7 +138,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | S-03 | Insight detail + share preview | The insight, its data, the share card preview | ⬜ (Today's insight tap and share open a placeholder) | ⬜ |
 | S-04 | Record card | The record landing, share | ⬜ | ⬜ |
 | S-05 | Badge detail | Unlock moment, tier progress, share | ⬜ | ⬜ |
-| S-06 | Weekly wrap | Multi-step reveal: total, day visuals, three superlatives, work and yours as two numbers, share | ⬜ | ⬜ |
+| S-06 | Weekly wrap | Multi-step reveal: total, day visuals, three superlatives, work and yours as two numbers, share | ⬜ (Today's invite opens a placeholder) | ⬜ |
 | S-07 | Year in places | Places, hours, records, coverage, firsts; share | ⬜ | ⬜ |
 | S-08 | Calendar event detail | The event, its match state, where you were | ⬜ | ⬜ |
 | S-09 | Streak detail | History, freezes used and banked | ⬜ | ⬜ |

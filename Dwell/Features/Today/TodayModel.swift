@@ -7,8 +7,16 @@ struct TodayModel: Hashable {
     /// `nil` on a past day: there is no "now" to be at.
     var liveStatus: LiveStatus?
     var insights: [Insight]
+    /// Last week's wrap. Today invites the user in while it's unopened.
+    var weeklyWrap: WeeklyWrap? = nil
 
     var day: DwellDay { snapshot.day }
+
+    /// The wrap to invite the user into, if any. Only today invites.
+    var wrapToOpen: WeeklyWrap? {
+        guard liveStatus != nil, let weeklyWrap, !weeklyWrap.isOpened else { return nil }
+        return weeklyWrap
+    }
 
     /// The first visit Dwell isn't sure about. Only today asks.
     var visitToConfirm: Visit? {
@@ -21,8 +29,15 @@ struct TodayModel: Hashable {
     }
 
     /// The model after the user's answers this session, before the engine reflects them.
-    func applying(confirmed: Set<VisitID>, dismissed: Set<Insight.ID>) -> TodayModel {
+    func applying(
+        confirmed: Set<VisitID>,
+        dismissed: Set<Insight.ID>,
+        openedWraps: Set<WeeklyWrap.ID> = []
+    ) -> TodayModel {
         var model = self
+        if let id = weeklyWrap?.id, openedWraps.contains(id) {
+            model.weeklyWrap?.isOpened = true
+        }
         model.snapshot.entries = snapshot.entries.map { entry in
             guard case .visit(var visit) = entry, confirmed.contains(visit.id) else { return entry }
             visit.needsReview = false
@@ -41,6 +56,7 @@ struct TodayActions {
     var openPlace: (PlaceID) -> Void = { _ in }
     var confirm: (Visit) -> Void = { _ in }
     var pickAnother: (Visit) -> Void = { _ in }
+    var openWeeklyWrap: (WeeklyWrap) -> Void = { _ in }
     var openInsight: (Insight) -> Void = { _ in }
     var share: (Insight) -> Void = { _ in }
     var notUseful: (Insight) -> Void = { _ in }
@@ -77,7 +93,16 @@ extension TodayModel {
         return TodayModel(
             snapshot: SampleData.snapshot(for: day),
             liveStatus: isToday ? SampleData.liveStatus : nil,
-            insights: isToday ? SampleData.insights : [])
+            insights: isToday ? SampleData.insights : [],
+            weeklyWrap: isToday ? SampleData.weeklyWrap : nil)
+    }
+
+    /// The sample Monday with last week's wrap ready and not opened yet (Today design,
+    /// "Weekly Wrap").
+    static var weeklyWrapInvite: TodayModel {
+        var model = sample()
+        model.weeklyWrap?.isOpened = false
+        return model
     }
 
     /// The install day, minutes after the first place was mapped: at home for 28m,

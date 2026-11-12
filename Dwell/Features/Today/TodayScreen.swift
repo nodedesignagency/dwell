@@ -23,6 +23,7 @@ struct TodayScreen: View {
     @State private var reloads = 0
     @State private var confirmed: Set<VisitID> = []
     @State private var dismissed: Set<Insight.ID> = []
+    @State private var openedWraps: Set<WeeklyWrap.ID> = []
     @State private var openPlace: PlaceID?
     @State private var pending: PendingSheet?
 
@@ -71,7 +72,9 @@ struct TodayScreen: View {
         switch state {
         case .loaded(let model, let staleSince):
             guard model.day == day else { return .loading }
-            return .loaded(model.applying(confirmed: confirmed, dismissed: dismissed), staleSince: staleSince)
+            return .loaded(
+                model.applying(confirmed: confirmed, dismissed: dismissed, openedWraps: openedWraps),
+                staleSince: staleSince)
         default:
             return state
         }
@@ -87,11 +90,15 @@ struct TodayScreen: View {
             }
             var liveStatus: LiveStatus?
             var insights: [Insight] = []
+            var weeklyWrap: WeeklyWrap?
             if isToday {
                 liveStatus = try await repository.liveStatus()
                 insights = try await repository.insights(for: day)
+                // The invite is extra: Today still loads if the wrap doesn't.
+                weeklyWrap = try? await repository.weeklyWrap()
             }
-            state = .loaded(TodayModel(snapshot: snapshot, liveStatus: liveStatus, insights: insights))
+            state = .loaded(TodayModel(
+                snapshot: snapshot, liveStatus: liveStatus, insights: insights, weeklyWrap: weeklyWrap))
         } catch is CancellationError {
             return
         } catch let error as LoadError {
@@ -123,6 +130,12 @@ struct TodayScreen: View {
                 Task { try? await repository.confirmVisit(visit.id) }
             },
             pickAnother: { pending = .placePicker($0.id) },
+            openWeeklyWrap: { wrap in
+                // The wrap itself (S-06) waits for its design; the invite goes once opened.
+                openedWraps.insert(wrap.id)
+                pending = .weeklyWrap(wrap.id)
+                Task { try? await repository.markWeeklyWrapOpened(wrap.id) }
+            },
             openInsight: { pending = .insight($0.id) },
             share: { pending = .share($0.id) },
             notUseful: { insight in
@@ -143,12 +156,14 @@ private enum PendingSheet: Identifiable {
     case placePicker(VisitID)
     case insight(Insight.ID)
     case share(Insight.ID)
+    case weeklyWrap(WeeklyWrap.ID)
 
     var id: String {
         switch self {
         case .placePicker(let id): "picker-\(id)"
         case .insight(let id): "insight-\(id)"
         case .share(let id): "share-\(id)"
+        case .weeklyWrap(let day): "wrap-\(day.year)-\(day.month)-\(day.day)"
         }
     }
 
@@ -157,6 +172,7 @@ private enum PendingSheet: Identifiable {
         case .placePicker: "Place picker"
         case .insight: "Insight detail"
         case .share: "Share preview"
+        case .weeklyWrap: "Weekly wrap"
         }
     }
 
@@ -165,6 +181,7 @@ private enum PendingSheet: Identifiable {
         case .placePicker: "mappin.and.ellipse"
         case .insight: "sparkles"
         case .share: "square.and.arrow.up"
+        case .weeklyWrap: "sparkles"
         }
     }
 }

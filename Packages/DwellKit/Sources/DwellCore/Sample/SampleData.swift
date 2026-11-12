@@ -19,6 +19,10 @@ public enum SampleData {
     public static let today = DwellDay(containing: now, calendar: calendar)
     /// Monday 19 to Sunday 25 October, the last full week.
     public static let lastWeek: [DwellDay] = (19...25).map { DwellDay(year: 2026, month: 10, day: $0) }
+    /// Last week's wrap, opened on Sunday evening: the default Today has no invite.
+    /// `DWELL_STATE=weeklyWrap` shows it unopened.
+    public static let weeklyWrap = WeeklyWrap(
+        firstDay: lastWeek[0], lastDay: lastWeek[lastWeek.count - 1], isOpened: true)
     /// Maya has used Dwell since the end of August: long past her first week.
     public static let recordingSince = date(month: 8, day: 31, minutes: 7 * 60 + 40)
 

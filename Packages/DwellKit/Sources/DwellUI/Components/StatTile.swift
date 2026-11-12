@@ -106,7 +106,8 @@ private struct TileGlow: View {
 }
 
 /// Wedges from the centre out to the edge, evenly spaced, each filling `share` of its slice.
-nonisolated private struct Rays: Shape {
+/// The design's ray vector: behind the hero tiles and in the weekly wrap invite.
+nonisolated struct Rays: Shape {
     var count: Int
     var share: Double
 

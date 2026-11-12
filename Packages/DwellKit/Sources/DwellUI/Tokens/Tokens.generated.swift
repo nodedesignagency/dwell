@@ -52,6 +52,10 @@ public enum Palette {
     public static let step = Color("step", bundle: .module)
     /// Controls over the sunrise (the day pill)
     public static let glass = Color("glass", bundle: .module)
+    /// The weekly wrap invite: the light blue at the middle of its radial fill
+    public static let wrapCentre = Color("wrapCentre", bundle: .module)
+    /// The weekly wrap invite: the deep blue at the edge of its radial fill
+    public static let wrapEdge = Color("wrapEdge", bundle: .module)
     /// The chart fold bucket, Everything else. Not a category. (placeholder)
     public static let everythingElse = Color("everythingElse", bundle: .module)
     /// The tint Everything else ticks catch along their top edge (placeholder)

@@ -169,6 +169,50 @@ private let firstPlace = Loadable<TodayModel>.loaded(.firstPlace)
     return today(.loaded(model, staleSince: lastSeen)).samplePreview()
 }
 
+// MARK: Weekly wrap (last week's wrap ready, not opened yet)
+
+private let weeklyWrap = Loadable<TodayModel>.loaded(.weeklyWrapInvite)
+
+#Preview("Weekly wrap · Peace") {
+    today(weeklyWrap).samplePreview(.peace)
+}
+
+#Preview("Weekly wrap · Plain") {
+    today(weeklyWrap).samplePreview(.plain)
+}
+
+#Preview("Weekly wrap · Grind") {
+    today(weeklyWrap).samplePreview(.grind)
+}
+
+#Preview("Weekly wrap · dark") {
+    today(weeklyWrap).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Weekly wrap · AX3") {
+    today(weeklyWrap).samplePreview(.peace)
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Weekly wrap · Grind · AX3 · dark") {
+    today(weeklyWrap).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility3)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Weekly wrap · When-In-Use") {
+    today(weeklyWrap).samplePreview()
+        .environment(\.permissions, Permissions(location: .whenInUse, isPreciseLocationOn: true, motion: .granted))
+}
+
+#Preview("Weekly wrap · stale") {
+    var model = TodayModel.weeklyWrapInvite
+    let lastSeen = SampleData.now.addingTimeInterval(-37 * 60)
+    model.liveStatus = .lastKnown(placeName: "Kestriva Labs", lastSeen: lastSeen)
+    return today(.loaded(model, staleSince: lastSeen)).samplePreview()
+}
+
 #Preview("Failed · retry") {
     today(.failed(.unavailable)).samplePreview()
 }

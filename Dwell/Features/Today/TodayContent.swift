@@ -103,6 +103,16 @@ struct TodayContent: View {
     @ViewBuilder
     private func loaded(_ model: TodayModel, staleSince: Date?) -> some View {
         banners(staleSince: staleSince)
+        if isToday, let wrap = model.wrapToOpen {
+            // Today design, "Weekly Wrap": the invite leads the sheet, 41 above the live card
+            // (the room a dashed divider takes, without the line).
+            WeeklyWrapCard(
+                label: ClockText.dayRange(wrap.firstDay, wrap.lastDay, calendar: calendar),
+                title: TodayCopy.wrapInviteTitle,
+                action: TodayCopy.wrapInviteAction,
+                onOpen: { actions.openWeeklyWrap(wrap) })
+                .padding(.bottom, Space.screen + 1)
+        }
         LiveCard(
             status: model.liveStatus,
             snapshot: model.snapshot,

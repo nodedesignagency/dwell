@@ -31,6 +31,16 @@ public enum ClockText {
         day.start(in: calendar).formatted(style(calendar).weekday(.abbreviated).month(.abbreviated).day())
     }
 
+    /// "Oct 19 – 25", or "Sep 28 – Oct 4" across a month: a week named on a label.
+    public static func dayRange(_ first: DwellDay, _ last: DwellDay, calendar: Calendar) -> String {
+        let start = first.start(in: calendar)
+        let end = last.start(in: calendar)
+        let month = style(calendar).month(.abbreviated)
+        let day = style(calendar).day()
+        let tail = first.month == last.month ? end.formatted(day) : "\(end.formatted(month)) \(end.formatted(day))"
+        return "\(start.formatted(month)) \(start.formatted(day)) – \(tail)"
+    }
+
     private static func style(
         _ calendar: Calendar,
         date: Date.FormatStyle.DateStyle? = nil,

@@ -43,6 +43,8 @@ Colour, spacing and radius live in `design/tokens.json`; `python3 scripts/tokens
 | `tabBarStroke` | ink 10% | white 12% | The tab bar's border | Today (user, 12 Nov); dark derived |
 | `tabInactive` | #747474 | #8E8E93 | Labels of the tabs not selected | Today (Figma); dark derived |
 | `step` | #3E64F6 | #5C7EFF | Getting started: the step numbers and their tags | Today (Figma "Getting Started"); dark derived |
+| `wrapCentre` | #67D7FF | #67D7FF | The weekly wrap invite: the middle of its radial fill | Today "Weekly Wrap" (Figma); same in dark |
+| `wrapEdge` | #00A3F3 | #00A3F3 | The weekly wrap invite: the edge of its radial fill | Today "Weekly Wrap" (Figma); same in dark |
 | `glass` | white 70% | #1C1C1E 70% | Controls on the sky (the day pill, kept light in every sky) | Today; dark derived |
 | `everythingElse` | #AEAEB2 | #636366 | The chart fold bucket | placeholder |
 
@@ -89,6 +91,7 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 
 | Role | Size | Weight | Scales with | Use |
 | --- | --- | --- | --- | --- |
+| `voiceDisplay` | 32 | medium | largeTitle | The weekly wrap invite's title (measured from the screenshot) |
 | `voiceHero` | 24 | medium | title2 | Today's headline |
 | `voice` | 22 | medium | title3 | Insight sentences |
 | `dataHero` | 40 | medium, mono digits | largeTitle | An insight's lone number; the live timer, which uses proportional digits like the design (QUESTIONS.md) |
@@ -97,6 +100,7 @@ SF Pro Rounded throughout (`Font.Design.rounded`, a system font, so Dynamic Type
 | `title` | 20 | medium | title3 | Section titles |
 | `body` | 16 | medium | callout | Place names, the live caption |
 | `label` | 16 | medium | callout | Buttons, the day pill |
+| `action` | 18 | medium | body | The button on a feature card: "Let's go" (measured from the screenshot) |
 | `caption` | 14 | regular | subheadline | Times, topic labels, stat labels, weekday labels, banners |
 | `footnote` | 12 | regular | caption | Legends, badges, small buttons |
 | `tab` | 12, line height 16 | medium selected, regular otherwise; tracking 0 | footnote | Tab bar labels |
@@ -112,6 +116,7 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | MO-01 Live timer ticking | Ticks on the minute the visit started; digits roll (`.numericText`) with `Motion.standard` | Digits cross-fade | none |
 | Icon shuffle (Getting started) | The 3D icons (`Art.firstStopIcons`: house, office, café, place pin, cells; new category art joins by itself) turn on their vertical axis like a coin, a new one every 0.7 s: each half turn (`Motion.flip`, 0.5 s, cubic 0.6 / 0 / 0.4 / 1, perspective 0.5) gathers speed as the icon turns away and eases off as the next turns to face you; the swap lands edge-on, so only one icon ever shows; a little blur follows the turn (none facing you, 3 pt edge-on, where it's fastest); it rests facing you for 0.2 s | The house, still | none |
 | Live dot | The dot (8) alone, no halo at rest, keeping the halo's 14-pt footprint and centred on the caption's capitals. While the timer runs (at a place or in transit), a disc of its colour spreads from the dot's size to 26 pt and fades from 40% to nothing, `Motion.pulse` (1.6 s ease-out), on a loop | Still dot | none |
+| Weekly wrap rays | The invite's sixteen white rays turn like the hero tiles': a full circle every 24 s, `Motion.spin`, on a loop (the same component; the design shows no motion of its own) | Rays hold still | none |
 | Hero tile rays | The sixteen rays behind each hero tile's icon turn a full circle every 24 s, `Motion.spin` (linear), on a loop; the coloured disc stays put | Rays hold still | none |
 | MO-02 Day bar filling | Ticks grow from the baseline and fade in on appear, `Motion.reveal` | Fade in only, no growth | none |
 | MO-05 Insight arrival | Deck pages: the card slides out the way you swiped and the next slides in, `Motion.standard` | Cross-fade | none |
@@ -164,6 +169,8 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `Avatar` | `Components/NoticeBanner.swift` | Round image or person glyph | Today | Built |
 | `DwellTabBar` | `Dwell/App/DwellTabBar.swift` | Four tabs, sliding pill, frosted bar; see Patterns | Today (Figma tabPills) | Built |
 | `Art` | `Tokens/Art.swift` | Art in `Images.xcassets`: the day pill's calendar, sample avatar, category illustrations (`categoryIcon/`), timeline glyphs (`glyph/`, SVG), hero tile art (`heroIcon/`), section header art (`icon/thisWeek`, `icon/yourDay`, `icon/gettingStarted`), other 3D art (`illustration/place`, `cells`, `clock`, `chart`; the chart not on a screen yet), the Getting started shuffle's list (`firstStopIcons`: house, every other category with art, place pin, cells), tab icons (`tab/`, with dark versions derived by inverting the tones), line icons as templates (`glyph/clock`, `glyph/chevron`, `icon/arrow`, mirrored for back), the old confirm illustration (unused since the new card) | Today | Built |
+| `WeeklyWrapCard` | `Components/WeeklyWrapCard.swift` | The weekly wrap invite: 224 tall (grows at AX sizes), radius 20, radial fill `wrapCentre` → `wrapEdge` (centred 53.7% down, reaching 46% each way), the card shadow; centred: the week (`caption`, white 90%), 2 to the voiced title (`voiceDisplay`, white, at most 280 wide so it breaks after "your"), 12 to "Let's go" (`action`, ink, white capsule 20 × 8, 44-pt tap target). Behind: the glow component in white (rays: radial 50% → 0, fill 30%, layer 50%, turning; Ellipse 39: drawn as the ramp it makes through the card, white 24% → 12% left to right). Always the light scheme, so the card and its ink stay the same in dark mode | Today ("Weekly Wrap") | Built |
+| `.card(fill:)` | `Components/Card.swift` | A card with its own fill and the same shadow and dark edge as every card | Today ("Weekly Wrap") | Built |
 | `SkyView` | `Components/SkyView.swift` | Four phases by the clock; cross-fade with travelling sun and moon on a change; settle-in on every open; remembers the last phase shown; crescent moon, stars, horizon band | Today header (user's sky images) | Built |
 
 Still expected from the brief: calendar tiles, the segmented range control, the privacy bar, the dial, calendar match rows.
@@ -175,6 +182,7 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 - **Privacy line.** "Only you can see this." / "Your map is private to you." where it applies.
 - **Screen anatomy (Today).** A full-bleed sky for the time of day runs under the status bar behind the header (avatar left, a glass pill right, the headline). The header is pinned: a sheet with 32-pt top corners scrolls up over it and covers it, and pulling down shows the sky's last colour running on below it, never a gap. No pull-to-refresh on a pinned header (its spinner would sit behind the sky); failures offer Retry. On the sheet: white cards with 20-pt corners, separated by dashed hairlines with 20 pt above and below.
 - **Getting started (Today, day 0).** Before anything is mapped, Today's sheet holds the shuffling icons (80, 26 below the sheet's top), "Waiting for your first stop" (22 medium, 16 below) and "Mapping right now." with the live dot (6 below); a dashed line; then "Getting started" (a section header, 16 above the steps) and three `StepRow`s 10 apart. The header carries the headline with a 5-minute run.
+- **Weekly wrap (Today, from Sunday 6 PM until opened).** The invite leads the sheet, above the live card, 16 below the sheet's top and 41 above the live card (a divider's room, without the line); the rest of Today is unchanged. "Let's go" opens the wrap and the invite goes.
 - **First place (Today, install day, minutes in).** Once the first place is mapped, Today takes its usual layout with what there is: the headline names the one place "and nowhere else yet"; the live card times it, its day bar starts when Dwell did (time before install is neither mapped nor a gap) and its legend lists only what's in the bar; the hero stats can read 0m; "This week" keeps its place with a `WaitingCard` and no arrows until insights arrive (first week only; later the engine's fallback keeps the deck full); "Your day" has its one "→ now" row. No confirmation card: Home was saved in onboarding.
 - **Floating asks.** A question for the user (the confirmation card) floats 8 pt above the tab bar as a dark card, not inline, and leaves when answered (sliding down behind the bar).
 - **Tab bar.** `DwellTabBar` (app target), the design's bar laid over the system `TabView` (whose own bar is hidden): full width, standing on the home indicator with its glass running down behind it, 44-pt top corners, white 20% over a frosted material (`.regularMaterial`, every iOS version; Liquid Glass refracted the content behind it, which the design doesn't) with an ink-10% border (`tabBarStroke`); tabs 101 × 54 (height hugs at larger text), padding 8 across and 6 down, 4 between icon and label, content clipped, spread space-between (first and last flush, so on phones under 428 pt they overlap a few points, unseen); 12 from the bar's top and sides to the tabs and 24 from the tabs to the screen's bottom edge, so they reach 10 pt into the home indicator's strip; the design's icons 22 pt, the same on every tab (dark versions derived by inverting the tones), labels `tab` role, #747474 (`tabInactive`) when not selected; the selected tab's label in ink on a white-80% pill the size of the tab with a #F6F6F6 border and four soft shadows (y 26.05 / 14.37 / 5.86 / 1.2, blur 10.78 / 8.36 / 5.86 / 3.59, black 1 / 2 / 4 / 4%; Figma's fifth is 0% and draws nothing). The pill slides between tabs (`Motion.standard`); under Reduce Motion it appears in place. No haptics on tab changes. A safe-area inset on the `TabView` never reaches the screens inside it (each tab is its own UIKit host), so `RootView` measures the bar and passes its height down (`tabBarHeight`); every screen adds it to its bottom safe area with `.clearsTabBar()` inside its `NavigationStack`, on the root and each pushed page, never on a sheet. Content then scrolls up behind the glass and ends above it.
@@ -215,6 +223,8 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (Getting started) | Day 0 gets its own layout from the Figma "Getting Started" frame: icon shuffle, waiting title and live line, numbered Now / Next / Then cards; `step` blue; `LiveDot` moves to DwellUI |
 
 | 2026-11-12 | Today (after a few minutes of getting started) | `WaitingCard` for "This week" before insights exist; the install day's day bar and recap start when Dwell started recording; the headline's "and nowhere else yet" for a single place; design leftovers (legend, "0h 28m", "Yours 28m") follow the brief and the main Today |
+
+| 2026-11-12 | Today (weekly wrap) | `WeeklyWrapCard`, `wrapCentre` and `wrapEdge`, type roles `voiceDisplay` (32) and `action` (18), `.card(fill:)`; the ray shape is shared with the hero tiles |
 
 | 2026-11-12 | Today (icon shuffle timing) | The shuffle slows to one icon every 0.8 s and loses its bounce: smooth spring in, ease-in out, from the user's reference video |
 

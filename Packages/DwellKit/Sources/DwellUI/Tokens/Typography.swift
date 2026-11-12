@@ -8,6 +8,8 @@ import SwiftUI
 /// tracking at -2% of the size. Sizes are the design's at the default text size and scale
 /// with Dynamic Type relative to the nearest system style.
 public enum TextRole: CaseIterable, Sendable {
+    /// A big voiced line on a feature card: the weekly wrap invite. 32.
+    case voiceDisplay
     /// Today's headline sentence. 24.
     case voiceHero
     /// Insight sentences. 22.
@@ -26,6 +28,8 @@ public enum TextRole: CaseIterable, Sendable {
     case body
     /// Buttons and pills. 16 medium.
     case label
+    /// The button on a feature card: "Let's go". 18 medium.
+    case action
     /// Times, topic labels, stat labels, day labels. 14.
     case caption
     /// Legends and small buttons. 12.
@@ -35,6 +39,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var size: CGFloat {
         switch self {
+        case .voiceDisplay: 32
         case .voiceHero: 24
         case .voice: 22
         case .dataHero: 40
@@ -43,6 +48,7 @@ public enum TextRole: CaseIterable, Sendable {
         case .title: 20
         case .body: 16
         case .label: 16
+        case .action: 18
         case .caption: 14
         case .footnote: 12
         case .tab: 12
@@ -51,10 +57,12 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
+        case .voiceDisplay: .largeTitle
         case .voiceHero: .title2
         case .voice: .title3
         case .dataHero: .largeTitle
         case .dataStat, .body, .label: .callout
+        case .action: .body
         case .data, .caption: .subheadline
         case .title: .title3
         case .footnote: .caption
@@ -64,7 +72,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label, .tab: .medium
+        case .voiceDisplay, .voiceHero, .voice, .dataHero, .dataStat, .title, .body, .label, .action, .tab: .medium
         case .data, .caption, .footnote: .regular
         }
     }

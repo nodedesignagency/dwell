@@ -131,6 +131,15 @@ struct DemoRepositoryTests {
         #expect(try await repository.liveStatus() == SampleData.FirstPlace.liveStatus)
     }
 
+    @Test func `last week's wrap waits, unopened, only in its own state`() async throws {
+        let invite = try #require(try await DemoRepository(.weeklyWrap).weeklyWrap())
+        #expect(!invite.isOpened)
+        #expect(invite.firstDay == SampleData.lastWeek.first && invite.lastDay == SampleData.lastWeek.last)
+        #expect(try await SampleRepository().weeklyWrap()?.isOpened == true)
+        #expect(try await DemoRepository(.firstDay).weeklyWrap() == nil)
+        #expect(try await DemoRepository(.firstPlace).weeklyWrap() == nil)
+    }
+
     @Test func `saved places with no visits are still nothing mapped`() {
         let saved = Place(id: "home", name: "Home", category: .home, role: .home, lifetimeTotal: 0, visitCount: 0)
         #expect(![saved].hasRecordedVisit)
