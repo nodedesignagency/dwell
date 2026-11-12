@@ -20,12 +20,13 @@ struct InsightDeck: View {
         let current = min(index, max(insights.count - 1, 0))
         VStack(spacing: Space.m) {
             SectionHeader("This week", icon: Art.thisWeek) {
-                HStack(spacing: 0) {
+                // Figma: the two 22-pt arrows 8 apart. Their 44-pt tap areas overlap to keep it.
+                HStack(spacing: Space.s - arrowInset * 2) {
                     arrow(back: true, label: "Previous insight", isEnabled: current > 0) { step(-1, from: current) }
                     arrow(back: false, label: "Next insight", isEnabled: current < insights.count - 1) { step(1, from: current) }
                 }
-                .padding(.vertical, -Space.m)
-                .padding(.trailing, -Space.m)
+                .padding(.vertical, -arrowInset)
+                .padding(.trailing, -arrowInset)
             }
 
             if insights.indices.contains(current) {
@@ -78,6 +79,9 @@ struct InsightDeck: View {
     }
 
     /// The design's arrow (22), mirrored to point back.
+    /// The space between an arrow and the edge of its tap area.
+    private var arrowInset: CGFloat { (max(44, arrowSize) - arrowSize) / 2 }
+
     private func arrow(back: Bool, label: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Art.arrow
@@ -86,7 +90,7 @@ struct InsightDeck: View {
                 .frame(width: arrowSize, height: arrowSize)
                 .scaleEffect(x: back ? -1 : 1)
                 .foregroundStyle(isEnabled ? Palette.textPrimary : Palette.textSecondary.opacity(0.4))
-                .frame(width: 44, height: 44)
+                .frame(width: max(44, arrowSize), height: max(44, arrowSize))
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)

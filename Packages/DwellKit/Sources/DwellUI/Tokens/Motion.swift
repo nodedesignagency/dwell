@@ -16,6 +16,8 @@ public enum Motion {
     public static let arrive = Animation.spring(duration: 0.5, bounce: 0)
     /// The live dot's ring, spreading out and fading, on a loop.
     public static let pulse = Animation.easeOut(duration: 1.6)
+    /// The rays behind a hero tile's icon turning a full circle, on a loop.
+    public static let spin = Animation.linear(duration: 24)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
     public static let reduced = Animation.easeInOut(duration: 0.2)
     /// The sky turning from one phase to the next: slow enough to watch the sun travel.

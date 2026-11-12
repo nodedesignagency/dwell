@@ -109,7 +109,8 @@ The design sets the day pill in SN Pro; we use SF Pro Rounded (one use, not wort
 | Moment | Animation | Reduce Motion alternative | Haptic |
 | --- | --- | --- | --- |
 | MO-01 Live timer ticking | Ticks on the minute the visit started; digits roll (`.numericText`) with `Motion.standard` | Digits cross-fade | none |
-| Live dot | While the timer runs (at a place or in transit), a ring of the dot's colour spreads from 0.55× to 2.2× its halo and fades from 35% to nothing, `Motion.pulse` (1.6 s ease-out), on a loop | Still dot | none |
+| Live dot | The dot (8) alone, no halo at rest, keeping the halo's 14-pt footprint and centred on the caption's capitals. While the timer runs (at a place or in transit), a disc of its colour spreads from the dot's size to 26 pt and fades from 40% to nothing, `Motion.pulse` (1.6 s ease-out), on a loop | Still dot | none |
+| Hero tile rays | The sixteen rays behind each hero tile's icon turn a full circle every 24 s, `Motion.spin` (linear), on a loop; the coloured disc stays put | Rays hold still | none |
 | MO-02 Day bar filling | Ticks grow from the baseline and fade in on appear, `Motion.reveal` | Fade in only, no growth | none |
 | MO-05 Insight arrival | Deck pages: the card slides out the way you swiped and the next slides in, `Motion.standard` | Cross-fade | none |
 | Confirmation arrives | Slides up from behind the tab bar and fades in, `Motion.arrive` (0.5 s spring, no bounce). The animation is scoped to the card: nothing else on Today animates when it loads | Fade | none |
@@ -145,7 +146,7 @@ Each reusable piece, added the first time a design uses it. Build it in `DwellUI
 | `DashedDivider` | `Components/Card.swift` | 1 pt, dash 3/3, `separator` | Today | Built |
 | `Sheen` | `Components/Card.swift` | Two blurred diagonal streaks; white on dark, separator on light | Today | Built |
 | `SoftButtonStyle` (`.soft`) | `Components/Card.swift` | Full-width capsule with sheen and edge; pressed | Today ("View more") | Built |
-| `SectionHeader` | `Components/Card.swift` | Icon + title (header trait) + optional trailing control | Today ("This week", "Your day") | Built |
+| `SectionHeader` | `Components/Card.swift` | Icon + title (header trait) + optional trailing control ("This week": the design's 22-pt arrows, 8 apart, their 44-pt tap areas overlapping) | Today ("This week", "Your day") | Built |
 | `DayBarView` | `Components/DayBarView.swift` | The day so far, in a box (radius 14, padding 8, gap 10, white, ink-5% border). Ticks 4 × 32 capsules, 2 pt apart, count from width; categories in display order, ≤ 7 + Everything else; unmapped last (gaps only, never the hours still to come) as hollow capsules with 45° stripes, outline and stripes #DADADA 80%; each tick and swatch carries five stacked inner shadows in its category's glint (x 0, spread 0; y 13 / 8 / 5 / 2 / 1, blur 4 / 3 / 3 / 2 / 1, opacity 1 / 5 / 18 / 30 / 35%); legend ↔ callout on tap or press-and-slide; empty (no ticks); grows in; audio graph. SwiftUI shapes, not Swift Charts: Charts doesn't draw inner shadows, and the bar's VoiceOver and audio graph are its own | Today | Built |
 | `StatTile` | `Components/StatTile.swift` | Number, label, icon; behind the icon a 271.55-pt glow: a 133.98-pt disc of the tint fading in from the left (50%, blur 66.82) under sixteen ink rays (radial 50% → 0, fill 15%, layer 20%, as in Figma; 15% ink at the centre was tried on 12 Nov and read too heavy), clipped to the tile; stacks at AX sizes (by the caller) | Today (Figma) | Built |
 | `InsightCard` | `Components/InsightCard.swift` | Topic + share and the voiced sentence 4 apart, then (12 below) a week chart or a lone number | Today | Built |
@@ -200,3 +201,5 @@ Still expected from the brief: calendar tiles, the segmented range control, the 
 | 2026-11-12 | Today (motion fixes) | Today no longer grows in from the middle at launch (the confirmation card's animation covered the whole screen; the day bar's covered its box); the card slides up on its own; its streaks sweep on a steady loop; the live dot pulses; the live caption drops "· estimate" |
 
 | 2026-11-12 | Today (timeline rows, line icons) | Timeline rows centre their two lines on the 32-pt well and trim the type's spare space, so a row is 32-33 tall as in Figma; transit and gap rows take the same shape; the design's clock, chevron, "This week" arrows and day-pill calendar are in place |
+
+| 2026-11-12 | Today (live status, rays, arrows) | 4 between the timer and its caption (was 16); the live dot loses its static halo and only pulses; the hero tile rays turn a full circle every 24 s; the "This week" arrows sit 8 apart |
