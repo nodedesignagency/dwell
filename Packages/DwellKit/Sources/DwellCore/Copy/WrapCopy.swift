@@ -182,6 +182,70 @@ public enum WrapCopy {
             grind: "Right on your usual. Consistent.")
     }
 
+    // MARK: Postcard
+
+    /// The last page's title (Weekly wrap design, "Postcard from your week"), the design's
+    /// at every stop. [COPY NEEDED] Peace and Grind.
+    public static let postcardTitle = VoicedLine(
+        peace: "Postcard from your week",
+        plain: "Postcard from your week",
+        grind: "Postcard from your week")
+
+    /// The stamp's heading and rows: plain labels, never voiced (they are data).
+    public static let postcardHeading = "My week"
+    public static let earliestExitRow = "Earliest exit"
+    public static let weekendWorkRow = "Weekend work"
+    public static let newPlacesRow = "New places"
+
+    /// "Fri 5:52 PM", or "None" with no office weekday. [COPY NEEDED] "None".
+    public static func exitValue(_ exit: WrapEarliestExit?, calendar: Calendar) -> String {
+        guard let exit else { return "None" }
+        return "\(ClockText.weekday(exit.day, calendar: calendar)) \(ClockText.time(exit.time, calendar: calendar))"
+    }
+
+    /// "0m", or "Not recorded" when Dwell saw neither Saturday nor Sunday.
+    public static func weekendWorkValue(_ work: TimeInterval?) -> String {
+        work.map(DurationText.short) ?? TimeCopy.notRecorded
+    }
+
+    /// "2", or a dash when the places didn't load.
+    public static func newPlacesValue(_ count: Int?) -> String {
+        count.map(String.init) ?? "–"
+    }
+
+    /// Under the share buttons: what a shared postcard holds (the design's line, true of the
+    /// stamp as built: no place names, no home, no pins).
+    public static let sharePrivacy = "Only categories are shared. Never places or home."
+
+    /// The share buttons (the design's five "IG Story" are placeholders; the user's five, 13
+    /// Nov). [COPY NEEDED]
+    public static let shareInstagram = "IG Story"
+    public static let shareMessages = "Messages"
+    public static let shareSave = "Save"
+    public static let shareCopy = "Copy"
+    public static let shareMore = "More"
+    /// What VoiceOver adds to "IG Story": it opens the share sheet until Instagram's own
+    /// sharing is connected.
+    public static let shareInstagramHint = "Shares your postcard" // [COPY NEEDED]
+    /// The confirmations after Save and Copy. [COPY NEEDED]
+    public static let saved = "Saved to Photos"
+    public static let copied = "Copied"
+    public static let saveFailed = "Couldn't save. Allow Dwell to add photos in Settings."
+    /// The shared image's title in the share sheet. [COPY NEEDED]
+    public static let shareTitle = "My week on Dwell"
+
+    /// VoiceOver's reading of the stamp, in one go.
+    /// - Parameter totals: the two tiles as spoken: "At work, 42 hours 29 minutes. Yours, …"
+    public static func postcardSpoken(_ postcard: WrapPostcard, totals: String, calendar: Calendar) -> String {
+        [
+            "Postcard. \(postcardHeading).",
+            totals,
+            "\(earliestExitRow), \(exitValue(postcard.earliestExit, calendar: calendar)).",
+            "\(weekendWorkRow), \(weekendWorkValue(postcard.weekendWork)).",
+            "\(newPlacesRow), \(newPlacesValue(postcard.newPlaces)).",
+        ].joined(separator: " ")
+    }
+
     private static func count(_ value: Int, one: String, many: String) -> String {
         "\(value) \(value == 1 ? one : many)"
     }

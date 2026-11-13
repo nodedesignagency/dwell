@@ -7,7 +7,7 @@ import SwiftUI
 ///
 /// Loads the week's days from the repository once, for every page's numbers (`WrapWeek`), with
 /// the four weeks before it: what's usual for the earliest exit, and the weekend before for
-/// the weekend page's change. Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the progress bar filling
+/// the weekend page's change; and the places and the user's city, for the postcard. Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the progress bar filling
 /// as it runs, like an Instagram story), and cross-fade (`Motion.reduced`, the same with
 /// Reduce Motion: nothing moves). The clock pauses while a finger is held on the page, while
 /// the app is in the background, and on the opener until its numbers are in. With VoiceOver
@@ -29,6 +29,15 @@ struct WeeklyWrapScreen: View {
     @State private var attempt = 0
     @State private var clock = StoryClock(duration: WrapPage.opener.duration ?? 0)
     @State private var isHolding = false
+
+    /// - Parameter start: the page to open on; the opener, but for reviewing another
+    ///   (`DWELL_OPEN=wrap7`).
+    init(wrap: WeeklyWrap, startsAt start: WrapPage = .opener, onClose: @escaping () -> Void) {
+        self.wrap = wrap
+        self.onClose = onClose
+        _page = State(initialValue: start)
+        _clock = State(initialValue: StoryClock(duration: start.duration ?? 0))
+    }
 
     var body: some View {
         WeeklyWrapContent(
@@ -92,9 +101,15 @@ struct WeeklyWrapScreen: View {
             let days = try await repository.days(from: first, through: wrap.lastDay)
             let week = days.filter { $0.day >= wrap.firstDay }
             let before = days.filter { $0.day < wrap.firstDay }
+            // The postcard's extras: the places first visited that week and the city for its
+            // map. The wrap still opens without them.
+            let places = try? await repository.places()
+            let city = (try? await repository.profile())?.cityCenter
             state = .loaded(WrapWeek(
                 week: week,
                 before: before,
+                places: places,
+                city: city,
                 now: fixedNow ?? Date.now.addingTimeInterval(clockOffset),
                 calendar: calendar))
         } catch is CancellationError {

@@ -33,7 +33,13 @@ private let sampleDays = SampleData.lastWeek.map(SampleData.snapshot(for:))
 private let daysBefore = (1...WrapWeek.lookback).reversed().map {
     SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: SampleData.calendar))
 }
-private let sampleWeek = WrapWeek(week: sampleDays, before: daysBefore, now: SampleData.now, calendar: SampleData.calendar)
+private let sampleWeek = WrapWeek(
+    week: sampleDays,
+    before: daysBefore,
+    places: SampleData.places,
+    city: SampleData.profile.cityCenter,
+    now: SampleData.now,
+    calendar: SampleData.calendar)
 private let lastWeek = Loadable<WrapWeek>.loaded(sampleWeek)
 
 /// Last week with other numbers on one page.
@@ -335,6 +341,84 @@ private func exitAgainst(usual: Double?) -> WrapEarliestExit? {
 
 #Preview("Earliest exit · loading") {
     WrapPreview(.loading, page: .earliestExit).samplePreview()
+}
+
+// MARK: Postcard, across the dial (45h 40m, 23h 03m, Tue 5:52 PM, 0m, 2 new places; Brooklyn)
+
+#Preview("Postcard · Peace") {
+    WrapPreview(lastWeek, page: .postcard).samplePreview(.peace)
+}
+
+#Preview("Postcard · Plain") {
+    WrapPreview(lastWeek, page: .postcard).samplePreview(.plain)
+}
+
+#Preview("Postcard · Grind (\"Off\" on the tile)") {
+    WrapPreview(lastWeek, page: .postcard).samplePreview(.grind)
+}
+
+#Preview("Postcard · dark") {
+    WrapPreview(lastWeek, page: .postcard).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Postcard · AX3") {
+    WrapPreview(lastWeek, page: .postcard).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Postcard · Grind · AX5 · dark") {
+    WrapPreview(lastWeek, page: .postcard).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+// MARK: Postcard, other weeks
+
+/// Last week with the postcard's extras changed.
+private func postcardWeek(_ change: (inout WrapWeek) -> Void) -> Loadable<WrapWeek> {
+    var week = sampleWeek
+    change(&week)
+    return .loaded(week)
+}
+
+#Preview("Postcard · no office this week") {
+    WrapPreview(postcardWeek { $0.earliestExit = nil }, page: .postcard).samplePreview()
+}
+
+#Preview("Postcard · a weekend Dwell didn't see") {
+    WrapPreview(postcardWeek { $0.weekends.verdict = .notRecorded }, page: .postcard).samplePreview()
+}
+
+#Preview("Postcard · places didn't load, no city (no map)") {
+    WrapPreview(postcardWeek { $0.newPlaces = nil; $0.city = nil }, page: .postcard).samplePreview()
+}
+
+#Preview("Postcard · loading") {
+    WrapPreview(.loading, page: .postcard).samplePreview()
+}
+
+#Preview("Postcard · failed · retry") {
+    WrapPreview(.failed(.unavailable), page: .postcard).samplePreview()
+}
+
+// MARK: Postcard, its parts
+
+#Preview("The stamp alone, no map") {
+    PostcardStamp(postcard: sampleWeek.postcard)
+        .padding(40)
+        .background(Palette.wrapPostcardEdge)
+        .samplePreview()
+}
+
+#Preview("The shared image (1080 × 1920), no map") {
+    PostcardShareCard(postcard: sampleWeek.postcard, map: nil)
+        .samplePreview()
+}
+
+#Preview("Swirl stripes, full strength") {
+    SwirlStripes()
+        .ignoresSafeArea()
 }
 
 // MARK: Pages still to come

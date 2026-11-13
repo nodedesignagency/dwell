@@ -41,25 +41,30 @@ struct RootView: View {
     @State private var tabBarVisibility = TabBarVisibility()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let youPath: [YouPage]
-    private let opensWrap: Bool
+    /// The wrap page to open at launch, if any.
+    private let opensWrapAt: WrapPage?
     private let opensInsight: Insight.ID?
 
     /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
     init(open: LaunchPage? = nil) {
         let tab: Tab = switch open {
-        case nil, .wrap, .insight: .today
-        case .you, .places: .you
-        case .time: .time
+        case .you?, .places?: .you
+        case .time?: .time
+        default: .today
         }
         _tab = State(initialValue: tab)
         youPath = open == .places ? [.places] : []
-        opensWrap = open == .wrap
+        if case .wrap(let page)? = open {
+            opensWrapAt = WrapPage(rawValue: page - 1) ?? .opener
+        } else {
+            opensWrapAt = nil
+        }
         opensInsight = open == .insight ? SampleData.officeInsightID : nil
     }
 
     var body: some View {
         TabView(selection: $tab) {
-            TodayScreen(openProfile: { tab = .you }, opensWrap: opensWrap, opensInsight: opensInsight)
+            TodayScreen(openProfile: { tab = .you }, opensWrapAt: opensWrapAt, opensInsight: opensInsight)
                 .tag(Tab.today)
                 .toolbar(.hidden, for: .tabBar)
             MapScreen()
@@ -101,17 +106,31 @@ struct RootView: View {
 }
 
 /// A page the app can open at launch, for reviewing it in the simulator.
-enum LaunchPage: String {
+enum LaunchPage: Equatable {
     /// You, the fourth tab.
     case you
     /// Your places, pushed from You.
     case places
     /// The Time tab.
     case time
-    /// Last week's wrap, over Today.
-    case wrap
+    /// Last week's wrap, over Today, on a page counted from 1: `wrap` opens it at the start,
+    /// `wrap3` on its third page (`DWELL_OPEN=wrap3`).
+    case wrap(page: Int)
     /// The Insights design's insight, pushed from Today's deck.
     case insight
+
+    init?(rawValue: String) {
+        switch rawValue {
+        case "you": self = .you
+        case "places": self = .places
+        case "time": self = .time
+        case "insight": self = .insight
+        case "wrap": self = .wrap(page: 1)
+        default:
+            guard rawValue.hasPrefix("wrap"), let page = Int(rawValue.dropFirst(4)) else { return nil }
+            self = .wrap(page: page)
+        }
+    }
 }
 
 /// Holds a tab's place until its design arrives.

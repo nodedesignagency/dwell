@@ -14,8 +14,9 @@ import UIKit
 /// it (QUESTIONS.md). "Yes, turn on" goes to Settings.
 struct TodayScreen: View {
     var openProfile: () -> Void = {}
-    /// Opens last week's wrap once Today has loaded, for reviewing it (`DWELL_OPEN=wrap`).
-    var opensWrap = false
+    /// Opens last week's wrap on this page once Today has loaded, for reviewing it
+    /// (`DWELL_OPEN=wrap`, `DWELL_OPEN=wrap3`).
+    var opensWrapAt: WrapPage?
     /// Opens this insight's page once Today has loaded, for reviewing it (`DWELL_OPEN=insight`).
     var opensInsight: Insight.ID?
 
@@ -38,6 +39,8 @@ struct TodayScreen: View {
     @State private var openWrap: WeeklyWrap?
     @State private var viewedWrap: WeeklyWrap.ID?
     @State private var hasOpenedWrapAtLaunch = false
+    /// The page the wrap opens on: the opener, unless launched on another for review.
+    @State private var wrapStart: WrapPage = .opener
     @Namespace private var wrapZoom
     @State private var openPlace: PlaceID?
     /// The insight whose page is pushed (Insights design): an inside page, no tab bar.
@@ -84,7 +87,7 @@ struct TodayScreen: View {
                     .presentationDetents([.medium])
             }
             .fullScreenCover(item: $openWrap, onDismiss: wrapClosed) { wrap in
-                WeeklyWrapScreen(wrap: wrap, onClose: closeWrap)
+                WeeklyWrapScreen(wrap: wrap, startsAt: wrapStart, onClose: closeWrap)
                     .wrapZoomTransition(id: wrap.id, in: reduceMotion ? nil : wrapZoom)
             }
             .promptSheet(isPresented: $isAskingForLocation) {
@@ -128,6 +131,7 @@ struct TodayScreen: View {
     /// The invite stays behind the wrap, so the wrap can shrink back into it, and leaves
     /// Today once the wrap has closed.
     private func wrapClosed() {
+        wrapStart = .opener
         guard let viewedWrap else { return }
         withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
             _ = openedWraps.insert(viewedWrap)
@@ -193,8 +197,9 @@ struct TodayScreen: View {
             }
             state = .loaded(TodayModel(
                 snapshot: snapshot, liveStatus: liveStatus, insights: insights, weeklyWrap: weeklyWrap))
-            if opensWrap, !hasOpenedWrapAtLaunch, let weeklyWrap {
+            if let opensWrapAt, !hasOpenedWrapAtLaunch, let weeklyWrap {
                 hasOpenedWrapAtLaunch = true
+                wrapStart = opensWrapAt
                 showWrap(weeklyWrap)
             }
             if let opensInsight, !hasOpenedInsightAtLaunch, let insight = insights.first(where: { $0.id == opensInsight }) {

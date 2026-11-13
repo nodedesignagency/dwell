@@ -308,3 +308,64 @@ struct WrapEarliestExitTests {
         #expect(ClockText.weekdayName(SampleData.lastWeek[4], calendar: calendar) == "Friday")
     }
 }
+
+@Suite("Weekly wrap: postcard")
+struct WrapPostcardTests {
+    let week = SampleData.lastWeek.map(SampleData.snapshot(for:))
+    let before = (1...WrapWeek.lookback).reversed().map {
+        SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: calendar))
+    }
+
+    var wrap: WrapWeek {
+        WrapWeek(week: week, before: before, places: SampleData.places, city: SampleData.profile.cityCenter,
+                 now: SampleData.now, calendar: calendar)
+    }
+
+    @Test func `the stamp's numbers are the other pages' numbers`() {
+        let postcard = wrap.postcard
+        #expect(postcard.work == wrap.workAndYours.work)
+        #expect(postcard.yours == wrap.workAndYours.yours)
+        #expect(postcard.earliestExit == wrap.earliestExit)
+        #expect(postcard.weekendWork == 0)
+        #expect(WrapCopy.weekendWorkValue(postcard.weekendWork) == "0m")
+    }
+
+    @Test func `new places are the ones first visited that week`() {
+        let interval = DateInterval(
+            start: SampleData.lastWeek[0].interval(in: calendar).start,
+            end: SampleData.lastWeek[6].interval(in: calendar).end)
+        let firsts = SampleData.places.filter { place in
+            place.firstSeen.map(interval.contains) ?? false
+        }
+        #expect(wrap.postcard.newPlaces == firsts.count)
+        #expect(WrapWeek(week: week, now: SampleData.now, calendar: calendar).postcard.newPlaces == nil)
+        #expect(WrapCopy.newPlacesValue(nil) == "–")
+    }
+
+    @Test func `the map is the city's, never home`() {
+        #expect(wrap.postcard.city == SampleData.profile.cityCenter)
+        #expect(WrapWeek(week: week, now: SampleData.now, calendar: calendar).postcard.city == nil)
+    }
+
+    @Test func `the exit reads as a weekday and a time`() throws {
+        let exit = try #require(wrap.postcard.earliestExit)
+        let value = WrapCopy.exitValue(exit, calendar: calendar)
+        #expect(value == "\(ClockText.weekday(exit.day, calendar: calendar)) \(ClockText.time(exit.time, calendar: calendar))")
+        #expect(WrapCopy.exitValue(nil, calendar: calendar) == "None")
+    }
+
+    @Test func `a weekend Dwell didn't see isn't zero`() {
+        var unseen = wrap
+        unseen.weekends.verdict = .notRecorded
+        #expect(unseen.postcard.weekendWork == nil)
+        #expect(WrapCopy.weekendWorkValue(nil) == TimeCopy.notRecorded)
+    }
+
+    @Test func `nothing on the stamp names a place or home`() {
+        let spoken = WrapCopy.postcardSpoken(wrap.postcard, totals: "At work, 45 hours.", calendar: calendar)
+        for place in SampleData.places {
+            #expect(!spoken.contains(place.name))
+        }
+        #expect(!spoken.contains("Home"))
+    }
+}

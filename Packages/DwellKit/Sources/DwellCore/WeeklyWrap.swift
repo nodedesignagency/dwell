@@ -332,39 +332,125 @@ public struct WrapWeekends: Hashable, Sendable {
     }
 }
 
+/// The wrap's last page (Weekly wrap design, "Postcard from your week"): the week on a stamp
+/// to share. A share card, so category level only (brief §8.6, §10): two totals, an exit time,
+/// the weekend's work and a count of new places; never a place's name, never home, never a
+/// pin. The map behind it shows the user's city and nothing closer (the user's call, 13 Nov).
+public struct WrapPostcard: Hashable, Sendable {
+    public var work: TimeInterval
+    public var yours: TimeInterval
+    /// `nil` when the user wasn't at the office on any weekday.
+    public var earliestExit: WrapEarliestExit?
+    /// Work on Saturday and Sunday; `nil` when Dwell recorded neither.
+    public var weekendWork: TimeInterval?
+    /// Places visited for the first time that week; `nil` when the places didn't load.
+    public var newPlaces: Int?
+    /// Where the stamp's map is centred: the middle of the user's city (`Profile.cityCenter`),
+    /// never home. `nil`: no map, the stamp's paper shows instead.
+    public var city: Coordinate?
+
+    public init(
+        work: TimeInterval,
+        yours: TimeInterval,
+        earliestExit: WrapEarliestExit?,
+        weekendWork: TimeInterval?,
+        newPlaces: Int?,
+        city: Coordinate?
+    ) {
+        self.work = work
+        self.yours = yours
+        self.earliestExit = earliestExit
+        self.weekendWork = weekendWork
+        self.newPlaces = newPlaces
+        self.city = city
+    }
+
+    /// Places whose first visit ever fell inside `week`.
+    public static func newPlaces(_ places: [Place], in week: DateInterval) -> Int {
+        places.filter { place in
+            guard let first = place.firstSeen else { return false }
+            return week.start <= first && first < week.end
+        }.count
+    }
+}
+
 /// Everything the wrap's pages show, from one load of the week and the four weeks before it
-/// (what's usual for the earliest exit, and the weekend before for the weekend page).
+/// (what's usual for the earliest exit, and the weekend before for the weekend page), with the
+/// user's places and city for the postcard.
 public struct WrapWeek: Hashable, Sendable {
     public var opener: WrapOpener
     public var workAndYours: WrapWorkAndYours
     public var weekends: WrapWeekends
     /// `nil` when the user wasn't at the office on any weekday.
     public var earliestExit: WrapEarliestExit?
+    /// Places visited for the first time that week; `nil` when the places didn't load.
+    public var newPlaces: Int?
+    /// The middle of the user's city, for the postcard's map; `nil` without a profile.
+    public var city: Coordinate?
 
     /// Days before the wrap's week that "usual" looks back over.
     public static let lookback = 28
 
-    public init(opener: WrapOpener, workAndYours: WrapWorkAndYours, weekends: WrapWeekends, earliestExit: WrapEarliestExit?) {
+    public init(
+        opener: WrapOpener,
+        workAndYours: WrapWorkAndYours,
+        weekends: WrapWeekends,
+        earliestExit: WrapEarliestExit?,
+        newPlaces: Int? = nil,
+        city: Coordinate? = nil
+    ) {
         self.opener = opener
         self.workAndYours = workAndYours
         self.weekends = weekends
         self.earliestExit = earliestExit
+        self.newPlaces = newPlaces
+        self.city = city
     }
 
     /// - Parameters:
     ///   - week: the wrap's seven days, Monday to Sunday.
     ///   - before: the days before it, for what's usual and the weekend before (`lookback` of
     ///     them, or fewer).
-    public init(week: [DaySnapshot], before: [DaySnapshot] = [], now: Date, calendar: Calendar) {
+    ///   - places: every place, for the ones first visited that week; `nil` if they didn't load.
+    ///   - city: the middle of the user's city (`Profile.cityCenter`).
+    public init(
+        week: [DaySnapshot],
+        before: [DaySnapshot] = [],
+        places: [Place]? = nil,
+        city: Coordinate? = nil,
+        now: Date,
+        calendar: Calendar
+    ) {
         var lastWeekend: [DaySnapshot] = []
         if let monday = week.first?.day {
             let saturday = monday.adding(days: -2, in: calendar)
             lastWeekend = before.filter { $0.day >= saturday && $0.day < monday }
         }
+        var newPlaces: Int?
+        if let places, let first = week.first, let last = week.last {
+            newPlaces = WrapPostcard.newPlaces(places, in: DateInterval(start: first.interval.start, end: last.interval.end))
+        }
         self.init(
             opener: WrapOpener(week: week),
             workAndYours: WrapWorkAndYours(week: week, now: now),
             weekends: WrapWeekends(week: week, lastWeekend: lastWeekend, now: now, calendar: calendar),
-            earliestExit: WrapEarliestExit(week: week, before: before, calendar: calendar))
+            earliestExit: WrapEarliestExit(week: week, before: before, calendar: calendar),
+            newPlaces: newPlaces,
+            city: city)
+    }
+
+    /// The last page's stamp, from the other pages' numbers, so they never disagree.
+    public var postcard: WrapPostcard {
+        let weekendWork: TimeInterval? = switch weekends.verdict {
+        case .notRecorded: nil
+        case .allYours, .someWork: weekends.workByDay.reduce(0, +)
+        }
+        return WrapPostcard(
+            work: workAndYours.work,
+            yours: workAndYours.yours,
+            earliestExit: earliestExit,
+            weekendWork: weekendWork,
+            newPlaces: newPlaces,
+            city: city)
     }
 }

@@ -275,6 +275,7 @@
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "With Always, Dwell sees the hours after you close it. Places and times only, never the route between them.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Dwell records the places you stop at and how long you stay. Never the route between them.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "Motion tells Dwell when you are on the move, so it knows when a visit starts and uses less battery.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Dwell saves your weekly postcard to your photos. It never looks through your library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -310,6 +311,7 @@
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "With Always, Dwell sees the hours after you close it. Places and times only, never the route between them.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Dwell records the places you stop at and how long you stay. Never the route between them.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "Motion tells Dwell when you are on the move, so it knows when a visit starts and uses less battery.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Dwell saves your weekly postcard to your photos. It never looks through your library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

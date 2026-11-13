@@ -236,6 +236,176 @@ public struct SlantTiles: View {
     }
 }
 
+// MARK: - Swirl stripes
+
+/// The postcard page's pattern (Weekly wrap 7, 13 Nov): the designer's reference image of
+/// navy and periwinkle stripes that run in from the left, swing down through the middle and
+/// out to the right, redrawn in code and set flowing. Placed as the screenshot shows it
+/// (832 × 970 at −219, −15 on the 393-wide frame, scaled with the width; found by matching
+/// the screenshot's stripes, 95% of them) [VALUES NEEDED: Figma's placement].
+///
+/// The stripes are the level lines of a smooth field fitted to the image: a 8 × 9 grid of
+/// cubic B-spline weights, read from its 46 stripes (the fit puts every edge within 4% of a
+/// stripe's width of the image's). Every whole step of the field is a stripe edge, and every
+/// other band is light. Drawn on a 10-pt grid of triangles, each cut to the light bands
+/// that cross it, so the edges stay crisp.
+///
+/// Moving: the stripes flow along their bends, from the top right toward the bottom left, a
+/// light and a dark stripe every 5 s, steady, so the loop never shows a seam. Under Reduce
+/// Motion, or `isMoving` off (the shared image), it holds still where the design draws it.
+/// Draw it at full strength and set its opacity where it's used (10% on the postcard).
+public struct SwirlStripes: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var start = Date.now
+    private let light: Color
+    private let deep: Color
+    private let isMoving: Bool
+
+    public init(light: Color = Palette.wrapSwirl, deep: Color = Palette.wrapSwirlDeep, isMoving: Bool = true) {
+        self.light = light
+        self.deep = deep
+        self.isMoving = isMoving
+    }
+
+    public var body: some View {
+        let still = reduceMotion || !isMoving
+        TimelineView(.animation(minimumInterval: nil, paused: still)) { context in
+            let time = still ? 0 : context.date.timeIntervalSince(start)
+            let light = light
+            let deep = deep
+            Canvas { canvas, size in
+                Self.draw(in: &canvas, size: size, flow: 2 * time / Self.period, light: light, deep: deep)
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    /// Seconds for a light and a dark stripe to pass.
+    nonisolated static let period: Double = 5
+
+    /// The image as placed on the 393-wide frame, in its own pixels.
+    nonisolated private static let imageSize = CGSize(width: 1716, height: 2000)
+    nonisolated private static let placedAt = CGPoint(x: -219.4, y: -15.3)
+    nonisolated private static let placedScale = 0.485
+    /// The grid the field is drawn on, in points.
+    nonisolated private static let cell: CGFloat = 10
+
+    /// The field's B-spline weights, 9 rows (top to bottom) of 8 (left to right), over the
+    /// image. Fitted to the reference image's stripes.
+    nonisolated private static let weights: [[Double]] = [
+        [17.50, 1.78, 2.23, 3.29, 4.69, 4.94, -8.38, 19.02],
+        [11.98, 14.21, 14.83, 14.00, 12.18, 7.41, 2.29, -15.60],
+        [26.78, 26.63, 24.58, 22.14, 17.38, 10.51, -1.57, -10.61],
+        [39.28, 35.25, 32.10, 25.51, 17.26, 6.13, -4.59, -10.28],
+        [45.28, 41.47, 32.32, 22.93, 12.55, 3.19, -1.81, -6.40],
+        [50.50, 38.90, 28.74, 19.73, 12.44, 8.45, 5.82, 5.06],
+        [45.97, 35.54, 27.98, 22.75, 19.83, 18.28, 17.19, 15.07],
+        [42.63, 37.56, 33.73, 31.32, 30.83, 29.51, 26.16, 21.15],
+        [50.75, 44.79, 41.23, 44.83, 39.86, 35.27, 31.76, 27.51],
+    ]
+
+    nonisolated private static func draw(in context: inout GraphicsContext, size: CGSize, flow: Double, light: Color, deep: Color) {
+        context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(deep))
+        let unit = Double(size.width) / 393
+        let columns = Int((size.width / cell).rounded(.up)) + 1
+        let rows = Int((size.height / cell).rounded(.up)) + 1
+        // The field at each grid point, shifted by the flow; a band is light where its whole
+        // part is odd.
+        var values = [Double](repeating: 0, count: columns * rows)
+        for row in 0..<rows {
+            for column in 0..<columns {
+                let x = Double(column) * Double(cell) / unit
+                let y = Double(row) * Double(cell) / unit
+                let u = (x - placedAt.x) / placedScale
+                let v = (y - placedAt.y) / placedScale
+                values[row * columns + column] = field(u: u, v: v) + 0.5 - flow
+            }
+        }
+
+        var bands = Path()
+        for row in 0..<(rows - 1) {
+            for column in 0..<(columns - 1) {
+                let corners = [(column, row), (column + 1, row), (column + 1, row + 1), (column, row + 1)].map { c, r in
+                    Corner(point: CGPoint(x: CGFloat(c) * cell, y: CGFloat(r) * cell), value: values[r * columns + c])
+                }
+                for triangle in [[corners[0], corners[1], corners[2]], [corners[0], corners[2], corners[3]]] {
+                    let low = triangle.map(\.value).min() ?? 0
+                    let high = triangle.map(\.value).max() ?? 0
+                    var band = Int(low.rounded(.down))
+                    while Double(band) <= high {
+                        if !band.isMultiple(of: 2) {
+                            let piece = clip(clip(triangle, at: Double(band), keepAbove: true), at: Double(band + 1), keepAbove: false)
+                            if piece.count >= 3 {
+                                bands.move(to: piece[0].point)
+                                for corner in piece.dropFirst() { bands.addLine(to: corner.point) }
+                                bands.closeSubpath()
+                            }
+                        }
+                        band += 1
+                    }
+                }
+            }
+        }
+        context.fill(bands, with: .color(light))
+    }
+
+    nonisolated private struct Corner {
+        var point: CGPoint
+        var value: Double
+    }
+
+    /// The part of a polygon on one side of `level`, its new corners where the field crosses
+    /// it, found along the edges (the field is flat across a triangle).
+    nonisolated private static func clip(_ polygon: [Corner], at level: Double, keepAbove: Bool) -> [Corner] {
+        var kept: [Corner] = []
+        for index in polygon.indices {
+            let from = polygon[index]
+            let to = polygon[(index + 1) % polygon.count]
+            let fromIn = keepAbove ? from.value >= level : from.value < level
+            let toIn = keepAbove ? to.value >= level : to.value < level
+            if fromIn { kept.append(from) }
+            if fromIn != toIn {
+                let t = (level - from.value) / (to.value - from.value)
+                kept.append(Corner(
+                    point: CGPoint(
+                        x: from.point.x + (to.point.x - from.point.x) * t,
+                        y: from.point.y + (to.point.y - from.point.y) * t),
+                    value: level))
+            }
+        }
+        return kept
+    }
+
+    /// The fitted field at a point of the image, in its pixels.
+    nonisolated private static func field(u: Double, v: Double) -> Double {
+        let (column, across) = basis(u / imageSize.width, count: 8)
+        let (row, down) = basis(v / imageSize.height, count: 9)
+        var value = 0.0
+        for j in 0..<4 {
+            var line = 0.0
+            for i in 0..<4 { line += across[i] * weights[row + j][column + i] }
+            value += down[j] * line
+        }
+        return value
+    }
+
+    /// Uniform cubic B-spline weights at `t` (0 to 1) over `count` control points: the first
+    /// of the four that count, and their weights.
+    nonisolated private static func basis(_ t: Double, count: Int) -> (Int, [Double]) {
+        let segments = count - 3
+        let u = min(max(t, 0), 1) * Double(segments)
+        let index = min(Int(u.rounded(.down)), segments - 1)
+        let f = u - Double(index)
+        return (index, [
+            (1 - f) * (1 - f) * (1 - f) / 6,
+            (3 * f * f * f - 6 * f * f + 4) / 6,
+            (-3 * f * f * f + 3 * f * f + 3 * f + 1) / 6,
+            f * f * f / 6,
+        ])
+    }
+}
+
 // MARK: - Water
 
 /// Two colours split by a line of water (Weekly wrap design, "Work vs yours", the designer's

@@ -90,6 +90,24 @@ public enum Palette {
     public static let wrapTile = Color("wrapTile", bundle: .module)
     /// Weekly wrap, Weekends: the orange triangles of the slanted tiles, drawn at 10% (the reference image's own)
     public static let wrapTileDeep = Color("wrapTileDeep", bundle: .module)
+    /// Weekly wrap, Postcard: the middle of the page's radial fill, 55% down. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapPostcardCentre = Color("wrapPostcardCentre", bundle: .module)
+    /// Weekly wrap, Postcard: the edge of the page's radial fill, reached 46.5% of the way out. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapPostcardEdge = Color("wrapPostcardEdge", bundle: .module)
+    /// Weekly wrap, Postcard: the light stripes of the swirl pattern, drawn at 10% (the reference image's periwinkle)
+    public static let wrapSwirl = Color("wrapSwirl", bundle: .module)
+    /// Weekly wrap, Postcard: the deep stripes of the swirl pattern, drawn at 10% (the reference image's navy)
+    public static let wrapSwirlDeep = Color("wrapSwirlDeep", bundle: .module)
+    /// The postcard stamp's paper, inside its white perforated edge (the stamp SVG)
+    public static let stampPaper = Color("stampPaper", bundle: .module)
+    /// The Dwell wordmark's navy (the stamp SVG)
+    public static let brandInk = Color("brandInk", bundle: .module)
+    /// The Dwell mark's sky (the stamp SVG); the mark is a stand-in drawn in code [ICON NEEDED]
+    public static let brandSky = Color("brandSky", bundle: .module)
+    /// The Dwell mark's sun glow (the stamp SVG)
+    public static let brandSun = Color("brandSun", bundle: .module)
+    /// The Dwell mark's low orange (the stamp SVG)
+    public static let brandSunset = Color("brandSunset", bundle: .module)
     /// Your places: the search field's fill, raised off the page by its shadow. Read from the screenshot
     public static let field = Color("field", bundle: .module)
     /// Your places: the search field's magnifier. Read from the screenshot

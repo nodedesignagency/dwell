@@ -43,6 +43,14 @@ public enum Art {
         public static let clockFace = Image("illustration/clockFace", bundle: .module)
     }
 
+    /// Dwell's own marks. The wordmark is the designer's, cut from the postcard stamp's SVG
+    /// (13 Nov) and kept as vector art (#002342); the sun mark beside it is drawn in code
+    /// until the designer sends it (`DwellLogo`, [ICON NEEDED]).
+    public enum Brand {
+        /// "Dwell", 53.68 × 17.53 at the stamp's size.
+        public static let wordmark = Image("brand/wordmark", bundle: .module)
+    }
+
     /// Line icons from the design, drawn as templates so they take the ink they're given:
     /// the clock by a timeline row's duration (14), the row's chevron (8 × 14), and the
     /// arrow on "This week" (22; mirrored, it points back).
