@@ -41,9 +41,10 @@ struct WeeklyWrapActions {
 
 /// The weekly wrap as the designer draws it: a full-screen story, a page at a time. Each page
 /// has its colour behind it and the same header on top ("Your weekly recap", the week, the
-/// close button, the progress bar). A tap moves on; a tap on the leading third goes back, as
-/// in any story. VoiceOver moves with the progress bar (swipe up or down) or each page's own
-/// actions, and the escape gesture closes.
+/// close button, the progress bar). As in an Instagram story, a tap on the right half moves
+/// on and a tap on the left half goes back (mirrored for right-to-left languages). VoiceOver
+/// moves with the progress bar (swipe up or down) or each page's own actions, and the escape
+/// gesture closes.
 struct WeeklyWrapContent: View {
     let wrap: WeeklyWrap
     let state: Loadable<WrapOpener>
@@ -88,7 +89,7 @@ struct WeeklyWrapContent: View {
         .contentShape(.rect)
         .onTapGesture { location in
             let fromLeading = layoutDirection == .rightToLeft ? width - location.x : location.x
-            if fromLeading < width / 3 {
+            if fromLeading < width / 2 {
                 actions.previous()
             } else {
                 actions.next()

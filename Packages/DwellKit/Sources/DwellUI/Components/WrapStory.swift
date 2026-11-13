@@ -151,15 +151,16 @@ public struct StoryProgress: View {
     }
 }
 
-/// The close button's cross (Weekly wrap design): 14 across in a 20 box, a 1.5 stroke with
-/// round ends, like the location sheet's, in the page's ink.
+/// The close button's cross (Weekly wrap design, Figma): white 100%, two strokes 1.3 wide with
+/// round ends, their ends 11 apart each way, so the cross reads 12 across in its 20 box.
+/// Measured from the Figma render.
 private struct StoryCross: View {
     let ink: Color
 
     var body: some View {
         CrossShape()
-            .stroke(ink, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
-            .frame(width: 14, height: 14)
+            .stroke(ink, style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
+            .frame(width: 11, height: 11)
             .frame(width: 20, height: 20)
     }
 }
@@ -175,10 +176,15 @@ nonisolated private struct CrossShape: Shape {
     }
 }
 
-/// A square button on glass over a colourful page (the wrap's close button): the drawn glass
-/// of the other close buttons, but white 20%, so the page's colour shows through, and no
-/// shadow (none shows on the colour). 40 with 10 of padding, corners 13, as the back button;
-/// tappable over 44; sinks to 92% pressed. Read from the screenshot.
+/// A square button on glass over a colourful page (the wrap's close button, Figma): 40 × 40,
+/// padding 10, corners 13, fill white 20%, no stroke, and Figma's Glass effect: light −45° at
+/// 80%, refraction 80, depth 20, dispersion 50, frost 4, splay 0. Drawn the same on every iOS,
+/// never the system's Liquid Glass, which takes none of those values. Tappable over 44; sinks
+/// to 92% pressed.
+///
+/// SwiftUI has no refraction, depth or dispersion, so the button draws what they make of it in
+/// Figma's render (`LitGlass`). Frost 4 blurs what's behind a little, which on a smooth page
+/// shows nothing, so it isn't drawn.
 public struct ClearGlassSquareButtonStyle: ButtonStyle {
     public init() {}
 
@@ -186,11 +192,57 @@ public struct ClearGlassSquareButtonStyle: ButtonStyle {
         configuration.label
             .padding(10)
             .background {
-                DrawnGlass(shape: RoundedRectangle(cornerRadius: Radius.m), fill: .white.opacity(0.2))
+                LitGlass(cornerRadius: Radius.m)
             }
             .contentShape(Rectangle().inset(by: -2))
             .scaleEffect(configuration.isPressed ? 0.92 : 1)
             .motion(value: configuration.isPressed)
+    }
+}
+
+/// Figma's Glass over a colourful page, as its render draws it (the wrap's close button,
+/// measured at 4.6× from the design):
+///
+/// - The fill, white 20%, which the glass's light turns a little: 17% at the top left, 23.5%
+///   at the bottom right.
+/// - The rim: a line of light 0.75 wide just inside the edge, added to the colour below
+///   (plus-lighter), so on blue it reads cyan white, as the dispersion draws it. It follows
+///   the light at −45°: strongest at the top-left corner (45%), about 30% along the left and
+///   top edges, 30% again at the bottom-right corner, faint along the right and bottom (17%),
+///   and gone at the top-right and bottom-left corners. The strengths are read every 15°
+///   around the button.
+struct LitGlass: View {
+    let cornerRadius: CGFloat
+
+    /// The rim's strength every 15° around the centre, clockwise from the trailing edge.
+    private static let rim: [Double] = [
+        0.165, 0.165, 0.295, 0.30, 0.33, 0.165, 0.165, 0.18, // right, bottom-right, bottom
+        0.03, 0, 0.035, 0.32, 0.32, 0.32, 0.42, 0.45,         // bottom-left, left, top-left
+        0.41, 0.28, 0.28, 0.28, 0, 0, 0.03, 0.17,             // top, top-right
+    ]
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius)
+        shape
+            .fill(LinearGradient(
+                colors: [.white.opacity(0.17), .white.opacity(0.235)],
+                startPoint: .topLeading, endPoint: .bottomTrailing))
+            .overlay {
+                shape
+                    .strokeBorder(
+                        AngularGradient(
+                            stops: (Self.rim + [Self.rim[0]]).enumerated().map { index, strength in
+                                Gradient.Stop(
+                                    color: .white.opacity(strength),
+                                    location: Double(index) / Double(Self.rim.count))
+                            },
+                            center: .center,
+                            startAngle: .degrees(0),
+                            endAngle: .degrees(360)),
+                        lineWidth: 0.75)
+                    .blendMode(.plusLighter)
+            }
+            .allowsHitTesting(false)
     }
 }
 
