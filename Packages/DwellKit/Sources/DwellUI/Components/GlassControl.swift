@@ -48,35 +48,36 @@ public struct GlassSquareButtonStyle: ButtonStyle {
     public func makeBody(configuration: Configuration) -> some View {
         let shape = RoundedRectangle(cornerRadius: Radius.m)
         let label = configuration.label.padding(10)
+        if lifted {
+            // Drawn on every iOS: Liquid Glass didn't look like Figma's (the user, 13 Nov).
+            pressable(label.background { LiftedGlass(shape: shape) }, configuration: configuration)
+        } else {
+            backButton(label, shape: shape, configuration: configuration)
+        }
+    }
+
+    @ViewBuilder
+    private func backButton(_ label: some View, shape: RoundedRectangle, configuration: Configuration) -> some View {
         if #available(iOS 26.0, macOS 26.0, *) {
             label
-                // Lifted: Figma's white 65% over the glass, under the icon.
-                .background {
-                    if lifted {
-                        shape.fill(Palette.glassPill)
-                    }
-                }
                 .glassEffect(.regular.interactive(), in: shape)
-                .background {
-                    if lifted {
-                        GlassDropShadow(shape: shape)
-                    }
-                }
                 .contentShape(Rectangle().inset(by: -2))
         } else {
-            label
-                .background {
-                    if lifted {
-                        LiftedGlass(shape: shape)
-                    } else {
-                        DrawnGlass(shape: shape, fill: Palette.glassControl)
-                            .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
-                    }
-                }
-                .contentShape(Rectangle().inset(by: -2))
-                .scaleEffect(configuration.isPressed ? 0.92 : 1)
-                .motion(value: configuration.isPressed)
+            pressable(
+                label.background {
+                    DrawnGlass(shape: shape, fill: Palette.glassControl)
+                        .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+                },
+                configuration: configuration)
         }
+    }
+
+    /// Pressed, it sinks a touch.
+    private func pressable(_ view: some View, configuration: Configuration) -> some View {
+        view
+            .contentShape(Rectangle().inset(by: -2))
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .motion(value: configuration.isPressed)
     }
 }
 
@@ -86,34 +87,68 @@ extension ButtonStyle where Self == GlassSquareButtonStyle {
     /// Time's share button (Figma, 13 Nov): the back button's Glass (light −45° at 80%,
     /// refraction 80, depth 20, dispersion 50, frost 4, splay 0) over white 65% (`glassPill`),
     /// with a drop shadow, y 5, blur 10, #1B1C1D at 5% (`glassShadow`), shown behind the glass.
-    /// On iOS 26 and later the white 65% is laid over Liquid Glass, as Figma lays its fill.
+    /// Drawn (`LiftedGlass`) on every iOS, never Liquid Glass.
     public static var liftedGlassSquare: GlassSquareButtonStyle {
         GlassSquareButtonStyle(lifted: true)
     }
 }
 
 /// Figma's Glass over white 65% with its drop shadow shown behind it (Time, 13 Nov: the share
-/// button and the selected pills): Glass light −45° at 80%, refraction 80, depth 20,
+/// button and the selected pills). Figma: Glass light −45° at 80%, refraction 80, depth 20,
 /// dispersion 50, frost 4, splay 0; fill white 65% (`glassPill`); drop shadow y 5, blur 10,
-/// #1B1C1D at 5% (`glassShadow`); no border. On iOS 26 and later it's Liquid Glass in the
-/// shape with the white 65% laid over it, as Figma lays its fill (the user, 13 Nov: the tab's
-/// colour is white 65%; the bare glass read grey on the track); before, the drawn glass over
-/// the white 65%.
+/// #1B1C1D at 5% (`glassShadow`); no border.
+///
+/// Drawn the same on every iOS (the user, 13 Nov: Liquid Glass didn't look like Figma's).
+/// Figma's Glass is replaced by what it draws on a light page, fitted to the Figma render of
+/// the Weekday pill (to half a grey level on average): the light from the top left leaves a
+/// faint shade inside the top and left edges (black 3%, x 2, y 2, blur 6) and catches the
+/// bottom and right ones (white 30%, x −2.5, y −3, blur 4), and a 0.75 white rim runs all
+/// round. Dark mode takes the light at a third (derived).
 struct LiftedGlass<S: InsettableShape>: View {
     let shape: S
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        if #available(iOS 26.0, macOS 26.0, *) {
-            shape
-                .fill(Palette.glassPill)
-                .glassEffect(.regular, in: shape)
-                .background { GlassDropShadow(shape: shape) }
-        } else {
-            ZStack {
-                GlassDropShadow(shape: shape)
-                DrawnGlass(shape: shape, fill: Palette.glassPill)
-            }
+        let light = colorScheme == .dark ? 1.0 / 3 : 1
+        ZStack {
+            GlassDropShadow(shape: shape)
+            shape.fill(Palette.glassPill)
+            InnerShadow(shape: shape, color: .black.opacity(0.03), blur: 6, x: 2, y: 2)
+            InnerShadow(shape: shape, color: Palette.glowRays.opacity(0.3 * light), blur: 4, x: -2.5, y: -3)
+            shape.strokeBorder(Palette.glowRays.opacity(light), lineWidth: 0.75)
         }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Figma's inner shadow, drawn on its own: `color` inside the shape wherever the shape, moved by
+/// (x, y) and blurred, doesn't reach. SwiftUI's own inner shadow (`.shadow(.inner)`) takes its
+/// shape from the fill's opacity, and on a 65% fill it would shade the whole inside, not the
+/// edges. `blur` is Figma's; SwiftUI's blur radius is half of it.
+private struct InnerShadow<S: Shape>: View {
+    let shape: S
+    let color: Color
+    let blur: CGFloat
+    let x: CGFloat
+    let y: CGFloat
+
+    var body: some View {
+        Rectangle()
+            .fill(color)
+            .mask {
+                Rectangle()
+                    .overlay {
+                        shape
+                            .offset(x: x, y: y)
+                            .fill(Color.black)
+                            .blur(radius: blur / 2)
+                            .blendMode(.destinationOut)
+                    }
+                    .compositingGroup()
+            }
+            .clipShape(shape)
     }
 }
 
