@@ -4,6 +4,12 @@ Questions for the user or the client (Zac), and any place a design and the brief
 
 **Reminder:** the user will go through this list once the designs are done. Some questions are not needed; drop them with the user then, not before.
 
+## Before hand-off
+
+The user asked to be reminded of these before the work is handed to the client. Raise them first.
+
+- **How the weekly wrap's 3D art follows the week (13 Nov).** On the wrap's first page, art pops out around "This week." (an alarm clock, a briefcase, a flame and a trophy in the design), and the user says it will change with each week's data. Once all the art is uploaded, ask the user which data brings which piece, and write that into `WrapOpener` (DwellCore, `WeeklyWrap.swift`, marked [MAPPING NEEDED]) so the client's engine only has to supply the week. Until then the opener shows the design's four every week.
+
 ## For the client
 
 1. **The tracking engine and app state are not in this repo.** The repo started empty. The brief says a TestFlight build and a working engine are "available on request". We need the engine's code or API to write the adapter behind `DwellRepository`. Until then screens run on the sample week.
@@ -56,6 +62,12 @@ Questions for the user or the client (Zac), and any place a design and the brief
 40. **Places over time's window.** The design says "12h 10m in September"; built as the last four weeks against the four before, rolling, so it reads the same on any day and with any range. Home, private and personal places are never highlighted.
 41. **Time's small text fixes.** "All Categories", "Work and Yours", "Calendar vs Reality", "Your Rhythm", "This Week" and "12 Days" are sentence case; "6/8 meeting" says "meetings"; record dates read "Oct 22" and "Sep 8 – 19" (the design's "22nd Sept"); "07:56 AM" reads "7:56 AM" and "Home by 7:55" gets its PM, as every other time does; record names stay in capitals as a label style, as with Your places' section labels.
 42. **A bug fixed in passing.** The morning the clocks spring forward, 4:00–5:00 AM was filed under the day before, and stepping day by day through March never got past it (Time's year hung). The day now goes by the clock on the wall; a test covers New York and Rome.
+
+45. **Weekly wrap: art needed.** The design's 3D alarm clock, briefcase, flame and trophy, and the rest of the set the wrap will turn through. Stand-ins until then (`Art.sticker`, [ICON NEEDED]): the headline's clock, the hero tile's briefcase, You's streak flame and You's badge medal, drawn at 56 pt from smaller files, so a little soft. Upload them at 224 px (4x of 56) as before. The build turns each as the screenshot shows (−20°, 15°, −8°, 15°); if they're exported already turned, say so and the angles go to 0.
+46. **Weekly wrap: values from the screenshot.** Not Figma's: the header (24 over 14, 3 apart, 12 below the status bar; the close button 40 on glass at white 20%, corners 13), the progress bar (4 tall, 4 apart, white and white 40%), the title (60 medium), the line (18 regular, white 80%, at most 280 wide, 5 below the title), "TAP TO CONTINUE" (14, 30 above the bottom edge), the colour (the invite's blue, centred 51.6% down, reaching the edge colour 80% of the way to the sides, the rays meeting 55% down) and the art's spots and sizes. Send the Figma values for any that look off on the phone.
+47. **Weekly wrap: what we added.** The design shows the pages at rest. Derived: a tap anywhere moves on and a tap on the leading third goes back (as in any story); the wrap grows out of the invite card and shrinks back into it (iOS 18 and later; a swipe down closes it too); pages cross-fade, since each has its own colour; the art floats gently once it has popped out; moving on from the last page closes the wrap. The invite now stays on Today until the wrap closes (so the wrap can shrink back into it), then leaves. Pages 2–7 say "Waiting for the design." in their place. Say if any of it should go.
+48. **Weekly wrap: the numbers.** The design's "Oct 26 - Nov 1" and "9 places" are its own; the build shows the sample's last week: Oct 19 – 25, 7 days, 13 places (as design vs brief 9). "Days" counts the days Dwell was recording, so a first week that began on a Thursday reads "4 days". Private and personal places count among the places: the wrap is the user's own screen and names none of them.
+49. **The invite and the opener say the same at Peace and Grind.** The invite borrowed Appendix B's wrap openers ("Your week, gently." / "The week. Receipts inside.") until the copy deck writes invites (design vs brief 18). The opener now uses them where Appendix B means them, so at Peace and Grind "Let's go" leads to the same line. Plain differs ("It's time for your weekly wrap-up.", then "This week."). The copy deck should write the invite's Peace and Grind [COPY NEEDED]; the opener's line under the title needs them too.
 
 ## Design vs brief
 
@@ -111,4 +123,9 @@ Found in the Time design (screenshots, 12 Nov). Built as designed unless noted; 
 42. **Subcategories.** Food & drink opens into Coffee, Drinks and Food. The brief's category set is fixed (§9) and has none. Built as an optional subcategory on a place (`PlaceSubcategory`), which still counts toward its category; the engine would need to tag places (for Zac).
 43. **Records named after badges.** The locked records are "Closer" and "Explorer", which the brief calls badges (§9), with the design's unlock lines. Built as designed.
 44. **Work and yours at Grind.** The brief has Grind call yours "off"; the tile says "Off" and the title "On and off" [COPY NEEDED].
+
+Found in the Weekly wrap design (flow and "This week.", screenshots, 13 Nov). Built as designed unless noted; open.
+
+50. **"Your Weekly Recap".** Sentence case: "Your weekly recap" (§8.6). The brief calls it the weekly wrap (§3.1, §10, A.7) and the invite says "weekly wrap-up"; the header says "recap". Built as the header says. One name for both? "TAP TO CONTINUE" keeps its capitals as a label style, written in sentence case so VoiceOver reads words (as 14 and 21).
+51. **The brief's wrap and the flow.** The brief's wrap has "total, day visuals, three superlatives, work and yours as two numbers, share" (§3.1 day 7, §10). The flow's pages cover work and yours, weekends, where the most time went, the earliest exit, an explorer week and a postcard to share. The week's total and the day visuals aren't in the flow overview, and the opener says "every hour in between" without a total. Worth a look when those pages are designed.
 

@@ -14,6 +14,8 @@ import UIKit
 /// it (QUESTIONS.md). "Yes, turn on" goes to Settings.
 struct TodayScreen: View {
     var openProfile: () -> Void = {}
+    /// Opens last week's wrap once Today has loaded, for reviewing it (`DWELL_OPEN=wrap`).
+    var opensWrap = false
 
     @Environment(\.repository) private var repository
     @Environment(\.fixedNow) private var fixedNow
@@ -21,6 +23,7 @@ struct TodayScreen: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.openURL) private var openURL
     @Environment(\.permissions) private var permissions
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var state: Loadable<TodayModel> = .loading
     @State private var pickedDay: DwellDay?
@@ -29,6 +32,11 @@ struct TodayScreen: View {
     @State private var confirmed: Set<VisitID> = []
     @State private var dismissed: Set<Insight.ID> = []
     @State private var openedWraps: Set<WeeklyWrap.ID> = []
+    /// The wrap on screen, and the one the invite leaves for once it closes.
+    @State private var openWrap: WeeklyWrap?
+    @State private var viewedWrap: WeeklyWrap.ID?
+    @State private var hasOpenedWrapAtLaunch = false
+    @Namespace private var wrapZoom
     @State private var openPlace: PlaceID?
     @State private var pending: PendingSheet?
     @State private var isAskingForLocation = false
@@ -46,6 +54,7 @@ struct TodayScreen: View {
                     isToday: day == today,
                     now: now,
                     actions: actions(day: day, isToday: day == today))
+                    .environment(\.wrapZoom, reduceMotion ? nil : wrapZoom)
                     .task(id: LoadKey(day: day, isToday: day == today, attempt: reloads)) {
                         await load(day, isToday: day == today)
                     }
@@ -62,6 +71,10 @@ struct TodayScreen: View {
             .sheet(item: $pending) { sheet in
                 PendingView(title: sheet.title, systemImage: sheet.systemImage)
                     .presentationDetents([.medium])
+            }
+            .fullScreenCover(item: $openWrap, onDismiss: wrapClosed) { wrap in
+                WeeklyWrapScreen(wrap: wrap, onClose: closeWrap)
+                    .wrapZoomTransition(id: wrap.id, in: reduceMotion ? nil : wrapZoom)
             }
             .promptSheet(isPresented: $isAskingForLocation) {
                 PromptSheet(
@@ -87,6 +100,35 @@ struct TodayScreen: View {
             }
         }
         .haptic(.confirm, trigger: confirmed.count)
+    }
+
+    // MARK: Weekly wrap
+
+    private func showWrap(_ wrap: WeeklyWrap) {
+        viewedWrap = wrap.id
+        Task { try? await repository.markWeeklyWrapOpened(wrap.id) }
+        withoutAnimationUnderReduceMotion { openWrap = wrap }
+    }
+
+    private func closeWrap() {
+        withoutAnimationUnderReduceMotion { openWrap = nil }
+    }
+
+    /// The invite stays behind the wrap, so the wrap can shrink back into it, and leaves
+    /// Today once the wrap has closed.
+    private func wrapClosed() {
+        guard let viewedWrap else { return }
+        withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
+            _ = openedWraps.insert(viewedWrap)
+        }
+    }
+
+    /// Under Reduce Motion the wrap appears and goes at once instead of sliding.
+    private func withoutAnimationUnderReduceMotion(_ change: () -> Void) {
+        guard reduceMotion else { return change() }
+        var still = Transaction()
+        still.disablesAnimations = true
+        withTransaction(still, change)
     }
 
     private func openSettings() {
@@ -134,6 +176,10 @@ struct TodayScreen: View {
             }
             state = .loaded(TodayModel(
                 snapshot: snapshot, liveStatus: liveStatus, insights: insights, weeklyWrap: weeklyWrap))
+            if opensWrap, !hasOpenedWrapAtLaunch, let weeklyWrap {
+                hasOpenedWrapAtLaunch = true
+                showWrap(weeklyWrap)
+            }
         } catch is CancellationError {
             return
         } catch let error as LoadError {
@@ -165,12 +211,7 @@ struct TodayScreen: View {
                 Task { try? await repository.confirmVisit(visit.id) }
             },
             pickAnother: { pending = .placePicker($0.id) },
-            openWeeklyWrap: { wrap in
-                // The wrap itself (S-06) waits for its design; the invite goes once opened.
-                openedWraps.insert(wrap.id)
-                pending = .weeklyWrap(wrap.id)
-                Task { try? await repository.markWeeklyWrapOpened(wrap.id) }
-            },
+            openWeeklyWrap: showWrap,
             openInsight: { pending = .insight($0.id) },
             share: { pending = .share($0.id) },
             notUseful: { insight in
@@ -193,14 +234,12 @@ private enum PendingSheet: Identifiable {
     case placePicker(VisitID)
     case insight(Insight.ID)
     case share(Insight.ID)
-    case weeklyWrap(WeeklyWrap.ID)
 
     var id: String {
         switch self {
         case .placePicker(let id): "picker-\(id)"
         case .insight(let id): "insight-\(id)"
         case .share(let id): "share-\(id)"
-        case .weeklyWrap(let day): "wrap-\(day.year)-\(day.month)-\(day.day)"
         }
     }
 
@@ -209,7 +248,6 @@ private enum PendingSheet: Identifiable {
         case .placePicker: "Place picker"
         case .insight: "Insight detail"
         case .share: "Share preview"
-        case .weeklyWrap: "Weekly wrap"
         }
     }
 
@@ -218,7 +256,6 @@ private enum PendingSheet: Identifiable {
         case .placePicker: "mappin.and.ellipse"
         case .insight: "sparkles"
         case .share: "square.and.arrow.up"
-        case .weeklyWrap: "sparkles"
         }
     }
 }

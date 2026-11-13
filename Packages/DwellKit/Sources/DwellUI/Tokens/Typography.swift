@@ -8,6 +8,10 @@ import SwiftUI
 /// tracking at -2% of the size. Sizes are the design's at the default text size and scale
 /// with Dynamic Type relative to the nearest system style.
 public enum TextRole: CaseIterable, Sendable {
+    /// The voiced title of a wrap page: "This week." 60.
+    case storyTitle
+    /// The voiced line under a wrap page's title. 18 regular.
+    case storyLine
     /// A big voiced line on a feature card: the weekly wrap invite. 32.
     case voiceDisplay
     /// A sheet's big title: "Turn on your location". 40.
@@ -53,6 +57,8 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var size: CGFloat {
         switch self {
+        case .storyTitle: 60
+        case .storyLine: 18
         case .display: 40
         case .voiceDisplay, .dataDisplay: 32
         case .profileName, .cardTitle: 28
@@ -74,7 +80,8 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
-        case .display, .voiceDisplay, .dataDisplay: .largeTitle
+        case .storyTitle, .display, .voiceDisplay, .dataDisplay: .largeTitle
+        case .storyLine: .body
         case .profileName, .cardTitle: .title
         case .rowTitle: .body
         case .voiceHero, .pageTitle: .title2
@@ -91,9 +98,9 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .display, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
+        case .storyTitle, .display, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
              .rowTitle, .body, .label, .action, .tab: .medium
-        case .data, .caption, .footnote: .regular
+        case .storyLine, .data, .caption, .footnote: .regular
         }
     }
 

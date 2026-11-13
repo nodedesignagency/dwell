@@ -26,11 +26,14 @@ DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPl
 DWELL_OPEN=you ./scripts/run.sh     # open You
 DWELL_OPEN=places ./scripts/run.sh  # open Your places (You → Your places)
 DWELL_OPEN=time ./scripts/run.sh    # open the Time tab
+DWELL_OPEN=wrap ./scripts/run.sh    # open last week's wrap over Today
 ```
 
 Time opens on the week being lived, which on the sample's Monday afternoon is one day so far; tap the dates (or Week → the pill) and pick Oct 19 – 25 for a full week like the design. Behind the sample week are seven generated weeks back to the install day (31 August), so weeks, months and the year have something to compare.
 
 `DWELL_OPEN` and `DWELL_STATE` combine: `DWELL_OPEN=places DWELL_STATE=firstDay` is Your places with nothing mapped yet, `firstPlace` with one place, `loading`, `failed` and `offline` its other states. The same goes for You: `DWELL_OPEN=you DWELL_STATE=firstDay` has no streaks and every badge locked, `firstPlace` one place and one cell.
+
+`DWELL_STATE=weeklyWrap` shows Today's invite; "Let's go" opens the wrap from it, growing out of the card (iOS 18 and later). `DWELL_OPEN=wrap` opens it at launch instead.
 
 `firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the install day a few minutes after the first place was mapped (at home for 28m, nothing else yet). `weeklyWrap` is the usual Monday with last week's wrap ready and not opened yet. Every state runs on the same clock.
 

@@ -38,21 +38,23 @@ struct RootView: View {
     @State private var tab: Tab
     @State private var tabBarHeight: CGFloat = 0
     private let youPath: [YouPage]
+    private let opensWrap: Bool
 
     /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
     init(open: LaunchPage? = nil) {
         let tab: Tab = switch open {
-        case nil: .today
+        case nil, .wrap: .today
         case .you, .places: .you
         case .time: .time
         }
         _tab = State(initialValue: tab)
         youPath = open == .places ? [.places] : []
+        opensWrap = open == .wrap
     }
 
     var body: some View {
         TabView(selection: $tab) {
-            TodayScreen(openProfile: { tab = .you })
+            TodayScreen(openProfile: { tab = .you }, opensWrap: opensWrap)
                 .tag(Tab.today)
                 .toolbar(.hidden, for: .tabBar)
             MapScreen()
@@ -88,6 +90,8 @@ enum LaunchPage: String {
     case places
     /// The Time tab.
     case time
+    /// Last week's wrap, over Today.
+    case wrap
 }
 
 /// Holds a tab's place until its design arrives.

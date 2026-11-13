@@ -1,0 +1,298 @@
+import DwellCore
+import SwiftUI
+
+// The weekly wrap's pieces (S-06, Weekly wrap design): a page's colour, its header with the
+// progress bar and close button, and the 3D art that pops out around its words. Built for the
+// wrap, shaped so Year in places (S-07) can reuse them. Measured from the "This week."
+// screenshot at 393 × 852.
+
+// MARK: - Backdrop
+
+/// A wrap page's colour (Weekly wrap design, "This week."): the invite card's fill and glow
+/// drawn over the whole screen, from under the status bar to the bottom edge.
+///
+/// A radial fill from `centre` to `edge`, centred 51.6% down, reaching the edge colour 80% of
+/// the way to the screen's sides (the radius is the screen's own shape, so it reaches further
+/// down than across). Over it the invite's glow (`WrapGlow`): the white ramp, 24% at the left
+/// to 12% at the right, and the sixteen white rays, meeting 55% down, in the middle of the
+/// page's words, turning a full circle every 24 s. Fitted to the screenshot; send Figma's values
+/// if it looks off. The same in dark mode.
+public struct WrapBackdrop: View {
+    private let centre: Color
+    private let edge: Color
+
+    /// The opener's blue by default; each page brings its own colours with its design.
+    public init(centre: Color = Palette.wrapCentre, edge: Color = Palette.wrapEdge) {
+        self.centre = centre
+        self.edge = edge
+    }
+
+    public var body: some View {
+        EllipticalGradient(
+            colors: [centre, edge],
+            center: UnitPoint(x: 0.5, y: 0.516),
+            startRadiusFraction: 0,
+            // A fraction of the screen's size: 0.5 would reach its sides.
+            endRadiusFraction: 0.4)
+            .overlay {
+                WrapGlow(center: UnitPoint(x: 0.5, y: 0.55))
+            }
+            .ignoresSafeArea()
+            .environment(\.colorScheme, .light)
+    }
+}
+
+// MARK: - Header
+
+/// The top of every wrap page (Weekly wrap design): "Your weekly recap" (24 medium) over the
+/// week (14), the close button on glass level with them, and 13 below, the progress bar.
+/// 16 from the sides, 12 below the status bar. White on the colourful pages; `ink` for a page
+/// drawn on a light map.
+public struct StoryHeader: View {
+    private let title: String
+    private let subtitle: String
+    private let pageCount: Int
+    private let current: Int
+    private let ink: Color
+    private let closeLabel: String
+    private let onClose: () -> Void
+    private let onStep: (AccessibilityAdjustmentDirection) -> Void
+
+    /// - Parameters:
+    ///   - subtitle: the week, a plain label: "Oct 19 – 25".
+    ///   - current: the page showing, from 0.
+    ///   - onStep: VoiceOver's swipe up or down on the progress bar: the next or previous page.
+    public init(
+        title: String,
+        subtitle: String,
+        pageCount: Int,
+        current: Int,
+        ink: Color = .white,
+        closeLabel: String,
+        onClose: @escaping () -> Void,
+        onStep: @escaping (AccessibilityAdjustmentDirection) -> Void
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.pageCount = pageCount
+        self.current = current
+        self.ink = ink
+        self.closeLabel = closeLabel
+        self.onClose = onClose
+        self.onStep = onStep
+    }
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack(alignment: .center, spacing: Space.m) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(verbatim: title)
+                        .textRole(.pageTitle)
+                    Text(verbatim: subtitle)
+                        .textRole(.caption)
+                }
+                .foregroundStyle(ink)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isHeader)
+
+                Button(action: onClose) {
+                    StoryCross(ink: ink)
+                }
+                .buttonStyle(.clearGlassSquare)
+                .accessibilityLabel(closeLabel)
+            }
+
+            StoryProgress(count: pageCount, current: current, ink: ink)
+                .accessibilityAdjustableAction(onStep)
+        }
+        .padding(.horizontal, Space.l)
+        .padding(.top, 12)
+    }
+}
+
+/// The progress bar along a wrap's top: a capsule per page, 4 tall and 4 apart, filling the
+/// width. Pages seen and the one showing are `ink`; pages to come, `ink` at 40%. Moving on,
+/// the next capsule fills from its leading end (`Motion.standard`); under Reduce Motion it
+/// fades in. VoiceOver reads it as "Page, 1 of 7"; give it an adjustable action to move
+/// between pages from it.
+public struct StoryProgress: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let count: Int
+    private let current: Int
+    private let ink: Color
+
+    public init(count: Int, current: Int, ink: Color = .white) {
+        self.count = count
+        self.current = current
+        self.ink = ink
+    }
+
+    public var body: some View {
+        HStack(spacing: Space.xs) {
+            ForEach(0..<count, id: \.self) { index in
+                let isLit = index <= current
+                Capsule()
+                    .fill(ink.opacity(0.4))
+                    .overlay {
+                        Rectangle()
+                            .fill(ink)
+                            .scaleEffect(x: isLit || reduceMotion ? 1 : 0, anchor: .leading)
+                            .opacity(isLit || !reduceMotion ? 1 : 0)
+                    }
+                    .clipShape(.capsule)
+            }
+        }
+        .frame(height: 4)
+        .motion(value: current)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(WrapCopy.progress)
+        .accessibilityValue(WrapCopy.progressValue(page: current + 1, of: count))
+    }
+}
+
+/// The close button's cross (Weekly wrap design): 14 across in a 20 box, a 1.5 stroke with
+/// round ends, like the location sheet's, in the page's ink.
+private struct StoryCross: View {
+    let ink: Color
+
+    var body: some View {
+        CrossShape()
+            .stroke(ink, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+            .frame(width: 14, height: 14)
+            .frame(width: 20, height: 20)
+    }
+}
+
+nonisolated private struct CrossShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        return path
+    }
+}
+
+/// A square button on glass over a colourful page (the wrap's close button): the drawn glass
+/// of the other close buttons, but white 20%, so the page's colour shows through, and no
+/// shadow (none shows on the colour). 40 with 10 of padding, corners 13, as the back button;
+/// tappable over 44; sinks to 92% pressed. Read from the screenshot.
+public struct ClearGlassSquareButtonStyle: ButtonStyle {
+    public init() {}
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(10)
+            .background {
+                DrawnGlass(shape: RoundedRectangle(cornerRadius: Radius.m), fill: .white.opacity(0.2))
+            }
+            .contentShape(Rectangle().inset(by: -2))
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .motion(value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == ClearGlassSquareButtonStyle {
+    public static var clearGlassSquare: ClearGlassSquareButtonStyle { ClearGlassSquareButtonStyle() }
+}
+
+// MARK: - Popping art
+
+/// 3D art popping out from behind a wrap page's words to its spot around them, then floating
+/// there (Weekly wrap design, "This week.": the alarm clock, briefcase, flame and trophy; the
+/// motion is the designer's description, 13 Nov).
+///
+/// Each piece starts small and hidden at the middle of the words, then springs out to its
+/// spot, growing and turning to its angle (`Motion.pop`), 0.08 s after the one before; the
+/// first goes 0.3 s after the page appears, once it has settled. Then each drifts up and down
+/// by 4 and turns by 2° on its own slow loop (`Motion.float`), so they never move together.
+/// Under Reduce Motion each fades in at its spot and stays still. Decorative: hidden from
+/// VoiceOver, never in the way of a tap. Fills the space it's given; lay it over the whole
+/// screen so the spots land where the design draws them.
+public struct StickerBurst: View {
+    /// One piece of art and where it comes to rest.
+    public struct Item: Identifiable {
+        public let id: String
+        public let image: Image
+        /// Across the screen, as a share of its width.
+        public let x: CGFloat
+        /// Down from the middle of the words, in points.
+        public let y: CGFloat
+        /// The square the art is drawn in.
+        public let size: CGFloat
+        /// How far it's turned once it rests.
+        public let angle: Angle
+
+        public init(id: String, image: Image, x: CGFloat, y: CGFloat, size: CGFloat, angle: Angle) {
+            self.id = id
+            self.image = image
+            self.x = x
+            self.y = y
+            self.size = size
+            self.angle = angle
+        }
+    }
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isOut = false
+    private let items: [Item]
+    private let originOffset: CGFloat
+
+    /// - Parameter originOffset: how far the middle of the words sits from the middle of the
+    ///   space, in points (negative is up).
+    public init(items: [Item], originOffset: CGFloat = 0) {
+        self.items = items
+        self.originOffset = originOffset
+    }
+
+    public var body: some View {
+        GeometryReader { proxy in
+            let origin = CGPoint(x: proxy.size.width / 2, y: proxy.size.height / 2 + originOffset)
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                let spot = CGPoint(x: proxy.size.width * item.x, y: origin.y + item.y)
+                let shown = isOut || reduceMotion
+                Floating(index: index, isOn: !reduceMotion) {
+                    item.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: item.size, height: item.size)
+                }
+                .rotationEffect(shown ? item.angle : .zero)
+                .scaleEffect(shown ? 1 : 0.2)
+                .opacity(isOut ? 1 : 0)
+                .position(shown ? spot : origin)
+                .animation(
+                    (reduceMotion ? Motion.reduced : Motion.pop).delay(0.3 + Double(index) * 0.08),
+                    value: isOut)
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .onAppear { isOut = true }
+        .onDisappear { isOut = false }
+    }
+}
+
+/// Drifts its content up and down by 4 and turns it by 2°, each piece on a loop of its own
+/// length so they never move together. Still when off.
+private struct Floating<Content: View>: View {
+    let index: Int
+    let isOn: Bool
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        if isOn {
+            content.phaseAnimator([false, true]) { view, isUp in
+                view
+                    .offset(y: isUp ? -4 : 4)
+                    .rotationEffect(.degrees(isUp ? 2 : -2))
+            } animation: { _ in
+                Motion.float.speed(2.8 / (2.8 + Double(index % 4) * 0.35))
+            }
+        } else {
+            content
+        }
+    }
+}

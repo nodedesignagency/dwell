@@ -7,7 +7,7 @@ Everything the brief asks the app to show, so nothing is missed. Each design the
 
 Built 🟡 on a page we finished means the code is complete for every state but hasn't yet compiled in Xcode: cloud sessions can't build SwiftUI. It turns ✅ once the page builds and its previews are checked on a Mac.
 
-Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov); **You** (screenshot, 12 Nov); **Time** (three screenshots, 12 Nov: the whole page, the part above the fold, and "All categories" at 4×).
+Designs so far: **Today** (Figma `WpF9jJZdOG3ox1bR7iMT6o`, node 69:81); Today **"Getting Started"** (Figma, 12 Nov); Today **"After few minutes of getting started"** (screenshot, 12 Nov); Today **"Weekly Wrap"** (screenshot and Figma values, 12 Nov); **Your places** (screenshot, 12 Nov); **You** (screenshot, 12 Nov); **Time** (three screenshots, 12 Nov: the whole page, the part above the fold, and "All categories" at 4×); the **Weekly wrap** flow (screenshot of all eight frames, 13 Nov: the invite, then seven pages) and its first page, **"Weekly Wrap 1"** ("This week.", screenshot, 13 Nov).
 
 Counts: 13 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 10 sheets, 8 system surfaces, 13 motion moments. Compare (social) is listed last and is not v1.
 
@@ -53,7 +53,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | W-2 | 2 | First whole-day visual, "Is this work?", "Your first full day: 9h 12m at work, 2h 40m yours.", Always upgrade moment | ⬜ | ⬜ |
 | W-3 | 3 | Time: three bars, "still learning your week"; streaks "1 of 3"; set-your-dial if not done; notifications ask | 🔁 Time: "Still learning your week · 4 days to go" over the hour grid's first days. ⬜ streaks, dial, notifications | 🟡 Time |
 | W-5 | 5 | Rhythm locked ("needs two weeks"); first records ("Earliest arrival so far · 8:12 AM"); first calendar matches; coverage number ("1.4% of Brooklyn") | 🔁 Time: rhythm locked with days to go, the records wall, calendar vs reality's first ring. ⬜ Map's coverage | 🟡 Time |
-| W-7 | 7 | First weekly wrap Sunday evening; explorer week streak qualifies | 🎨 Today: the weekly wrap invite (T-16). ⬜ the wrap itself (S-06), the explorer streak | 🟡 Today (`DWELL_STATE=weeklyWrap`) |
+| W-7 | 7 | First weekly wrap Sunday evening; explorer week streak qualifies | 🎨 Today: the weekly wrap invite (T-16); the wrap's opener, "This week." (S-06). 🔁 a first week counts only the days Dwell was recording ("4 days, 5 places…"). ⬜ the wrap's other six pages, the explorer streak | 🟡 Today (`DWELL_STATE=weeklyWrap`), the wrap (`DWELL_OPEN=wrap`) |
 | W-14 | 14 | Rhythm unlocks; calendar vs reality patterns; places over time deltas | 🎨 Time: rhythm, "Worth noticing", places over time | 🟡 Time |
 
 ## Today (A.2, §7.1)
@@ -75,7 +75,7 @@ Real screens, not empty states with a spinner. Each day Today must show somethin
 | T-13 | Quiet day | A day with little movement still teaches something | 🔁 Today (same layout; headline drops absent runs) | 🟡 |
 | T-14 | Loading | Skeleton within 600 ms of cold launch | 🔁 Today | 🟡 |
 | T-15 | Day picker | The day pill opens a calendar; a past day shows its headline, day bar, hero stats and timeline, without live status, insights or confirmation. Not in the brief (QUESTIONS.md). | 🎨 Today: the pill. 🔁 system calendar sheet | 🟡 |
-| T-16 | Weekly wrap invite | Once last week's wrap is ready (Sunday 6 PM on) and until it's opened: a blue card leading the sheet with the week, a voiced invite and "Let's go" → the wrap (S-06). Today only. Not in the brief's Today list; the brief's way in is the Sunday push (§10). | 🎨 Today: "Weekly Wrap" (12 Nov). 🔁 Peace and Grind (Appendix B's wrap openers), the week as its label, dark, AX sizes, leaves once opened | 🟡 (`DWELL_STATE=weeklyWrap`) |
+| T-16 | Weekly wrap invite | Once last week's wrap is ready (Sunday 6 PM on) and until it's opened: a blue card leading the sheet with the week, a voiced invite and "Let's go" → the wrap (S-06). Today only. Not in the brief's Today list; the brief's way in is the Sunday push (§10). | 🎨 Today: "Weekly Wrap" (12 Nov); the first frame of the Weekly wrap flow (13 Nov). 🔁 Peace and Grind (Appendix B's wrap openers), the week as its label, dark, AX sizes; "Let's go" grows the wrap out of the card (iOS 18 and later), and the card leaves Today once the wrap closes | 🟡 (`DWELL_STATE=weeklyWrap`) |
 
 ## Map (A.3, §7.2)
 
@@ -140,7 +140,7 @@ Built from the Time screenshots (12 Nov): `Dwell/Features/Time/`, data in `Dwell
 | S-03 | Insight detail + share preview | The insight, its data, the share card preview | ⬜ (Today's insight tap and share open a placeholder) | ⬜ |
 | S-04 | Record card | The record landing, share | ⬜ | ⬜ |
 | S-05 | Badge detail | Unlock moment, tier progress, share | ⬜ (You's badge tiles open a placeholder) | ⬜ |
-| S-06 | Weekly wrap | Multi-step reveal: total, day visuals, three superlatives, work and yours as two numbers, share | ⬜ (Today's invite opens a placeholder) | ⬜ |
+| S-06 | Weekly wrap | Multi-step reveal: total, day visuals, three superlatives, work and yours as two numbers, share | 🎨 Weekly wrap flow (13 Nov): a full-screen story of seven pages, each its own colour, under one header ("Your weekly recap", the week, close on glass, a progress bar). 🎨 Page 1, "This week." ("Weekly Wrap 1", 13 Nov): Appendix B's opener, "7 days, 9 places and every hour in between. Here's how it went.", four pieces of 3D art popping out around it (the designer's direction; which art follows which data comes before hand-off), "Tap to continue". 🔁 tap anywhere to move on, the leading third to go back; the progress bar fills; pages cross-fade; it grows out of the invite card and shrinks back into it (iOS 18 and later; swipe down closes); Peace and Grind [COPY NEEDED]; loading, failed with retry, a first week, a week with no visits; dark (the same colours); AX sizes (the art steps aside, the title stops growing at the largest standard size); VoiceOver (the progress bar adjusts the page, escape closes). ⬜ pages 2–7 (Work and yours, Weekends, Where you spent the most time, Earliest exit, Explorer week, Postcard from your week) hold "Waiting for the design." in the flow | 🟡 page 1 (`DWELL_OPEN=wrap`) |
 | S-07 | Year in places | Places, hours, records, coverage, firsts; share | ⬜ | ⬜ |
 | S-08 | Calendar event detail | The event, its match state, where you were | ⬜ | ⬜ |
 | S-09 | Streak detail | History, freezes used and banked | ⬜ (You's "View all" opens a placeholder) | ⬜ |
@@ -174,7 +174,7 @@ Each needs timing, easing, a Reduce Motion alternative, and its haptic where one
 | MO-07 | Badge unlock | firm | ⬜ | ⬜ |
 | MO-08 | Streak extends | firm | ⬜ | ⬜ |
 | MO-09 | Record landing | firm | ⬜ | ⬜ |
-| MO-10 | Weekly wrap reveal | none | ⬜ | ⬜ |
+| MO-10 | Weekly wrap reveal | none | 🎨 the opener's art pops out around its words (the designer's direction, 13 Nov). 🔁 the wrap grows out of the invite (iOS 18 and later), the art floats once out, the progress bar fills, pages cross-fade. Reduce Motion: the wrap appears at once, the art fades in still, the bar fades | 🟡 |
 | MO-11 | Dial drag (re-rendering the sentence) | light at each stop | 🔁 You: the thumb follows the finger, the art's pills grow and darken towards the stop, the name and line cross-fade; a tap settles with `Motion.standard`. Reduce Motion: no spring, words cross-fade. ⬜ the sentence itself (design vs brief 26) | 🟡 |
 | MO-12 | Sky phase change (sunrise, day, sunset, night) | none | 🎨 user's sky images and direction | 🟡 |
 | MO-13 | Sky settles on every open | none | 🎨 user's direction | 🟡 |

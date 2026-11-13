@@ -89,13 +89,23 @@ public struct WeeklyWrapCard: View {
 ///   matches it). Through the card only its middle shows, a soft ramp from 24% white at the
 ///   left to 12% at the right, so it's drawn as that ramp, computed from those values: a
 ///   blur 362 pt wide would cost far more for the same pixels.
+///
+/// `center` is where the rays meet: the card's middle, or on a wrap page the middle of its
+/// words (`WrapBackdrop`).
 struct WrapGlow: View {
     static let size: CGFloat = 2036.66
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var center: UnitPoint = .center
 
     var body: some View {
         GeometryReader { proxy in
-            let reach = hypot(proxy.size.width, proxy.size.height) / 2 + 2
+            let middle = CGPoint(x: proxy.size.width * center.x, y: proxy.size.height * center.y)
+            // Far enough to reach the farthest corner.
+            let reach = max(
+                hypot(middle.x, middle.y),
+                hypot(proxy.size.width - middle.x, middle.y),
+                hypot(middle.x, proxy.size.height - middle.y),
+                hypot(proxy.size.width - middle.x, proxy.size.height - middle.y)) + 2
             ZStack {
                 LinearGradient(
                     stops: [
@@ -108,7 +118,7 @@ struct WrapGlow: View {
                     startPoint: .leading, endPoint: .trailing)
                 rays(reach: reach)
                     .frame(width: reach * 2, height: reach * 2)
-                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                    .position(middle)
             }
         }
         .allowsHitTesting(false)

@@ -1,0 +1,149 @@
+import DwellCore
+import DwellUI
+import SwiftUI
+
+/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov). Only the
+/// opener is designed so far; the rest hold their place until their designs arrive.
+enum WrapPage: Int, CaseIterable, Identifiable {
+    case opener
+    case workAndYours
+    case weekends
+    case mostTime
+    case earliestExit
+    case explorer
+    case postcard
+
+    var id: Int { rawValue }
+
+    var next: WrapPage? { WrapPage(rawValue: rawValue + 1) }
+    var previous: WrapPage? { WrapPage(rawValue: rawValue - 1) }
+
+    /// What the flow shows on each page still to be designed: a name for the placeholder.
+    var pendingTitle: String {
+        switch self {
+        case .opener: "This week"
+        case .workAndYours: "Work and yours"
+        case .weekends: "Weekends"
+        case .mostTime: "Where you spent the most time"
+        case .earliestExit: "Earliest exit"
+        case .explorer: "Explorer week"
+        case .postcard: "Postcard from your week"
+        }
+    }
+}
+
+struct WeeklyWrapActions {
+    var next: () -> Void = {}
+    var previous: () -> Void = {}
+    var close: () -> Void = {}
+    var retry: () -> Void = {}
+}
+
+/// The weekly wrap as the designer draws it: a full-screen story, a page at a time. Each page
+/// has its colour behind it and the same header on top ("Your weekly recap", the week, the
+/// close button, the progress bar). A tap moves on; a tap on the leading third goes back, as
+/// in any story. VoiceOver moves with the progress bar (swipe up or down) or each page's own
+/// actions, and the escape gesture closes.
+struct WeeklyWrapContent: View {
+    let wrap: WeeklyWrap
+    let state: Loadable<WrapOpener>
+    let page: WrapPage
+    var actions = WeeklyWrapActions()
+
+    @Environment(\.calendar) private var calendar
+    @Environment(\.layoutDirection) private var layoutDirection
+    /// Where the header ends, down from the top of the screen. Pages keep their words below it.
+    @State private var headerBottom: CGFloat = 136
+    @State private var width: CGFloat = 393
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            WrapBackdrop()
+
+            pageView
+                .id(page)
+                .transition(.opacity)
+
+            StoryHeader(
+                title: WrapCopy.header,
+                subtitle: ClockText.dayRange(wrap.firstDay, wrap.lastDay, calendar: calendar),
+                pageCount: WrapPage.allCases.count,
+                current: page.rawValue,
+                closeLabel: WrapCopy.close,
+                onClose: actions.close,
+                onStep: { direction in
+                    switch direction {
+                    case .increment: actions.next()
+                    case .decrement: actions.previous()
+                    @unknown default: break
+                    }
+                })
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.frame(in: .global).maxY
+                } action: { bottom in
+                    headerBottom = bottom
+                }
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+        .contentShape(.rect)
+        .onTapGesture { location in
+            let fromLeading = layoutDirection == .rightToLeft ? width - location.x : location.x
+            if fromLeading < width / 3 {
+                actions.previous()
+            } else {
+                actions.next()
+            }
+        }
+        .accessibilityAction(.escape, actions.close)
+        // A wrap page is the same in dark mode: its colours are the design's.
+        .environment(\.colorScheme, .light)
+    }
+
+    /// Keeps a page's words below the header, and as far from the bottom edge, so they stay
+    /// centred on the screen and clear of it at every text size.
+    private var reserve: CGFloat {
+        headerBottom + Space.l
+    }
+
+    @ViewBuilder
+    private var pageView: some View {
+        switch page {
+        case .opener:
+            WrapOpenerPage(
+                state: state,
+                reserve: reserve,
+                onNext: actions.next,
+                onRetry: actions.retry)
+        default:
+            WrapPendingPage(page: page, reserve: reserve, onNext: actions.next, onPrevious: actions.previous)
+        }
+    }
+}
+
+/// A page whose design hasn't arrived: its name from the flow and "Waiting for the design.",
+/// on the opener's colour.
+private struct WrapPendingPage: View {
+    let page: WrapPage
+    let reserve: CGFloat
+    var onNext: () -> Void
+    var onPrevious: () -> Void
+
+    var body: some View {
+        VStack(spacing: Space.s) {
+            Text(verbatim: page.pendingTitle)
+                .textRole(.voiceDisplay)
+                .foregroundStyle(.white)
+            Text(verbatim: "Waiting for the design.")
+                .textRole(.storyLine)
+                .foregroundStyle(.white.opacity(0.8))
+        }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, Space.screen)
+        .accessibilityElement(children: .combine)
+        .accessibilityAction(named: WrapCopy.nextPage, onNext)
+        .accessibilityAction(named: WrapCopy.previousPage, onPrevious)
+        .padding(.vertical, reserve)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+}

@@ -143,3 +143,19 @@ extension PlaceCategory {
         }
     }
 }
+
+extension Art {
+    /// The 3D art that pops out around a wrap page's title (Weekly wrap design: an alarm clock,
+    /// a briefcase, a flame and a trophy). Stand-ins until the designer's four arrive
+    /// [ICON NEEDED]: the headline's clock for the alarm clock, the hero tile's briefcase,
+    /// You's streak flame, and You's badge medal for the trophy. Upload them at 4x of 56 pt
+    /// (224 px) into `sticker/` and point each case here.
+    public static func sticker(_ sticker: WrapSticker) -> Image {
+        switch sticker {
+        case .alarmClock: Illustration.clock
+        case .briefcase: heroWork
+        case .flame: streaks
+        case .trophy: badges
+        }
+    }
+}

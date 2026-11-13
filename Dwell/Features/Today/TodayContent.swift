@@ -19,6 +19,7 @@ struct TodayContent: View {
     @Environment(\.permissions) private var permissions
     @Environment(\.skyPhase) private var skyOverride
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.wrapZoom) private var wrapZoom
 
     var body: some View {
         GeometryReader { proxy in
@@ -111,6 +112,8 @@ struct TodayContent: View {
                 title: TodayCopy.wrapInviteTitle,
                 action: TodayCopy.wrapInviteAction,
                 onOpen: { actions.openWeeklyWrap(wrap) })
+                // The wrap grows out of the card (iOS 18 and later).
+                .wrapZoomSource(id: wrap.id, in: wrapZoom)
                 .padding(.bottom, Space.screen + 1)
         }
         LiveCard(

@@ -23,6 +23,10 @@ public enum Motion {
     public static let flip = Animation.timingCurve(0.6, 0, 0.4, 1, duration: 0.5)
     /// The rays behind a hero tile's icon turning a full circle, on a loop.
     public static let spin = Animation.linear(duration: 24)
+    /// 3D art popping out from behind a wrap page's title to its place: quick, with a bounce.
+    public static let pop = Animation.spring(duration: 0.6, bounce: 0.4)
+    /// Art drifting where it rests, up and back, on a loop: slow enough to read as floating.
+    public static let float = Animation.easeInOut(duration: 2.8)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
     public static let reduced = Animation.easeInOut(duration: 0.2)
     /// The sky turning from one phase to the next: slow enough to watch the sun travel.

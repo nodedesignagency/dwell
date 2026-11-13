@@ -7,7 +7,8 @@
 #   DWELL_STATE=empty ./scripts/run.sh  # show a state: loading, empty, firstDay, firstPlace, weeklyWrap,
 #                                       # failed, offline, transit, lastSeen, locationDenied, whenInUse,
 #                                       # preciseOff, motionDenied
-#   DWELL_OPEN=you ./scripts/run.sh     # open a page: you (the You tab), places (Your places, from You), time (the Time tab)
+#   DWELL_OPEN=you ./scripts/run.sh     # open a page: you (the You tab), places (Your places, from You), time (the Time tab),
+#                                       # wrap (last week's wrap, over Today)
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail
