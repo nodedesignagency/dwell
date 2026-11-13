@@ -9,8 +9,9 @@ import SwiftUI
 /// button (40 on glass) 17 below the status bar and 16 from the edge, "Insights" (24) centred
 /// level with it; 16 below, a dashed line 20 from the edges; 16 to the sentence (24, words at
 /// 70%, the data in ink with its 3D art, as on Time); 14 to the chart card (16 in: the window
-/// and 4W / 3M, 12 to a dashed line, 12 to the bars, 12 below); 14 to three tiles 6 apart.
-/// Share and Not useful sit 20 above the screen's bottom edge, 12 apart, 20 from the sides,
+/// and 4W / 3M, 12 to a dashed line, 12 to the bars, 12 below); 14 to the tiles, one to a
+/// row, 7 apart, at Today's hero-tile size (the user's call, 13 Nov: the design's three side
+/// by side cut their numbers short). Share and Not useful sit 20 above the screen's bottom edge, 12 apart, 20 from the sides,
 /// where the tab bar would be: an inside page has none. Content is 20 from the edges.
 struct InsightContent: View {
     let insight: Insight
@@ -29,8 +30,8 @@ struct InsightContent: View {
 
     /// Figma: the buttons stand 20 above the screen's bottom edge (measured).
     private static let buttonsAboveEdge: CGFloat = 20
-    /// The tiles sit 6 apart (measured).
-    private static let tileSpacing: CGFloat = 6
+    /// The tiles sit 7 apart, as Today's hero tiles do.
+    private static let tileSpacing: CGFloat = 7
 
     /// - Parameters:
     ///   - span: the chart's range to start on (4W, as drawn); previews pick 3M.
@@ -237,16 +238,11 @@ struct InsightContent: View {
 
     // MARK: The numbers
 
-    @ViewBuilder
+    /// One tile to a row, full width, Today's hero tile as it is: the number over its label,
+    /// the art (33) over its glow on the right.
     private func tiles(_ stats: [InsightStat]) -> some View {
-        if isLarge {
-            VStack(spacing: Self.tileSpacing) {
-                ForEach(stats) { tile($0) }
-            }
-        } else {
-            HStack(spacing: Self.tileSpacing) {
-                ForEach(stats) { tile($0) }
-            }
+        VStack(spacing: Self.tileSpacing) {
+            ForEach(stats) { tile($0) }
         }
     }
 
@@ -255,15 +251,15 @@ struct InsightContent: View {
             value: Self.text(stat.value),
             label: stat.label,
             spokenValue: Self.spoken(stat.value),
-            tint: stat.tint.color,
-            size: .compact
+            tint: stat.tint.color
         ) {
             Art.insightStat(stat.icon)
                 .resizable()
                 .scaledToFit()
         }
-        // On the page, not in a card: lifted like one (measured: a soft shadow under each).
-        .card(radius: Radius.m)
+        // On the page, not in a card as on Today: lifted like one (the design's tiles cast a
+        // soft shadow).
+        .card(radius: Radius.l)
     }
 
     private static func text(_ value: InsightStat.Value) -> String {
@@ -344,7 +340,8 @@ struct InsightContent: View {
 
 // MARK: - Skeleton
 
-/// The page's shape while it loads: the sentence's two lines, the chart card and the tiles.
+/// The page's shape while it loads: the sentence's two lines, the chart card and the tiles,
+/// one to a row.
 /// Static, so there's nothing to reduce under Reduce Motion.
 struct InsightSkeleton: View {
     var body: some View {
@@ -360,12 +357,12 @@ struct InsightSkeleton: View {
             .padding(Space.l)
             .frame(maxWidth: .infinity, minHeight: 224, alignment: .topLeading)
             .card()
-            HStack(spacing: 6) {
+            VStack(spacing: 7) {
                 ForEach(0 ..< 3, id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: Radius.m)
+                    RoundedRectangle(cornerRadius: Radius.l)
                         .fill(Palette.surface)
-                        .frame(height: 54)
-                        .card(radius: Radius.m)
+                        .frame(height: 66)
+                        .card(radius: Radius.l)
                 }
             }
         }
