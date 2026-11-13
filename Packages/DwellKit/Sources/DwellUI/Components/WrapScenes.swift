@@ -228,24 +228,26 @@ public struct WaterSplit<Overlay: View, Floating: View>: View {
 
 // MARK: - Bubble title
 
-/// A title set as a puffy sticker (Weekly wrap design, "Work vs yours", the designer's art
-/// rebuilt in type): white letters shaded like soft plastic, lighter at the top and greying
-/// towards the bottom, each tipped a few degrees for a hand-placed look; a navy outline round
-/// them that fills the gaps between letters (`bubbleOutline`, about 3.5 wide) and a white rim
-/// round that (about 3 more). Two lines: everything but the last word, then the last word,
-/// centred.
+/// A title set in puffy type (Weekly wrap design, "Work vs yours", the designer's art rebuilt
+/// as text, never an image): white letters shaded like soft plastic, lighter at the top and
+/// greying towards the bottom, each tipped a few degrees for a hand-placed look; a navy outline
+/// round them that runs into the gaps between letters (`bubbleOutline`, about 3.5 wide) and a
+/// white rim round that (about 3 more). Two lines: everything but the last word, then the last
+/// word, centred. It's live text in the dial's voice: "Work vs off" at Grind.
 ///
 /// The type is SF Pro Rounded Black at 39 with tight tracking, the nearest system face to the
-/// art's lettering; a display face could get closer (QUESTIONS.md). The outlines are the
-/// letters blurred and cut off at a low opacity, so they swell evenly with round corners.
-/// Measured from the art at 162 × 94 on the page; a fixed size, as art is.
+/// art's lettering; a display face could get closer (QUESTIONS.md). Each letter's outline and
+/// rim are the letter blurred and cut off at a low opacity, so they swell evenly with round
+/// corners; drawn in three layers (every rim, then every outline, then every letter) so
+/// neighbours' outlines run together as one. Measured from the art at 162 × 94 on the page.
 ///
-/// It pops in once the page is up: from 30% and turned −10°, springing to full size
-/// (`Motion.pop`) after `delay`. Under Reduce Motion it fades in. VoiceOver reads the title
-/// as a header.
+/// Text animation (the designer's ask, 13 Nov): the letters arrive one at a time, left to
+/// right, the first line then the second, 0.05 s apart, starting after `delay`. Each springs
+/// up from just below its place, small and turned back, overshoots a touch and settles at its
+/// tip (`Motion.pop`), its outline and rim moving with it. Under Reduce Motion the whole title
+/// fades in at once. VoiceOver reads the title as a header.
 public struct BubbleTitle: View {
     @Environment(\.dial) private var dial
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isShown = false
     private let line: VoicedLine
     private let delay: Double
@@ -257,20 +259,18 @@ public struct BubbleTitle: View {
 
     public var body: some View {
         let text = line.text(for: dial)
-        let letters = BubbleLetters(lines: Self.lines(text))
-        letters
-            .padding(12)
-            .background { Swollen(by: 3.5, color: Palette.bubbleOutline) { letters } }
-            .background { Swollen(by: 6.5, color: .white) { letters } }
-            .scaleEffect(isShown || reduceMotion ? 1 : 0.3)
-            .rotationEffect(.degrees(isShown || reduceMotion ? 0 : -10))
-            .opacity(isShown ? 1 : 0)
-            .animation((reduceMotion ? Motion.reduced : Motion.pop).delay(delay), value: isShown)
-            .onAppear { isShown = true }
-            .onDisappear { isShown = false }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(text)
-            .accessibilityAddTraits(.isHeader)
+        let lines = Self.lines(text)
+        ZStack {
+            BubbleLetters(lines: lines, layer: .rim, isShown: isShown, delay: delay)
+            BubbleLetters(lines: lines, layer: .outline, isShown: isShown, delay: delay)
+            BubbleLetters(lines: lines, layer: .face, isShown: isShown, delay: delay)
+        }
+        .padding(12)
+        .onAppear { isShown = true }
+        .onDisappear { isShown = false }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(text)
+        .accessibilityAddTraits(.isHeader)
     }
 
     /// "Work vs yours" → ["Work vs", "yours"].
@@ -281,35 +281,78 @@ public struct BubbleTitle: View {
     }
 }
 
-/// The bubble title's letters, one by one so each can tip and sit a little high or low.
+/// One layer of the bubble title: its letters, or their outlines, or their rims, laid out the
+/// same way in each so the three line up, every letter arriving on its own.
 private struct BubbleLetters: View {
+    enum Layer {
+        /// The white rim round the outline.
+        case rim
+        /// The navy outline round the letters.
+        case outline
+        /// The letters themselves.
+        case face
+    }
+
     let lines: [String]
+    let layer: Layer
+    let isShown: Bool
+    let delay: Double
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Each letter's tip and lift, in turn: enough to look placed by hand, never enough to
     /// read as a wobble.
     private static let tips: [Double] = [-6, 4, -3, 5, -4, 3, -5, 4, -2, 6]
     private static let lifts: [CGFloat] = [0, -1.5, 1, -1, 1.5, 0, -1, 1]
+    /// Between one letter arriving and the next.
+    private static let stagger = 0.05
 
     var body: some View {
         VStack(spacing: -10) {
             ForEach(Array(lines.enumerated()), id: \.offset) { row, line in
+                // Letters before this line, so the second line carries on from the first.
+                let before = lines.prefix(row).reduce(0) { $0 + $1.count }
                 HStack(spacing: -1.5) {
                     ForEach(Array(line.enumerated()), id: \.offset) { column, letter in
-                        let turn = row * 5 + column
+                        let order = before + column
                         if letter == " " {
                             Color.clear.frame(width: 9, height: 1)
                         } else {
-                            Text(String(letter))
-                                .font(.system(size: 39, weight: .black, design: .rounded))
-                                .foregroundStyle(Self.puffy)
-                                .rotationEffect(.degrees(Self.tips[turn % Self.tips.count]))
-                                .offset(y: Self.lifts[turn % Self.lifts.count])
+                            glyph(letter)
+                                .rotationEffect(.degrees(Self.tips[order % Self.tips.count]))
+                                .offset(y: Self.lifts[order % Self.lifts.count])
+                                .modifier(Arrival(isShown: isShown, reduceMotion: reduceMotion))
+                                .animation(
+                                    reduceMotion
+                                        ? Motion.reduced.delay(delay)
+                                        : Motion.pop.delay(delay + Double(order) * Self.stagger),
+                                    value: isShown)
                         }
                     }
                 }
             }
         }
         .fixedSize()
+    }
+
+    @ViewBuilder
+    private func glyph(_ letter: Character) -> some View {
+        let text = Text(String(letter)).font(.system(size: 39, weight: .black, design: .rounded))
+        switch layer {
+        case .face:
+            text.foregroundStyle(Self.puffy)
+        case .outline:
+            // The letter keeps its place; its swollen shape spills out round it.
+            text.opacity(0).overlay {
+                Swollen(by: 3.5, color: Palette.bubbleOutline) { text }
+                    .padding(-12)
+            }
+        case .rim:
+            text.opacity(0).overlay {
+                Swollen(by: 6.5, color: .white) { text }
+                    .padding(-12)
+            }
+        }
     }
 
     /// White at the top, greying towards the bottom (`bubbleShade`), with a soft shade along
@@ -323,6 +366,22 @@ private struct BubbleLetters: View {
             startPoint: .top, endPoint: .bottom)
             .shadow(.inner(color: Palette.bubbleOutline.opacity(0.35), radius: 1.2, x: 0, y: -1.6))
             .shadow(.inner(color: .white, radius: 0.8, x: 0, y: 1.2))
+    }
+}
+
+/// How a bubble letter arrives: from 22 below its place, at 20% and turned back 25°, to its
+/// place, size and tip. Under Reduce Motion it only fades.
+private struct Arrival: ViewModifier {
+    let isShown: Bool
+    let reduceMotion: Bool
+
+    func body(content: Content) -> some View {
+        let away = !isShown && !reduceMotion
+        content
+            .scaleEffect(away ? 0.2 : 1, anchor: .bottom)
+            .rotationEffect(.degrees(away ? -25 : 0))
+            .offset(y: away ? 22 : 0)
+            .opacity(isShown ? 1 : 0)
     }
 }
 

@@ -68,9 +68,9 @@ public enum Palette {
     public static let wrapCentre = Color("wrapCentre", bundle: .module)
     /// The weekly wrap invite: the deep blue at the edge of its radial fill
     public static let wrapEdge = Color("wrapEdge", bundle: .module)
-    /// Weekly wrap, Work vs yours: the purple of work, above the water. Read from the screenshot under the 10% pattern
+    /// Weekly wrap, Work vs yours: the purple of work, above the water (Figma, the user, 13 Nov)
     public static let wrapWork = Color("wrapWork", bundle: .module)
-    /// Weekly wrap, Work vs yours: the water of yours. Read from the screenshot under the 10% pattern
+    /// Weekly wrap, Work vs yours: the water of yours (Figma, the user, 13 Nov)
     public static let wrapYours = Color("wrapYours", bundle: .module)
     /// Weekly wrap, Work vs yours: the light stripes of the wavy pattern, drawn at 10% (the reference image's purple)
     public static let wrapStripe = Color("wrapStripe", bundle: .module)
