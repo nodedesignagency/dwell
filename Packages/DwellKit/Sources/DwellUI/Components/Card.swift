@@ -125,8 +125,8 @@ public struct SoftButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == SoftButtonStyle {
     public static var soft: SoftButtonStyle { SoftButtonStyle() }
 
-    /// The soft button whose streaks sweep across once, the first time anyone sees it
-    /// (`FirstSight`), then rest where the design draws them: "View more" (the user, 13 Nov).
+    /// The soft button whose streaks sweep across and away, the first time anyone sees it
+    /// (`FirstSight`), and stay gone: "View more" (the user, 13 Nov).
     /// - Parameter key: names the button in `FirstSight`, so it plays once per button.
     public static func soft(sweepsOnce key: String) -> SoftButtonStyle {
         SoftButtonStyle(sweepKey: key)
@@ -147,42 +147,39 @@ public enum FirstSight {
     }
 }
 
-/// The soft button's streaks (`Sheen` in the separator's ink). With a key, the first time the
-/// button comes into view they sweep across once, as the confirmation card's do and at their
-/// speed: a beat's pause, out past the trailing edge (1.6 s), then back in from off the
-/// leading edge, easing to rest where the design draws them (0.8 s). Never again after that.
-/// Under Reduce Motion they stay at rest.
+/// The soft button's streaks (`Sheen` in the separator's ink). With a key, they sit where the
+/// design draws them until the button first comes into view, then sweep out past the trailing
+/// edge once, as the confirmation card's do and at their speed (`Motion.sweepAway`: a beat's
+/// pause, then 1.6 s), and stay gone: that button never shows them again (the user, 13 Nov).
+/// Under Reduce Motion they fade away instead.
 private struct SoftSheen: View {
     let sweepKey: String?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var sweeps = false
+    /// The streaks have swept away, now or on an earlier visit.
+    @State private var gone: Bool
 
-    var body: some View {
-        Sheen(color: Palette.separator)
-            .keyframeAnimator(initialValue: CGFloat(0), trigger: sweeps) { content, shift in
-                content.visualEffect { content, proxy in
-                    content.offset(x: shift * proxy.size.width)
-                }
-            } keyframes: { _ in
-                KeyframeTrack {
-                    LinearKeyframe(0, duration: 0.3)
-                    LinearKeyframe(1, duration: 1.6)
-                    MoveKeyframe(-0.5) // off both edges, so the jump is never seen
-                    LinearKeyframe(0, duration: 0.8, timingCurve: .easeOut)
-                }
-            }
-            .modifier(OnFirstSight(enabled: sweepKey != nil, action: sweepOnce))
+    init(sweepKey: String?) {
+        self.sweepKey = sweepKey
+        _gone = State(initialValue: sweepKey.map { UserDefaults.standard.bool(forKey: FirstSight.key($0)) } ?? false)
     }
 
-    private func sweepOnce() {
-        guard let sweepKey else { return }
-        let key = FirstSight.key(sweepKey)
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: key) else { return }
-        defaults.set(true, forKey: key)
-        if !reduceMotion {
-            sweeps.toggle()
+    var body: some View {
+        let shift: CGFloat = gone && !reduceMotion ? 1 : 0
+        GeometryReader { proxy in
+            // A whole button's width on: past the trailing edge, where the clip hides them.
+            Sheen(color: Palette.separator)
+                .offset(x: shift * proxy.size.width)
+        }
+        .opacity(gone && reduceMotion ? 0 : 1)
+        .modifier(OnFirstSight(enabled: sweepKey != nil, action: sweepAway))
+    }
+
+    private func sweepAway() {
+        guard let sweepKey, !gone else { return }
+        UserDefaults.standard.set(true, forKey: FirstSight.key(sweepKey))
+        withAnimation(reduceMotion ? Motion.reduced.delay(0.3) : Motion.sweepAway) {
+            gone = true
         }
     }
 }

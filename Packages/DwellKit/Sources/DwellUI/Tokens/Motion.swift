@@ -12,6 +12,9 @@ public enum Motion {
     public static let landing = Animation.spring(duration: 0.5, bounce: 0.35)
     /// Light passing across a card that's waiting for an answer, left to right, on a loop.
     public static let sweep = Animation.linear(duration: 2.4)
+    /// The same light passing once and away, after a beat (View more, the first time it's
+    /// seen): one button's width at `sweep`'s speed.
+    public static let sweepAway = Animation.linear(duration: 1.6).delay(0.3)
     /// A card arriving from below (the confirmation card, a bottom sheet): smooth, no bounce.
     public static let arrive = Animation.spring(duration: 0.5, bounce: 0)
     /// A bottom sheet leaving: quicker than it came, gathering speed as it goes.

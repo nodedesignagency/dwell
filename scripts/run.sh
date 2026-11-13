@@ -9,7 +9,7 @@
 #                                       # preciseOff, motionDenied
 #   DWELL_OPEN=you ./scripts/run.sh     # open a page: you (the You tab), places (Your places, from You), time (the Time tab),
 #                                       # wrap (last week's wrap, over Today), insight (the Insights page, from Today)
-#   DWELL_FRESH=1 ./scripts/run.sh      # forget what's been seen, so first-sight animations (View more's sweep) play again
+#   DWELL_FRESH=1 ./scripts/run.sh      # forget what's been seen, so first-sight animations (View more's streaks sweeping away) play again
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail
