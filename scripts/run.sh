@@ -9,6 +9,7 @@
 #                                       # preciseOff, motionDenied
 #   DWELL_OPEN=you ./scripts/run.sh     # open a page: you (the You tab), places (Your places, from You), time (the Time tab),
 #                                       # wrap (last week's wrap, over Today), insight (the Insights page, from Today)
+#   DWELL_FRESH=1 ./scripts/run.sh      # forget what's been seen, so first-sight animations (View more's sweep) play again
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail
@@ -43,5 +44,5 @@ echo "Launching on $(xcrun simctl list devices | grep "$UDID" | sed -E 's/^ +//;
 xcrun simctl boot "$UDID" 2>/dev/null || true
 open -a Simulator --args -CurrentDeviceUDID "$UDID"
 xcrun simctl install "$UDID" "$DERIVED/Build/Products/Debug-iphonesimulator/Dwell.app"
-xcrun simctl launch --terminate-running-process "$UDID" "$BUNDLE_ID" ${DWELL_SKY:+-DwellSky "$DWELL_SKY"} ${DWELL_STATE:+-DwellState "$DWELL_STATE"} ${DWELL_OPEN:+-DwellOpen "$DWELL_OPEN"} >/dev/null
+xcrun simctl launch --terminate-running-process "$UDID" "$BUNDLE_ID" ${DWELL_SKY:+-DwellSky "$DWELL_SKY"} ${DWELL_STATE:+-DwellState "$DWELL_STATE"} ${DWELL_OPEN:+-DwellOpen "$DWELL_OPEN"} ${DWELL_FRESH:+-DwellFresh YES} >/dev/null
 echo "Running."

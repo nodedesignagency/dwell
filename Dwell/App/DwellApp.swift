@@ -14,6 +14,14 @@ struct DwellApp: App {
     /// `-DwellOpen places` at launch opens a page (`DWELL_OPEN=places ./scripts/run.sh`).
     private let open = UserDefaults.standard.string(forKey: "DwellOpen").flatMap(LaunchPage.init(rawValue:))
 
+    init() {
+        // `-DwellFresh YES` at launch forgets what's been seen, so first-sight animations play
+        // again (`DWELL_FRESH=1 ./scripts/run.sh`).
+        if UserDefaults.standard.bool(forKey: "DwellFresh") {
+            FirstSight.reset()
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView(open: open)

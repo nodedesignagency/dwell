@@ -94,7 +94,15 @@ public struct Sheen: View {
 
 /// A full-width capsule button on a card: "View more" (Today design).
 public struct SoftButtonStyle: ButtonStyle {
-    public init() {}
+    private let sweepKey: String?
+
+    public init() {
+        sweepKey = nil
+    }
+
+    fileprivate init(sweepKey: String) {
+        self.sweepKey = sweepKey
+    }
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -104,7 +112,7 @@ public struct SoftButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity, minHeight: 44)
             .background(Palette.background, in: .capsule)
             .overlay {
-                Sheen(color: Palette.separator)
+                SoftSheen(sweepKey: sweepKey)
                     .clipShape(.capsule)
             }
             .overlay {
@@ -116,6 +124,94 @@ public struct SoftButtonStyle: ButtonStyle {
 
 extension ButtonStyle where Self == SoftButtonStyle {
     public static var soft: SoftButtonStyle { SoftButtonStyle() }
+
+    /// The soft button whose streaks sweep across once, the first time anyone sees it
+    /// (`FirstSight`), then rest where the design draws them: "View more" (the user, 13 Nov).
+    /// - Parameter key: names the button in `FirstSight`, so it plays once per button.
+    public static func soft(sweepsOnce key: String) -> SoftButtonStyle {
+        SoftButtonStyle(sweepKey: key)
+    }
+}
+
+/// Things that play once, the first time they're seen (the View more sweep). Remembered in
+/// `UserDefaults` under "firstSight.<key>"; `DWELL_FRESH=1 ./scripts/run.sh` forgets them, so
+/// they play again.
+public enum FirstSight {
+    static func key(_ name: String) -> String { "firstSight.\(name)" }
+
+    /// Forgets everything seen, so each plays again.
+    public static func reset(_ defaults: UserDefaults = .standard) {
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("firstSight.") {
+            defaults.removeObject(forKey: key)
+        }
+    }
+}
+
+/// The soft button's streaks (`Sheen` in the separator's ink). With a key, the first time the
+/// button comes into view they sweep across once, as the confirmation card's do and at their
+/// speed: a beat's pause, out past the trailing edge (1.6 s), then back in from off the
+/// leading edge, easing to rest where the design draws them (0.8 s). Never again after that.
+/// Under Reduce Motion they stay at rest.
+private struct SoftSheen: View {
+    let sweepKey: String?
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var sweeps = false
+
+    var body: some View {
+        Sheen(color: Palette.separator)
+            .keyframeAnimator(initialValue: CGFloat(0), trigger: sweeps) { content, shift in
+                content.visualEffect { content, proxy in
+                    content.offset(x: shift * proxy.size.width)
+                }
+            } keyframes: { _ in
+                KeyframeTrack {
+                    LinearKeyframe(0, duration: 0.3)
+                    LinearKeyframe(1, duration: 1.6)
+                    MoveKeyframe(-0.5) // off both edges, so the jump is never seen
+                    LinearKeyframe(0, duration: 0.8, timingCurve: .easeOut)
+                }
+            }
+            .modifier(OnFirstSight(enabled: sweepKey != nil, action: sweepOnce))
+    }
+
+    private func sweepOnce() {
+        guard let sweepKey else { return }
+        let key = FirstSight.key(sweepKey)
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: key) else { return }
+        defaults.set(true, forKey: key)
+        if !reduceMotion {
+            sweeps.toggle()
+        }
+    }
+}
+
+/// Runs `action` when the view is first nearly all on screen: as it scrolls into view on
+/// iOS 18 and later, when it appears on iOS 17.
+private struct OnFirstSight: ViewModifier {
+    let enabled: Bool
+    let action: @MainActor () -> Void
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if enabled {
+            watched(content)
+        } else {
+            content
+        }
+    }
+
+    @ViewBuilder
+    private func watched(_ content: Content) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            content.onScrollVisibilityChange(threshold: 0.9) { visible in
+                if visible { action() }
+            }
+        } else {
+            content.onAppear { action() }
+        }
+    }
 }
 
 /// The navy capsule for a sheet's one action: "Yes, turn on" (Today design, "Turn Location").

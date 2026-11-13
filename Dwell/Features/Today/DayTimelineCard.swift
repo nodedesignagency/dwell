@@ -42,7 +42,8 @@ struct DayTimelineCard: View {
                 Button(isExpanded ? "View less" : "View more") {
                     isExpanded.toggle()
                 }
-                .buttonStyle(.soft)
+                // Its streaks sweep across once, the first time it's seen (the user, 13 Nov).
+                .buttonStyle(.soft(sweepsOnce: "today.viewMore"))
             }
         }
         .padding(Space.l)
