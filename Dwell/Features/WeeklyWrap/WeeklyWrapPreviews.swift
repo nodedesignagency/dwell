@@ -79,6 +79,27 @@ private let lastWeek = Loadable<WrapOpener>.loaded(
     WrapPreview(.loaded(WrapOpener(days: 7, places: 0))).samplePreview()
 }
 
+// MARK: The page's clock
+
+#Preview("Held at 40% of its 7 s") {
+    WeeklyWrapContent(
+        wrap: SampleData.weeklyWrap,
+        state: lastWeek,
+        page: .opener,
+        clock: StoryClock(duration: 7, elapsed: 2.8))
+        .samplePreview()
+}
+
+#Preview("Page 3, running") {
+    // The canvas runs the clock: the third capsule fills over 7 s.
+    WeeklyWrapContent(
+        wrap: SampleData.weeklyWrap,
+        state: lastWeek,
+        page: .weekends,
+        clock: StoryClock(duration: 7).resumed(at: .now))
+        .samplePreview()
+}
+
 // MARK: Pages still to come
 
 #Preview("Page 2, waiting for its design") {

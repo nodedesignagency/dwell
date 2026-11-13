@@ -53,6 +53,7 @@ public struct StoryHeader: View {
     private let subtitle: String
     private let pageCount: Int
     private let current: Int
+    private let clock: StoryClock?
     private let ink: Color
     private let closeLabel: String
     private let onClose: () -> Void
@@ -61,12 +62,14 @@ public struct StoryHeader: View {
     /// - Parameters:
     ///   - subtitle: the week, a plain label: "Oct 19 – 25".
     ///   - current: the page showing, from 0.
+    ///   - clock: how far the page has run, when it moves on by itself; `nil` shows it full.
     ///   - onStep: VoiceOver's swipe up or down on the progress bar: the next or previous page.
     public init(
         title: String,
         subtitle: String,
         pageCount: Int,
         current: Int,
+        clock: StoryClock? = nil,
         ink: Color = .white,
         closeLabel: String,
         onClose: @escaping () -> Void,
@@ -76,6 +79,7 @@ public struct StoryHeader: View {
         self.subtitle = subtitle
         self.pageCount = pageCount
         self.current = current
+        self.clock = clock
         self.ink = ink
         self.closeLabel = closeLabel
         self.onClose = onClose
@@ -103,7 +107,7 @@ public struct StoryHeader: View {
                 .accessibilityLabel(closeLabel)
             }
 
-            StoryProgress(count: pageCount, current: current, ink: ink)
+            StoryProgress(count: pageCount, current: current, clock: clock, ink: ink)
                 .accessibilityAdjustableAction(onStep)
         }
         .padding(.horizontal, Space.l)
@@ -112,35 +116,41 @@ public struct StoryHeader: View {
 }
 
 /// The progress bar along a wrap's top: a capsule per page, 4 tall and 4 apart, filling the
-/// width. Pages seen and the one showing are `ink`; pages to come, `ink` at 40%. Moving on,
-/// the next capsule fills from its leading end (`Motion.standard`); under Reduce Motion it
-/// fades in. VoiceOver reads it as "Page, 1 of 7"; give it an adjustable action to move
-/// between pages from it.
+/// width. Pages seen are `ink`; pages to come, `ink` at 40%. The page showing fills from its
+/// leading end as its clock runs, like an Instagram story, and holds still while paused;
+/// without a clock (a page that waits, or VoiceOver on) it shows full. Going to another page,
+/// the capsules it passes fill or empty with `Motion.standard`. The fill is a progress bar, so
+/// it runs under Reduce Motion too. VoiceOver reads it as "Page, 1 of 7"; give it an
+/// adjustable action to move between pages from it.
 public struct StoryProgress: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let count: Int
     private let current: Int
+    private let clock: StoryClock?
     private let ink: Color
 
-    public init(count: Int, current: Int, ink: Color = .white) {
+    public init(count: Int, current: Int, clock: StoryClock? = nil, ink: Color = .white) {
         self.count = count
         self.current = current
+        self.clock = clock
         self.ink = ink
     }
 
     public var body: some View {
-        HStack(spacing: Space.xs) {
-            ForEach(0..<count, id: \.self) { index in
-                let isLit = index <= current
-                Capsule()
-                    .fill(ink.opacity(0.4))
-                    .overlay {
-                        Rectangle()
-                            .fill(ink)
-                            .scaleEffect(x: isLit || reduceMotion ? 1 : 0, anchor: .leading)
-                            .opacity(isLit || !reduceMotion ? 1 : 0)
-                    }
-                    .clipShape(.capsule)
+        // Redraws every frame only while the clock runs.
+        TimelineView(.animation(minimumInterval: nil, paused: !(clock?.isRunning ?? false))) { context in
+            let fill = clock?.fraction(at: context.date) ?? 1
+            HStack(spacing: Space.xs) {
+                ForEach(0..<count, id: \.self) { index in
+                    let share = index < current ? 1 : index == current ? fill : 0
+                    Capsule()
+                        .fill(ink.opacity(0.4))
+                        .overlay {
+                            Rectangle()
+                                .fill(ink)
+                                .scaleEffect(x: share, anchor: .leading)
+                        }
+                        .clipShape(.capsule)
+                }
             }
         }
         .frame(height: 4)

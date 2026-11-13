@@ -60,3 +60,35 @@ struct WrapOpenerTests {
         }
     }
 }
+
+@Suite("Weekly wrap: a page's clock")
+struct StoryClockTests {
+    let start = Date(timeIntervalSinceReferenceDate: 0)
+
+    @Test func `runs from the start and fills its capsule`() {
+        let clock = StoryClock(duration: 7).resumed(at: start)
+        #expect(clock.fraction(at: start) == 0)
+        #expect(clock.fraction(at: start + 3.5) == 0.5)
+        #expect(clock.remaining(at: start + 3.5) == 3.5)
+        #expect(clock.fraction(at: start + 20) == 1)
+        #expect(clock.remaining(at: start + 20) == 0)
+    }
+
+    @Test func `a hold pauses it and letting go carries on`() {
+        let held = StoryClock(duration: 7).resumed(at: start).paused(at: start + 2)
+        #expect(!held.isRunning)
+        // Holding for 10 seconds doesn't count.
+        #expect(held.fraction(at: start + 12) == 2.0 / 7)
+        let resumed = held.resumed(at: start + 12)
+        #expect(resumed.remaining(at: start + 12) == 5)
+        // 2 s before the hold and 3.5 s after it.
+        #expect(resumed.elapsed(at: start + 15.5) == 5.5)
+    }
+
+    @Test func `pausing twice or resuming twice changes nothing`() {
+        let running = StoryClock(duration: 7).resumed(at: start)
+        #expect(running.resumed(at: start + 3) == running)
+        let paused = running.paused(at: start + 1)
+        #expect(paused.paused(at: start + 5) == paused)
+    }
+}
