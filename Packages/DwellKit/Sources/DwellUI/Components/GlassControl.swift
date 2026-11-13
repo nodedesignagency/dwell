@@ -34,7 +34,17 @@ extension ButtonStyle where Self == GlassCircleButtonStyle {
 /// white. Before iOS 26, the close button's drawn glass over white 80%, with a soft shadow so
 /// it lifts off a light page; pressed, it sinks a touch.
 public struct GlassSquareButtonStyle: ButtonStyle {
-    public init() {}
+    private let fill: Color
+    private let lifted: Bool
+
+    public init() {
+        self.init(fill: Palette.glassControl, lifted: false)
+    }
+
+    fileprivate init(fill: Color, lifted: Bool) {
+        self.fill = fill
+        self.lifted = lifted
+    }
 
     @ViewBuilder
     public func makeBody(configuration: Configuration) -> some View {
@@ -43,12 +53,24 @@ public struct GlassSquareButtonStyle: ButtonStyle {
         if #available(iOS 26.0, macOS 26.0, *) {
             label
                 .glassEffect(.regular.interactive(), in: shape)
+                .background {
+                    if lifted {
+                        GlassDropShadow(shape: shape)
+                    }
+                }
                 .contentShape(Rectangle().inset(by: -2))
         } else {
             label
                 .background {
-                    DrawnGlass(shape: shape, fill: Palette.glassControl)
-                        .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+                    if lifted {
+                        ZStack {
+                            GlassDropShadow(shape: shape)
+                            DrawnGlass(shape: shape, fill: fill)
+                        }
+                    } else {
+                        DrawnGlass(shape: shape, fill: fill)
+                            .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+                    }
                 }
                 .contentShape(Rectangle().inset(by: -2))
                 .scaleEffect(configuration.isPressed ? 0.92 : 1)
@@ -59,6 +81,32 @@ public struct GlassSquareButtonStyle: ButtonStyle {
 
 extension ButtonStyle where Self == GlassSquareButtonStyle {
     public static var glassSquare: GlassSquareButtonStyle { GlassSquareButtonStyle() }
+
+    /// Time's share button (Figma, 13 Nov): the back button's Glass (light −45° at 80%,
+    /// refraction 80, depth 20, dispersion 50, frost 4, splay 0) over white 65% (`glassPill`),
+    /// with a drop shadow, y 5, blur 10, #1B1C1D at 5% (`glassShadow`), shown behind the glass.
+    /// On iOS 26 and later the white is left to Liquid Glass's own frost, as on the back button.
+    public static var liftedGlassSquare: GlassSquareButtonStyle {
+        GlassSquareButtonStyle(fill: Palette.glassPill, lifted: true)
+    }
+}
+
+/// Figma's drop shadow on glass with "Show behind transparent areas" on: y 5, blur 10, in
+/// `glassShadow` (#1B1C1D at 5%). Drawn as the shape itself, moved down and blurred, rather than
+/// with `.shadow`: SwiftUI's shadow would come off the icon too, and would fade with the glass's
+/// 65% fill, where Figma's keeps its full 5% and shows through the glass. SwiftUI's blur radius,
+/// like its shadow radius, is half Figma's blur.
+private struct GlassDropShadow<S: Shape>: View {
+    let shape: S
+
+    var body: some View {
+        shape
+            .fill(Palette.glassShadow)
+            .offset(y: 5)
+            .blur(radius: 10 / 2)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
 }
 
 /// A square button on the close button's glass (You's settings button, the user's call, 13 Nov:

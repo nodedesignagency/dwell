@@ -68,10 +68,12 @@ struct TimeContent: View {
                     Button(action: actions.share) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(Color.primary)
+                            .foregroundStyle(Palette.textPrimary)
                             .frame(width: 20, height: 20)
                     }
-                    .buttonStyle(.glassSquare)
+                    // Figma: Glass over white 65%, a drop shadow y 5 blur 10 #1B1C1D 5%, the
+                    // icon #0A0D20.
+                    .buttonStyle(.liftedGlassSquare)
                     .accessibilityLabel("Share")
                 }
                 if !large {
