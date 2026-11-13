@@ -5,8 +5,9 @@ import MapKit
 import Observation
 import SwiftUI
 
-/// An address picked for a place, ready to go on the map.
-struct PickedAddress: Equatable, Sendable {
+/// An address picked for a place, ready to go on the map. Nonisolated: MapKit's completion
+/// handler builds it.
+nonisolated struct PickedAddress: Equatable, Sendable {
     var address: String
     var area: String?
     var coordinate: Coordinate

@@ -64,7 +64,7 @@ struct PlacesSetupPage: View {
             }
         }
         .sheet(isPresented: $isSearching) {
-            AddressSearchSheet(role: setup.current.role, onPick: fill)
+            AddressSearchSheet(role: setup.current.role) { fill($0) }
         }
     }
 

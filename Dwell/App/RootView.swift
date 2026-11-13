@@ -105,8 +105,10 @@ struct RootView: View {
     }
 }
 
-/// A page the app can open at launch, for reviewing it in the simulator.
-enum LaunchPage: Equatable {
+/// A page the app can open at launch, for reviewing it in the simulator. Nonisolated: it only
+/// reads the launch argument, and `DwellApp` parses it in a stored property's default value,
+/// where a main-actor initializer can't be passed as a function.
+nonisolated enum LaunchPage: Equatable {
     /// You, the fourth tab.
     case you
     /// Your places, pushed from You.

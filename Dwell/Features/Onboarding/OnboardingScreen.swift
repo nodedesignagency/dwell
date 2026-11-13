@@ -130,7 +130,7 @@ struct OnboardingScreen: View {
                 isPickingOnMap: $isPickingOnMap,
                 isCurrent: page == .yourPlaces,
                 insets: insets,
-                onContinue: savePlaces,
+                onContinue: { savePlaces() },
                 onSkip: { go(to: .seeWhereItGoes) })
         case .seeWhereItGoes:
             SeeWhereItGoesPage(
@@ -141,7 +141,7 @@ struct OnboardingScreen: View {
             StartMyDayPage(
                 isCurrent: page == .startMyDay,
                 insets: insets,
-                onAllow: allowLocation,
+                onAllow: { allowLocation() },
                 onNotNow: { show(.saveYourWorld) })
         }
     }
