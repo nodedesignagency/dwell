@@ -85,7 +85,7 @@ struct ProfileHeader: View {
 
     private var placesPill: some View {
         Button(action: openPlaces) {
-            StatPill(PlacesCopy.count(placeCount), art: Art.Illustration.pushpin, artSize: 24)
+            StatPill(PlacesCopy.count(placeCount), art: Art.Illustration.pushpin)
         }
         .buttonStyle(.plain)
         .accessibilityHint("Shows your places")
@@ -117,7 +117,8 @@ private enum AvatarPinMetrics {
 /// Matched to the Figma screenshot (13 Nov): the design's map is a close-up shrunk down, so its
 /// streets read as blocks and its labels are tiny. Drawn the same way: the map at 2.2 times the
 /// size, then shrunk, so a 250 m cell comes out about 10.5 across (24 m to the point) and the
-/// labels about 5 pt. Nearly full strength by the picture, fading to nothing 165 out. The
+/// labels about 5 pt. Nearly full strength round the picture, fading from 72 out to nothing
+/// at 100, a circle like Figma's (13 Nov). The
 /// cells solid (#D698F9) with thin white seams, over a faint lilac haze around them.
 struct ProfileMap: View {
     static let size = CGSize(width: 330, height: 250)
@@ -148,13 +149,14 @@ struct ProfileMap: View {
         .frame(width: Self.size.width, height: Self.size.height)
         .opacity(0.9)
         .mask {
-            EllipticalGradient(
+            // As in Figma: a circle round the picture, full to 72 from its centre, gone by 100.
+            RadialGradient(
                 stops: [
                     .init(color: .black, location: 0),
-                    .init(color: .black.opacity(0.9), location: 0.55),
+                    .init(color: .black, location: 0.72),
                     .init(color: .clear, location: 1),
                 ],
-                center: .center)
+                center: .center, startRadius: 0, endRadius: 100)
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)

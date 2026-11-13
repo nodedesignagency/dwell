@@ -46,8 +46,7 @@ public enum Art {
 
     /// You's 3D art. Exported at 4x; each canvas is 4x the frame it's shown in, so the art
     /// keeps the design's size: section headers 20 ("Streaks", "Badges"), the profile's pills
-    /// (the push pin on "41 places" in its own 24 canvas, as in Figma; the globe on "3.2%
-    /// mapped" 20).
+    /// 20 (the push pin on "41 places", the globe on "3.2% mapped").
     public static let streaks = Image("icon/streaks", bundle: .module)
     public static let badges = Image("icon/badges", bundle: .module)
 

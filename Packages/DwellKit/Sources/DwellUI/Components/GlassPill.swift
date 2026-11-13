@@ -1,40 +1,50 @@
 import SwiftUI
 
 extension View {
-    /// A capsule of glass behind the view (You design, Figma values from the user, 13 Nov:
-    /// "41 places", "3.2% mapped", "Your dial"): fill white 65%; Figma's Glass (light −45° at
-    /// 80%, refraction 80, depth 21.7, dispersion 50, frost 4.34) drawn as the close button's
-    /// rim and inner shade, since SwiftUI has no refraction; and its drop shadow, x 0, y 5.42,
-    /// blur 10.85, #1B1C1D at 5%, shown behind the glass as Figma's "show behind transparent
-    /// areas" asks (SwiftUI blur is half Figma's).
+    /// A capsule of glass behind the view (You design, Figma, 13 Nov: "41 places", "3.2%
+    /// mapped", "Your dial"). `PillGlass`.
     public func glassPill() -> some View {
-        background {
-            ZStack {
-                Capsule()
-                    .fill(Palette.glassShadow)
-                    .blur(radius: 10.85 / 2)
-                    .offset(y: 5.42)
-                DrawnGlass(shape: Capsule(), fill: Palette.glassPill)
+        background { PillGlass() }
+    }
+}
+
+/// Figma's pill glass, matched to the Figma screenshot (13 Nov). Fill white 65%; inside it a
+/// touch darker at the top and lighter at the bottom (about 3 below the page's grey under the
+/// top edge, 3 above it near the bottom), as Figma's Glass draws it; a 1-pt white rim all the
+/// way round; and Figma's drop shadow, y 5.42, blur 10.85 (SwiftUI radius 5.43), #1B1C1D,
+/// cast by the glass itself so it shows through it ("show behind transparent areas"). SwiftUI
+/// casts a shadow from the glass's own 65%, so the colour is set at 7.7% to land at Figma's 5%.
+/// Figma's refraction and dispersion aren't drawn.
+struct PillGlass: View {
+    var body: some View {
+        Capsule()
+            .fill(Palette.glassPill)
+            .overlay {
+                Capsule().fill(LinearGradient(
+                    colors: [.black.opacity(0.02), .white.opacity(0.2)],
+                    startPoint: .top, endPoint: .bottom))
             }
-        }
+            .overlay {
+                Capsule().strokeBorder(Palette.glowRays, lineWidth: 1)
+            }
+            .shadow(color: Palette.glassShadow, radius: 10.85 / 2, x: 0, y: 5.42)
     }
 }
 
 /// A fact on glass with its art (You design, Figma: the 3D push pin and "41 places", the globe
-/// and "3.2% mapped"): 40 tall, 10 across, the art (24 for the pin, whose canvas it keeps; 20
-/// for the globe) 4.34 from the words (14 medium). Plain words, never voiced.
+/// and "3.2% mapped"): 40 tall, 10 across, the art 20, 4.34 to the words: SF Pro 14 regular,
+/// as Figma sets them (cap height 9.9, x-height 7.2 on the Figma screenshot), not the app's
+/// rounded face. Plain words, never voiced.
 public struct StatPill: View {
     @ScaledMetric(relativeTo: .subheadline) private var height: CGFloat = 40
-    @ScaledMetric(relativeTo: .subheadline) private var scale: CGFloat = 1
+    @ScaledMetric(relativeTo: .subheadline) private var artSize: CGFloat = 20
+    @ScaledMetric(relativeTo: .subheadline) private var textSize: CGFloat = 14
     private let text: String
     private let art: Image
-    private let artSize: CGFloat
 
-    /// - Parameter artSize: the art's square at the default text size.
-    public init(_ text: String, art: Image, artSize: CGFloat = 20) {
+    public init(_ text: String, art: Image) {
         self.text = text
         self.art = art
-        self.artSize = artSize
     }
 
     public var body: some View {
@@ -42,10 +52,10 @@ public struct StatPill: View {
             art
                 .resizable()
                 .scaledToFit()
-                .frame(width: artSize * scale, height: artSize * scale)
+                .frame(width: artSize, height: artSize)
                 .accessibilityHidden(true)
             Text(verbatim: text)
-                .textRole(.caption, weight: .medium)
+                .font(.system(size: textSize, weight: .regular))
                 .foregroundStyle(Palette.textPrimary)
                 .lineLimit(1)
         }
