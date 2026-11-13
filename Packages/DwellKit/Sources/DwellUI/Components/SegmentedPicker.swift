@@ -60,6 +60,8 @@ public struct SegmentedPicker<Value: Hashable>: View {
         }
         .padding(size == .regular ? 5 : 3)
         .background(Palette.segmentTrack, in: .capsule)
+        // Figma's "Clip content" on the track (13 Nov): the pill's drop shadow stops at its edge.
+        .clipShape(.capsule)
         .motion(value: selection)
         .accessibilityRepresentation {
             Picker(label, selection: $selection) {
