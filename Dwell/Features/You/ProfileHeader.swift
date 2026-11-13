@@ -7,10 +7,11 @@ import SwiftUI
 /// the cells uncovered so far, two facts on glass beside it ("41 places", "3.2% mapped"), then
 /// the name and "@maya • Brooklyn".
 ///
-/// Read from the screenshot: the ring 133 across with its tail 14 below and a soft shadow
-/// where its tip meets the map; "41 places" tucked
-/// under the ring's left edge, its middle 28 below the ring's; "3.2% mapped" 18 into the
-/// ring's frame on the right, 51 below; 8 to the name (28 medium), 4 to the handle and city
+/// Read from the Figma frame (13 Nov): the ring 133 across with its tail 12.7 below and a soft
+/// shadow where its tip meets the map; the two facts on top of the picture: "41 places" ending
+/// on the ring's left edge (60.5 left of its centre), its middle 28 below the ring's; "3.2%
+/// mapped" starting 46.5 right of the centre, its middle 52.5 below, so its top corner crosses
+/// the ring; 8 to the name (28 medium), 4 to the handle and city
 /// (16, grey, 12 to the dot). At accessibility sizes the two facts leave the pin and sit in a
 /// row under the city, where they have room.
 struct ProfileHeader: View {
@@ -56,33 +57,35 @@ struct ProfileHeader: View {
     /// The picture, and beside it the two facts when they fit.
     private func pin(withFacts: Bool) -> some View {
         HStack(alignment: .top, spacing: 0) {
+            // The facts sit on top of the picture, as in Figma.
             Group {
                 if withFacts {
                     placesPill
                         .fixedSize()
                         .offset(x: 6)
-                        .padding(.top, 75)
+                        .padding(.top, 74)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
+            .zIndex(1)
             AvatarPin(Art.sampleAvatar)
-                .zIndex(1)
             Group {
                 if withFacts {
                     mappedPill
                         .fixedSize()
-                        .offset(x: -18)
-                        .padding(.top, 98)
+                        .offset(x: -20)
+                        .padding(.top, 99)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .zIndex(1)
         }
         .padding(.horizontal, -Space.screen)
     }
 
     private var placesPill: some View {
         Button(action: openPlaces) {
-            StatPill(PlacesCopy.count(placeCount), art: Art.Illustration.pushpin)
+            StatPill(PlacesCopy.count(placeCount), art: Art.Illustration.pushpin, artSize: 24)
         }
         .buttonStyle(.plain)
         .accessibilityHint("Shows your places")
@@ -103,7 +106,7 @@ private enum AvatarPinMetrics {
     /// The ring's centre, from the pin's top.
     static let centre: CGFloat = 133 / 2
     /// The ring and its tail.
-    static let height: CGFloat = 133 + 14
+    static let height: CGFloat = 133 + 12.7
 }
 
 /// The map behind the profile: the user's city, faded out towards its edges, with the cells
