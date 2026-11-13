@@ -77,7 +77,6 @@ public struct FilterChip: View {
 /// grey, magnifier and fill read from the screenshot; the shadow is our estimate until the
 /// Figma values come in. A clear button while there's text. A system `TextField` underneath.
 public struct SearchField: View {
-    @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .subheadline) private var height: CGFloat = 44
     @ScaledMetric(relativeTo: .subheadline) private var iconSize: CGFloat = 14
     @Binding private var text: String
@@ -124,22 +123,41 @@ public struct SearchField: View {
         .padding(.leading, Space.l - 2)
         .padding(.trailing, Space.l)
         .frame(minHeight: height)
-        .background {
-            Capsule()
-                .fill(Palette.field)
-                // A contact shadow under the edge and a long soft one below it.
-                .shadow(color: .black.opacity(colorScheme == .dark ? 0 : 0.06), radius: 2, y: 2)
-                .shadow(color: .black.opacity(colorScheme == .dark ? 0 : 0.05), radius: 12, y: 8)
-        }
-        .overlay {
-            // Lit along the top edge, as in the screenshot; the card edge in dark mode.
-            Capsule()
-                .strokeBorder(
-                    colorScheme == .dark
-                        ? AnyShapeStyle(Palette.cardStroke)
-                        : AnyShapeStyle(LinearGradient(colors: [.white, .white.opacity(0)], startPoint: .top, endPoint: .center)),
-                    lineWidth: 1)
-                .allowsHitTesting(false)
-        }
+        .raisedField(Capsule())
+    }
+}
+
+extension View {
+    /// A field raised off the page rather than set on a card (Your places' search field,
+    /// onboarding's address card): the field's fill, close to the page's grey, lit by a 1-pt
+    /// white line along its top that fades by the middle, with a contact shadow under the edge
+    /// (black 6%, radius 2, y 2) and a long soft one below (5%, radius 12, y 8), estimated from
+    /// the screenshot. In dark mode, where neither shows, the card edge.
+    public func raisedField(_ shape: some InsettableShape) -> some View {
+        modifier(RaisedField(shape: shape))
+    }
+}
+
+private struct RaisedField<S: InsettableShape>: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    let shape: S
+
+    func body(content: Content) -> some View {
+        content
+            .background {
+                shape
+                    .fill(Palette.field)
+                    .shadow(color: .black.opacity(colorScheme == .dark ? 0 : 0.06), radius: 2, y: 2)
+                    .shadow(color: .black.opacity(colorScheme == .dark ? 0 : 0.05), radius: 12, y: 8)
+            }
+            .overlay {
+                shape
+                    .strokeBorder(
+                        colorScheme == .dark
+                            ? AnyShapeStyle(Palette.cardStroke)
+                            : AnyShapeStyle(LinearGradient(colors: [.white, .white.opacity(0)], startPoint: .top, endPoint: .center)),
+                        lineWidth: 1)
+                    .allowsHitTesting(false)
+            }
     }
 }

@@ -44,6 +44,13 @@ public protocol DwellRepository: Sendable {
     func placeTrends() async throws -> [PlaceTrend]
     /// Whether a calendar is connected. Until one is, Calendar vs reality sells the feature.
     func isCalendarConnected() async throws -> Bool
+
+    // MARK: Onboarding
+
+    /// Keeps the places typed in on onboarding's Your places, home and work by role. Saving a
+    /// place does not record a visit (brief A.1). Runs before the account exists, so the engine
+    /// holds them on the phone until sign-in.
+    func savePlaces(_ places: [PlaceDraft]) async throws
 }
 
 extension DwellRepository {
@@ -137,4 +144,7 @@ public struct SampleRepository: DwellRepository {
     public func isCalendarConnected() async throws -> Bool {
         true
     }
+
+    /// The sample's places are already saved; onboarding's are let go.
+    public func savePlaces(_ places: [PlaceDraft]) async throws {}
 }

@@ -189,6 +189,10 @@ public struct DemoRepository: DwellRepository {
         }
     }
 
+    public func savePlaces(_ places: [PlaceDraft]) async throws {
+        try await gate()
+    }
+
     /// Holds or fails every load, as the mode says.
     private func gate() async throws {
         switch mode {

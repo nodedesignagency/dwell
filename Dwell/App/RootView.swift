@@ -118,6 +118,9 @@ enum LaunchPage: Equatable {
     case wrap(page: Int)
     /// The Insights design's insight, pushed from Today's deck.
     case insight
+    /// First run, on a page counted from 1: `onboarding` opens it at the start,
+    /// `onboarding2` on Your places (`DWELL_OPEN=onboarding2`).
+    case onboarding(page: Int)
 
     init?(rawValue: String) {
         switch rawValue {
@@ -126,10 +129,21 @@ enum LaunchPage: Equatable {
         case "time": self = .time
         case "insight": self = .insight
         case "wrap": self = .wrap(page: 1)
+        case "onboarding": self = .onboarding(page: 1)
         default:
+            if rawValue.hasPrefix("onboarding"), let page = Int(rawValue.dropFirst(10)) {
+                self = .onboarding(page: page)
+                return
+            }
             guard rawValue.hasPrefix("wrap"), let page = Int(rawValue.dropFirst(4)) else { return nil }
             self = .wrap(page: page)
         }
+    }
+
+    /// The onboarding page to start on, when this opens onboarding.
+    var onboardingPage: OnboardingPage? {
+        guard case .onboarding(let page) = self else { return nil }
+        return OnboardingPage(rawValue: page - 1) ?? .myWorld
     }
 }
 

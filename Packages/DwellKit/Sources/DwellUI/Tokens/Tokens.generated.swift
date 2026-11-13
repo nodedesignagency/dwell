@@ -184,6 +184,36 @@ public enum Palette {
     public static let everythingElse = Color("everythingElse", bundle: .module)
     /// The tint Everything else ticks catch along their top edge
     public static let everythingElseGlint = Color("everythingElseGlint", bundle: .module)
+    /// Onboarding's blue: the foot of My world, the frame round Your places' sheet, the top of See where it all goes and Start my day. Read from the screenshots; the same in dark
+    public static let onboardingSky = Color("onboardingSky", bundle: .module)
+    /// Onboarding's sky a quarter of the way down (220 of 852), where it starts to pale. Read from the screenshots
+    public static let onboardingSkyLight = Color("onboardingSkyLight", bundle: .module)
+    /// Onboarding's sky near the middle (380 of 852), on its way to pink or gold. Read from the screenshots
+    public static let onboardingSkyPale = Color("onboardingSkyPale", bundle: .module)
+    /// See where it all goes: the lavender between the blue and the pink (540 of 852). Read from the screenshot
+    public static let onboardingHaze = Color("onboardingHaze", bundle: .module)
+    /// See where it all goes: the pink at 700 of 852. Read from the screenshot
+    public static let onboardingBlush = Color("onboardingBlush", bundle: .module)
+    /// See where it all goes: the pink at the foot, at the sides. Read from the screenshot
+    public static let onboardingBlushEdge = Color("onboardingBlushEdge", bundle: .module)
+    /// See where it all goes: the deeper pink glowing up from the middle of the foot. Read from the screenshot
+    public static let onboardingBlushDeep = Color("onboardingBlushDeep", bundle: .module)
+    /// Start my day: the pale cream between the blue and the gold (540 of 852). Read from the screenshot
+    public static let onboardingCream = Color("onboardingCream", bundle: .module)
+    /// Start my day: the gold at 700 of 852. Read from the screenshot
+    public static let onboardingGold = Color("onboardingGold", bundle: .module)
+    /// Start my day: the gold at the foot, at the sides. Read from the screenshot
+    public static let onboardingGoldEdge = Color("onboardingGoldEdge", bundle: .module)
+    /// Start my day: the deeper gold glowing up from the middle of the foot. Read from the screenshot
+    public static let onboardingGoldDeep = Color("onboardingGoldDeep", bundle: .module)
+    /// Onboarding: a page dot not showing, on Your places' sheet (on colour the dots are white at 50%). Read from the screenshot
+    public static let pageDot = Color("pageDot", bundle: .module)
+    /// Onboarding's Your places: the chosen role's chip (Save as: Home). Read from the screenshot; the same in dark, with ink on it
+    public static let chipSelected = Color("chipSelected", bundle: .module)
+    /// A link in a field: Select on map (onboarding's Your places). Read from the screenshot
+    public static let link = Color("link", bundle: .module)
+    /// A place's tag on the example art: name and time on a light pill (GF's place 9h). Read from the screenshots; the same in dark, since it sits on photos and the map
+    public static let tag = Color("tag", bundle: .module)
 }
 
 extension PlaceCategory {

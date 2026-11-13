@@ -29,6 +29,8 @@ DWELL_OPEN=time ./scripts/run.sh    # open the Time tab
 DWELL_OPEN=wrap ./scripts/run.sh    # open last week's wrap over Today
 DWELL_OPEN=wrap3 ./scripts/run.sh   # open the wrap on one of its pages, 1 to 7 (3 Weekends, 7 the postcard)
 DWELL_OPEN=insight ./scripts/run.sh # open the Insights page (Today → the office-time insight)
+DWELL_OPEN=onboarding ./scripts/run.sh  # first run: My world, Your places, See where it all goes, Start my day
+DWELL_OPEN=onboarding2 ./scripts/run.sh # onboarding on one of its pages, 1 to 4 (2 Your places, 4 Start my day)
 DWELL_FRESH=1 ./scripts/run.sh     # forget what's been seen, so first-sight animations (View more's streaks sweeping away) play again
 ```
 
@@ -37,6 +39,8 @@ Time opens on the week being lived, which on the sample's Monday afternoon is on
 `DWELL_OPEN` and `DWELL_STATE` combine: `DWELL_OPEN=places DWELL_STATE=firstDay` is Your places with nothing mapped yet, `firstPlace` with one place, `loading`, `failed` and `offline` its other states. The same goes for You: `DWELL_OPEN=you DWELL_STATE=firstDay` has no streaks and every badge locked, `firstPlace` one place and one cell.
 
 `DWELL_STATE=weeklyWrap` shows Today's invite; "Let's go" opens the wrap from it, growing out of the card (iOS 18 and later). `DWELL_OPEN=wrap` opens it at launch instead.
+
+Onboarding shows only when asked for: the sample account finished it long ago. Its pages swipe or move on with their buttons; Start my day's Allow location asks iOS for real, so to see the question again reset the simulator's location answers (Settings → General → Transfer or Reset iPhone → Reset → Reset Location & Privacy). The steps after Start my day (Save your world) and after I already have an account (Welcome back) wait for their designs; "Go to Today" ends onboarding there.
 
 `firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the install day a few minutes after the first place was mapped (at home for 28m, nothing else yet). `weeklyWrap` is the usual Monday with last week's wrap ready and not opened yet. Every state runs on the same clock.
 

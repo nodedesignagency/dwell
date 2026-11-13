@@ -13,6 +13,10 @@ struct DwellApp: App {
     private let demo = UserDefaults.standard.string(forKey: "DwellState").flatMap(DemoRepository.Mode.init(rawValue:))
     /// `-DwellOpen places` at launch opens a page (`DWELL_OPEN=places ./scripts/run.sh`).
     private let open = UserDefaults.standard.string(forKey: "DwellOpen").flatMap(LaunchPage.init(rawValue:))
+    /// First run's page, while onboarding shows. The sample account finished onboarding long
+    /// ago, so until the client's app state says who's new, onboarding shows only when asked
+    /// for (`DWELL_OPEN=onboarding ./scripts/run.sh`); finishing it opens Today.
+    @State private var onboarding: OnboardingPage?
 
     init() {
         // `-DwellFresh YES` at launch forgets what's been seen, so first-sight animations play
@@ -20,16 +24,28 @@ struct DwellApp: App {
         if UserDefaults.standard.bool(forKey: "DwellFresh") {
             FirstSight.reset()
         }
+        let open = UserDefaults.standard.string(forKey: "DwellOpen").flatMap(LaunchPage.init(rawValue:))
+        _onboarding = State(initialValue: open?.onboardingPage)
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView(open: open)
-                .environment(\.dial, Dial(position: dialPosition))
-                // No tracking engine yet (CLAUDE.md): run on the sample week, clock ticking.
-                .sampleWeek(launchedAt: launch, repository: demo.map { DemoRepository($0) as any DwellRepository } ?? SampleRepository())
-                .environment(\.skyPhase, sky)
-                .environment(\.permissions, demo?.permissions ?? .full)
+            Group {
+                if let onboarding {
+                    OnboardingScreen(startsAt: onboarding) {
+                        withAnimation(Motion.standard) { self.onboarding = nil }
+                    }
+                    .transition(.opacity)
+                } else {
+                    RootView(open: open)
+                        .transition(.opacity)
+                }
+            }
+            .environment(\.dial, Dial(position: dialPosition))
+            // No tracking engine yet (CLAUDE.md): run on the sample week, clock ticking.
+            .sampleWeek(launchedAt: launch, repository: demo.map { DemoRepository($0) as any DwellRepository } ?? SampleRepository())
+            .environment(\.skyPhase, sky)
+            .environment(\.permissions, demo?.permissions ?? .full)
         }
     }
 }

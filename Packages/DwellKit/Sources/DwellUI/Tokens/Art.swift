@@ -199,3 +199,43 @@ extension InsightStat.Tint {
         }
     }
 }
+
+extension Art {
+    /// A category's flat glyph as an image (Solar, bold duotone, as a template), or its SF Symbol
+    /// stand-in until the design's arrives. `CategoryIcon(_:style: .glyph)` is the view.
+    public static func glyph(_ category: PlaceCategory) -> Image {
+        category.glyphName.map { Image($0, bundle: .module).renderingMode(.template) }
+            ?? Image(systemName: category.placeholderSymbol)
+    }
+}
+
+extension Art {
+    /// Onboarding's art (onboarding flow, 13 Nov). Stand-ins cut from the screenshots until the
+    /// designer's files arrive [ASSET NEEDED]: soft on a 3x screen, and the living room behind
+    /// Home is covered by the other photos in every screenshot, so a placeholder stands in.
+    public enum Onboarding {
+        /// My world's sky, sun and globe: the top 565 pt of the 393-wide screen (923 × 1326 px,
+        /// 2.35x), the status bar and the page dots painted out.
+        public static let myWorld = Image("onboarding/myWorld", bundle: .module)
+
+        /// An example place's photo, where one has been cut; `nil` draws `PhotoCard`'s
+        /// placeholder.
+        public static func photo(_ photo: OnboardingExample.Spot.Photo) -> Image? {
+            switch photo {
+            case .friend: Image("onboarding/photoFriend", bundle: .module)
+            case .cafe: Image("onboarding/photoCafe", bundle: .module)
+            case .home: nil
+            }
+        }
+
+        /// The glyph on a "Save as" chip, as the design draws them: the house, the office
+        /// buildings, and the cup for Other.
+        public static func role(_ role: SetupRole) -> Image {
+            switch role {
+            case .home: glyph(.home)
+            case .work: glyph(.work)
+            case .other: glyph(.foodAndDrink)
+            }
+        }
+    }
+}
