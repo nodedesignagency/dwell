@@ -85,9 +85,11 @@ public struct TrendBars: View {
 /// Calendar vs reality's ring (Time design): one round-ended mark per meeting, laid clockwise
 /// from twelve o'clock in the order given, with "6/8 meetings" in the middle.
 ///
-/// Measured from the ring's Figma crop (13 Nov): 106 across, marks 12 thick with 6.2 between
-/// their ends. Pink marks catch light along their top edge: Figma's four inner shadows in
-/// `meetingGlint`. A mark without a glint (elsewhere) is flat, as in the design.
+/// Measured from the ring's Figma crop (13 Nov): marks 12 thick with 6.2 between their ends.
+/// The design's ring is 106 across round "meeting", 13 clear of the ring at each end; ours says
+/// "meetings", so it's 112 across to keep that 13 by the "m" (the "s" end gets 14). Pink marks
+/// catch light along their top edge: Figma's four inner shadows in `meetingGlint`. A mark
+/// without a glint (elsewhere) is flat, as in the design.
 ///
 /// The marks are SwiftUI shapes rather than Swift Charts marks, as on the day bar: Charts
 /// doesn't draw inner shadows, and `SectorMark` can't give round ends with this gap. VoiceOver
@@ -109,13 +111,15 @@ public struct MeetingRing: View {
         }
     }
 
-    @ScaledMetric(relativeTo: .title) private var size: CGFloat = 106
+    @ScaledMetric(relativeTo: .title) private var size: CGFloat = MeetingRing.diameter
     private let meetings: [Meeting]
     private let attended: Int
     private let caption: String
     private let title: String
 
-    /// The design's marks: 12 thick and 6.2 apart at 106 across.
+    /// Across, at the default text size; the marks grow with it at larger sizes.
+    static let diameter: CGFloat = 112
+    /// The design's marks: 12 thick and 6.2 apart.
     static let thickness: CGFloat = 12
     static let gap: CGFloat = 6.2
 
@@ -130,7 +134,7 @@ public struct MeetingRing: View {
     }
 
     public var body: some View {
-        let scale = size / 106
+        let scale = size / Self.diameter
         ZStack {
             ZStack {
                 ForEach(Array(meetings.enumerated()), id: \.element.id) { index, meeting in
