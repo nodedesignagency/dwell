@@ -105,8 +105,8 @@ struct TodayContent: View {
     private func loaded(_ model: TodayModel, staleSince: Date?) -> some View {
         banners(staleSince: staleSince)
         if isToday, let wrap = model.wrapToOpen {
-            // Today design, "Weekly Wrap": the invite leads the sheet, 41 above the live card
-            // (the room a dashed divider takes, without the line).
+            // Today design, "Weekly Wrap": the invite leads the sheet. A dashed divider sets it
+            // off from the live card, 20 above and below like every section (the user, 13 Nov).
             WeeklyWrapCard(
                 label: ClockText.dayRange(wrap.firstDay, wrap.lastDay, calendar: calendar),
                 title: TodayCopy.wrapInviteTitle,
@@ -114,7 +114,7 @@ struct TodayContent: View {
                 onOpen: { actions.openWeeklyWrap(wrap) })
                 // The wrap grows out of the card (iOS 18 and later).
                 .wrapZoomSource(id: wrap.id, in: wrapZoom)
-                .padding(.bottom, Space.screen + 1)
+            DashedDivider()
         }
         LiveCard(
             status: model.liveStatus,
