@@ -5,14 +5,12 @@ import SwiftUI
 /// any time. Hour and minute only: it shows a moment that has passed, so nothing ticks and
 /// there's no second hand (the user, 13 Nov).
 ///
-/// The hands follow the designer's reference ("Pure White Clock"): white spears that taper
-/// from a wide base at the centre to a flat tip a little over half as wide, lit along one side
-/// and shaded along the other (`clockHand` to `clockHandShade`), each with a short stub past
-/// the centre, lifted off the face by a soft cool shadow falling down and to the right
-/// (`clockShadow`), the light staying put as they turn. A brass cap covers the centre
-/// (`clockHubLight` to `clockHub`, ringed in `clockHubRim`). Sizes are shares of the clock's
-/// width: the minute hand 0.37 long, 0.036 wide at its base; the hour hand 0.25 long, 0.04
-/// wide; stubs 0.055; the cap 0.045 across. Colours read from the reference.
+/// The hands follow the small black clock in the designer's reference (the user's pick): slim
+/// black bars (`clockHand`) with round ends, both starting at the centre with nothing past it,
+/// tapering a little towards the tip, resting on the face with a faint shadow that keeps its
+/// light as they turn. Measured from the reference as shares of the clock's width: the minute
+/// hand reaches 0.43 from the centre, the hour hand 0.285; both 0.056 wide at the centre,
+/// the minute hand 0.046 at its tip, the hour hand 0.05.
 ///
 /// Motion: once it appears, the hands sweep forward from 12:00 to the time, the minute hand
 /// round and round, and settle with a little give (`Motion.clockSweep`) after `delay`; then
@@ -25,7 +23,7 @@ public struct WallClock: View {
     private let delay: Double
 
     /// - Parameters:
-    ///   - hour: 0 to 23; `nil` with `minute` to show the face with no hands, only its cap.
+    ///   - hour: 0 to 23; `nil` with `minute` to show the face alone.
     ///   - delay: how long after appearing the hands start their sweep.
     public init(hour: Int?, minute: Int?, delay: Double = 0) {
         if let hour, let minute {
@@ -45,11 +43,9 @@ public struct WallClock: View {
                     .scaledToFit()
                 if minutes != nil {
                     // Hour: half a degree a minute. Minute: six.
-                    hand(length: 0.25, base: 0.04, size: size, degrees: shownMinutes * 0.5)
-                    hand(length: 0.37, base: 0.036, size: size, degrees: shownMinutes * 6)
+                    hand(reach: 0.285, base: 0.056, tip: 0.05, size: size, degrees: shownMinutes * 0.5)
+                    hand(reach: 0.43, base: 0.056, tip: 0.046, size: size, degrees: shownMinutes * 6)
                 }
-                BrassCap()
-                    .frame(width: 0.045 * size, height: 0.045 * size)
             }
             .frame(width: size, height: size)
             .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
@@ -60,19 +56,17 @@ public struct WallClock: View {
         .accessibilityHidden(true)
     }
 
-    private func hand(length: CGFloat, base: CGFloat, size: CGFloat, degrees: Double) -> some View {
-        let reach = length * size
-        let stub = 0.055 * size
-        return TaperedHand(pivot: reach / (reach + stub))
-            .fill(LinearGradient(
-                colors: [Palette.clockHand, Palette.clockHandShade],
-                startPoint: .leading, endPoint: .trailing))
-            .frame(width: base * size, height: reach + stub)
-            // Its pivot, `stub` up from the bottom, on the clock's centre.
-            .offset(y: -(reach - stub) / 2)
+    private func hand(reach: CGFloat, base: CGFloat, tip: CGFloat, size: CGFloat, degrees: Double) -> some View {
+        let length = reach * size
+        let width = base * size
+        return SlimHand(tipShare: tip / base, pivot: length / (length + width / 2))
+            .fill(Palette.clockHand)
+            .frame(width: width, height: length + width / 2)
+            // Its pivot, the centre of its round base, on the clock's centre.
+            .offset(y: -(length - width / 2) / 2)
             .rotationEffect(.degrees(degrees))
             // After the turn, so the shadow always falls the same way.
-            .shadow(color: Palette.clockShadow.opacity(0.3), radius: 3, x: 2.5, y: 3)
+            .shadow(color: .black.opacity(0.18), radius: 1.5, x: 1, y: 1.5)
     }
 
     private func sweep() {
@@ -85,39 +79,28 @@ public struct WallClock: View {
     }
 }
 
-/// A clock hand pointing up: a flat tip a little over half the base's width, widening to the
-/// base at `pivot` (a share of the height down), then a stub of the base's width below it.
-nonisolated private struct TaperedHand: Shape {
+/// A clock hand pointing up: round at both ends, the full width at its base (centred at
+/// `pivot`, a share of the height down) narrowing to `tipShare` of it at the tip.
+nonisolated private struct SlimHand: Shape {
+    let tipShare: CGFloat
     let pivot: CGFloat
 
     func path(in rect: CGRect) -> Path {
-        let tip = rect.width * 0.56
+        let base = rect.width / 2
+        let tip = base * tipShare
         let pivotY = rect.minY + rect.height * pivot
+        let tipY = rect.minY + tip
         var path = Path()
-        path.move(to: CGPoint(x: rect.midX - tip / 2, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.midX + tip / 2, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: pivotY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: pivotY))
+        path.move(to: CGPoint(x: rect.midX - base, y: pivotY))
+        path.addLine(to: CGPoint(x: rect.midX - tip, y: tipY))
+        path.addArc(
+            center: CGPoint(x: rect.midX, y: tipY), radius: tip,
+            startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
+        path.addLine(to: CGPoint(x: rect.midX + base, y: pivotY))
+        path.addArc(
+            center: CGPoint(x: rect.midX, y: pivotY), radius: base,
+            startAngle: .degrees(0), endAngle: .degrees(180), clockwise: false)
         path.closeSubpath()
         return path
-    }
-}
-
-/// The brass cap over the hands' pivot: light at its middle, deeper towards a thin darker
-/// ring, catching the light at its top left, with a small shadow of its own.
-private struct BrassCap: View {
-    var body: some View {
-        Circle()
-            .fill(EllipticalGradient(
-                colors: [Palette.clockHubLight, Palette.clockHub],
-                center: UnitPoint(x: 0.4, y: 0.35),
-                startRadiusFraction: 0,
-                endRadiusFraction: 0.6))
-            .overlay {
-                Circle().strokeBorder(Palette.clockHubRim, lineWidth: 0.75)
-            }
-            .shadow(color: Palette.clockShadow.opacity(0.35), radius: 1.5, x: 1, y: 1.5)
     }
 }

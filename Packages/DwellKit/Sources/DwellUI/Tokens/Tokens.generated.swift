@@ -80,18 +80,8 @@ public enum Palette {
     public static let wrapExitCentre = Color("wrapExitCentre", bundle: .module)
     /// Weekly wrap, Earliest exit: the violet at the edge of the radial fill (Figma)
     public static let wrapExitEdge = Color("wrapExitEdge", bundle: .module)
-    /// Weekly wrap, Earliest exit: the clock hands' lit side, white (the designer's reference, Pure White Clock)
+    /// Weekly wrap, Earliest exit: the clock's slim black hands (the designer's reference, its small black clock)
     public static let clockHand = Color("clockHand", bundle: .module)
-    /// Weekly wrap, Earliest exit: the clock hands' shaded side
-    public static let clockHandShade = Color("clockHandShade", bundle: .module)
-    /// Weekly wrap, Earliest exit: the cool shadow the hands and cap cast on the face (drawn at 30-35%)
-    public static let clockShadow = Color("clockShadow", bundle: .module)
-    /// Weekly wrap, Earliest exit: the brass cap's lit middle
-    public static let clockHubLight = Color("clockHubLight", bundle: .module)
-    /// Weekly wrap, Earliest exit: the brass cap towards its edge
-    public static let clockHub = Color("clockHub", bundle: .module)
-    /// Weekly wrap, Earliest exit: the thin ring round the brass cap
-    public static let clockHubRim = Color("clockHubRim", bundle: .module)
     /// Weekly wrap, Weekends: the middle of the page's radial fill. Read from the screenshot under the pattern [VALUES NEEDED]
     public static let wrapWeekendCentre = Color("wrapWeekendCentre", bundle: .module)
     /// Weekly wrap, Weekends: the edge of the page's radial fill. Read from the screenshot under the pattern [VALUES NEEDED]
