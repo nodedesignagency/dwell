@@ -60,7 +60,7 @@ public enum Palette {
     public static let glass = Color("glass", bundle: .module)
     /// You: the pills' glass ("41 places", "3.2% mapped", "Your dial"): white 65% (Figma)
     public static let glassPill = Color("glassPill", bundle: .module)
-    /// You: the pills' drop shadow: Figma's #1B1C1D at 5%, set at 7.7% because SwiftUI casts it from the glass's 65%, so it lands at 5%
+    /// You: the pills' drop shadow, #1B1C1D at 5% (Figma)
     public static let glassShadow = Color("glassShadow", bundle: .module)
     /// The back button's glass before iOS 26: white 80% under the drawn glass (Figma)
     public static let glassControl = Color("glassControl", bundle: .module)

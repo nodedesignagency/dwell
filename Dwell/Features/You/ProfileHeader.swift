@@ -117,8 +117,9 @@ private enum AvatarPinMetrics {
 /// Matched to the Figma screenshot (13 Nov): the design's map is a close-up shrunk down, so its
 /// streets read as blocks and its labels are tiny. Drawn the same way: the map at 2.2 times the
 /// size, then shrunk, so a 250 m cell comes out about 10.5 across (24 m to the point) and the
-/// labels about 5 pt. Nearly full strength round the picture, fading from 72 out to nothing
-/// at 100, a circle like Figma's (13 Nov). The
+/// labels about 5 pt. Nearly full strength round the picture out to 92 from its centre, fading
+/// to nothing at 125, a circle like Figma's (13 Nov: it reaches about 95 up and down and 115
+/// to the left). The
 /// cells solid (#D698F9) with thin white seams, over a faint lilac haze around them.
 struct ProfileMap: View {
     static let size = CGSize(width: 330, height: 250)
@@ -149,14 +150,14 @@ struct ProfileMap: View {
         .frame(width: Self.size.width, height: Self.size.height)
         .opacity(0.9)
         .mask {
-            // As in Figma: a circle round the picture, full to 72 from its centre, gone by 100.
+            // As in Figma: a circle round the picture, full to 92 from its centre, gone by 125.
             RadialGradient(
                 stops: [
                     .init(color: .black, location: 0),
-                    .init(color: .black, location: 0.72),
+                    .init(color: .black, location: 92 / 125),
                     .init(color: .clear, location: 1),
                 ],
-                center: .center, startRadius: 0, endRadius: 100)
+                center: .center, startRadius: 0, endRadius: 125)
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)

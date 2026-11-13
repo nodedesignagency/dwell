@@ -8,17 +8,18 @@ extension View {
     }
 }
 
-/// Figma's pill glass, matched to the Figma screenshot (13 Nov). Fill white 65%; inside it a
-/// touch darker at the top and lighter at the bottom (about 3 below the page's grey under the
-/// top edge, 3 above it near the bottom), as Figma's Glass draws it; a 1-pt white rim all the
-/// way round; and Figma's drop shadow, y 5.42, blur 10.85 (SwiftUI radius 5.43), #1B1C1D,
-/// cast by the glass itself so it shows through it ("show behind transparent areas"). SwiftUI
-/// casts a shadow from the glass's own 65%, so the colour is set at 7.7% to land at Figma's 5%.
-/// Figma's refraction and dispersion aren't drawn.
+/// Figma's pill glass, matched to the Figma screenshot (13 Nov). What's behind is frosted, as
+/// Figma's Glass frosts it: the map shows through only as a soft blur, never as streets (the
+/// user, 13 Nov), so a system material sits under the fill. Fill white 65%; inside it a touch
+/// darker at the top and lighter at the bottom (about 3 below the page's grey under the top
+/// edge, 3 above it near the bottom); a 1-pt white rim all the way round; and Figma's drop
+/// shadow, y 5.42, blur 10.85 (SwiftUI radius 5.43), #1B1C1D at 5%. Figma's refraction and
+/// dispersion aren't drawn.
 struct PillGlass: View {
     var body: some View {
         Capsule()
-            .fill(Palette.glassPill)
+            .fill(.ultraThinMaterial)
+            .overlay { Capsule().fill(Palette.glassPill) }
             .overlay {
                 Capsule().fill(LinearGradient(
                     colors: [.black.opacity(0.02), .white.opacity(0.2)],
