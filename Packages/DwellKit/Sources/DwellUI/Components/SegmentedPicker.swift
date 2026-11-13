@@ -6,7 +6,8 @@ import SwiftUI
 ///
 /// Measured from the screenshot (393 pt): the range control spans the content (353), 44 tall,
 /// the pill 34 tall and 5 in from the track; labels 14 medium in ink, the chosen one and the
-/// rest alike. The compact size hugs its labels (12 medium, 10 across), 30 tall.
+/// rest alike. The compact size hugs its labels (12 medium, 12 across as in Figma, 13 Nov; the
+/// pill 24 tall), 30 tall.
 ///
 /// The design's look over the system's behaviour: VoiceOver meets a system segmented `Picker`
 /// (`accessibilityRepresentation`). The pill slides on `Motion.standard`; under Reduce Motion
@@ -83,7 +84,7 @@ public struct SegmentedPicker<Value: Hashable>: View {
                 .foregroundStyle(Palette.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
-                .padding(.horizontal, size == .regular ? Space.xs : 10)
+                .padding(.horizontal, size == .regular ? Space.xs : Space.m)
                 .frame(maxWidth: size == .regular ? .infinity : nil)
                 .frame(minHeight: size == .regular ? regularPill : compactPill)
                 .background {

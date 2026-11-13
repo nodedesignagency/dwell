@@ -50,6 +50,12 @@ public struct GlassSquareButtonStyle: ButtonStyle {
         let label = configuration.label.padding(10)
         if #available(iOS 26.0, macOS 26.0, *) {
             label
+                // Lifted: Figma's white 65% over the glass, under the icon.
+                .background {
+                    if lifted {
+                        shape.fill(Palette.glassPill)
+                    }
+                }
                 .glassEffect(.regular.interactive(), in: shape)
                 .background {
                     if lifted {
@@ -80,7 +86,7 @@ extension ButtonStyle where Self == GlassSquareButtonStyle {
     /// Time's share button (Figma, 13 Nov): the back button's Glass (light −45° at 80%,
     /// refraction 80, depth 20, dispersion 50, frost 4, splay 0) over white 65% (`glassPill`),
     /// with a drop shadow, y 5, blur 10, #1B1C1D at 5% (`glassShadow`), shown behind the glass.
-    /// On iOS 26 and later the white is left to Liquid Glass's own frost, as on the back button.
+    /// On iOS 26 and later the white 65% is laid over Liquid Glass, as Figma lays its fill.
     public static var liftedGlassSquare: GlassSquareButtonStyle {
         GlassSquareButtonStyle(lifted: true)
     }
@@ -90,14 +96,16 @@ extension ButtonStyle where Self == GlassSquareButtonStyle {
 /// button and the selected pills): Glass light −45° at 80%, refraction 80, depth 20,
 /// dispersion 50, frost 4, splay 0; fill white 65% (`glassPill`); drop shadow y 5, blur 10,
 /// #1B1C1D at 5% (`glassShadow`); no border. On iOS 26 and later it's Liquid Glass in the
-/// shape, the white left to the glass's own frost (tinting turned the close button solid
-/// white); before, the drawn glass over the white 65%.
+/// shape with the white 65% laid over it, as Figma lays its fill (the user, 13 Nov: the tab's
+/// colour is white 65%; the bare glass read grey on the track); before, the drawn glass over
+/// the white 65%.
 struct LiftedGlass<S: InsettableShape>: View {
     let shape: S
 
     var body: some View {
         if #available(iOS 26.0, macOS 26.0, *) {
-            Color.clear
+            shape
+                .fill(Palette.glassPill)
                 .glassEffect(.regular, in: shape)
                 .background { GlassDropShadow(shape: shape) }
         } else {
