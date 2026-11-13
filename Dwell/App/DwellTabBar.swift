@@ -167,3 +167,36 @@ private struct TabBarClearance: ViewModifier {
         content.safeAreaPadding(.bottom, height)
     }
 }
+
+/// Which pages have sent the tab bar away. `RootView` owns one and hides the bar while any
+/// page holds it; a page holds it with `.hidesTabBar()`.
+@Observable
+final class TabBarVisibility {
+    private var hiders: Set<UUID> = []
+
+    var isHidden: Bool { !hiders.isEmpty }
+
+    func hide(for page: UUID) { hiders.insert(page) }
+    func show(for page: UUID) { hiders.remove(page) }
+}
+
+extension View {
+    /// An inside page, where the tab bar doesn't show (the user's word, 13 Nov: Insights is
+    /// "one of the inside pages where tab/nav won't show"). The bar slides away as the page is
+    /// pushed and comes back once it's popped; under Reduce Motion it fades. Use instead of
+    /// `.clearsTabBar()`: the page has the bottom of the screen to itself.
+    func hidesTabBar() -> some View {
+        modifier(TabBarHider())
+    }
+}
+
+private struct TabBarHider: ViewModifier {
+    @Environment(TabBarVisibility.self) private var visibility: TabBarVisibility?
+    @State private var page = UUID()
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear { visibility?.hide(for: page) }
+            .onDisappear { visibility?.show(for: page) }
+    }
+}

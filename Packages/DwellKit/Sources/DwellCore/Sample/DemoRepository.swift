@@ -99,6 +99,11 @@ public struct DemoRepository: DwellRepository {
 
     public func dismissInsight(_ id: Insight.ID) async throws {}
 
+    public func insightDetail(for insight: Insight) async throws -> InsightDetail {
+        try await gate()
+        return try await sample.insightDetail(for: insight)
+    }
+
     public func weeklyWrap() async throws -> WeeklyWrap? {
         try await gate()
         switch mode {

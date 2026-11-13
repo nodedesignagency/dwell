@@ -14,6 +14,9 @@ public protocol DwellRepository: Sendable {
     func confirmVisit(_ id: VisitID) async throws
     /// "Not useful": the insight leaves the deck and the engine learns from it.
     func dismissInsight(_ id: Insight.ID) async throws
+    /// What an insight opens into (the Insights page): its sentence, the weeks behind it and
+    /// its numbers. An insight with no detail of its own answers `InsightDetail(insight:)`.
+    func insightDetail(for insight: Insight) async throws -> InsightDetail
     /// The latest weekly wrap, from Sunday 6 PM on; `nil` before the first full week.
     func weeklyWrap() async throws -> WeeklyWrap?
     /// The user opened the wrap from Today's invite, so the invite goes.
@@ -91,6 +94,10 @@ public struct SampleRepository: DwellRepository {
     public func confirmVisit(_ id: VisitID) async throws {}
 
     public func dismissInsight(_ id: Insight.ID) async throws {}
+
+    public func insightDetail(for insight: Insight) async throws -> InsightDetail {
+        SampleData.insightDetail(for: insight)
+    }
 
     /// Maya opened last week's wrap on Sunday evening, so Today shows no invite.
     public func weeklyWrap() async throws -> WeeklyWrap? {

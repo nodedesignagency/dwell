@@ -1,3 +1,4 @@
+import DwellCore
 import DwellUI
 import SwiftUI
 
@@ -37,24 +38,28 @@ struct RootView: View {
 
     @State private var tab: Tab
     @State private var tabBarHeight: CGFloat = 0
+    @State private var tabBarVisibility = TabBarVisibility()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let youPath: [YouPage]
     private let opensWrap: Bool
+    private let opensInsight: Insight.ID?
 
     /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
     init(open: LaunchPage? = nil) {
         let tab: Tab = switch open {
-        case nil, .wrap: .today
+        case nil, .wrap, .insight: .today
         case .you, .places: .you
         case .time: .time
         }
         _tab = State(initialValue: tab)
         youPath = open == .places ? [.places] : []
         opensWrap = open == .wrap
+        opensInsight = open == .insight ? SampleData.officeInsightID : nil
     }
 
     var body: some View {
         TabView(selection: $tab) {
-            TodayScreen(openProfile: { tab = .you }, opensWrap: opensWrap)
+            TodayScreen(openProfile: { tab = .you }, opensWrap: opensWrap, opensInsight: opensInsight)
                 .tag(Tab.today)
                 .toolbar(.hidden, for: .tabBar)
             MapScreen()
@@ -68,7 +73,10 @@ struct RootView: View {
                 .toolbar(.hidden, for: .tabBar)
         }
         .environment(\.tabBarHeight, tabBarHeight)
+        .environment(tabBarVisibility)
         .overlay(alignment: .bottom) {
+            let isHidden = tabBarVisibility.isHidden
+            let slides = isHidden && !reduceMotion
             DwellTabBar(selection: $tab)
                 .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
                     // A measurement, never an animation: the screens' insets snap to it.
@@ -76,6 +84,16 @@ struct RootView: View {
                     still.disablesAnimations = true
                     withTransaction(still) { tabBarHeight = height }
                 }
+                // An inside page sends the bar away (`.hidesTabBar()`): it slides down past
+                // the screen's edge, or fades under Reduce Motion. Its measured height stays,
+                // so the screens behind keep their insets for its return.
+                .visualEffect { content, proxy in
+                    content.offset(y: slides ? proxy.size.height + 60 : 0)
+                }
+                .opacity(isHidden ? 0 : 1)
+                .allowsHitTesting(!isHidden)
+                .accessibilityHidden(isHidden)
+                .motion(value: isHidden)
                 // Stays at the bottom under the keyboard, like the system bar.
                 .ignoresSafeArea(.keyboard)
         }
@@ -92,6 +110,8 @@ enum LaunchPage: String {
     case time
     /// Last week's wrap, over Today.
     case wrap
+    /// The Insights design's insight, pushed from Today's deck.
+    case insight
 }
 
 /// Holds a tab's place until its design arrives.

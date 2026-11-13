@@ -158,3 +158,30 @@ extension Art {
         }
     }
 }
+
+extension Art {
+    /// The Insights tiles' 3D art (Insights design): the alarm clock by the week's time, the
+    /// briefcase by your usual (Today's At work tile), the sunrise by the WFH days (Today's
+    /// Yours tile). The alarm clock is a stand-in, the headline's clock, until the design's
+    /// arrives [ICON NEEDED] (the weekly wrap waits on the same one). The chart stands by an
+    /// insight's lone number.
+    public static func insightStat(_ icon: InsightStat.Icon) -> Image {
+        switch icon {
+        case .alarmClock: Illustration.clock
+        case .briefcase: heroWork
+        case .sunrise: heroYours
+        case .chart: Illustration.chart
+        }
+    }
+}
+
+extension InsightStat.Tint {
+    /// The glow behind a tile's art.
+    public var color: Color {
+        switch self {
+        case .category(let category): category.color
+        case .yours: Palette.yours
+        case .accent: Palette.accent
+        }
+    }
+}

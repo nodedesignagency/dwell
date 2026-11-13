@@ -24,6 +24,7 @@ public struct SegmentedPicker<Value: Hashable>: View {
     private let options: [Value]
     private let size: Size
     private let title: (Value) -> String
+    private let spokenTitle: (Value) -> String
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var pill
@@ -33,12 +34,22 @@ public struct SegmentedPicker<Value: Hashable>: View {
     /// - Parameters:
     ///   - label: what's being chosen, for VoiceOver: "Range".
     ///   - title: each option's label.
-    public init(_ label: String, selection: Binding<Value>, options: [Value], size: Size = .regular, title: @escaping (Value) -> String) {
+    ///   - spokenTitle: what VoiceOver reads for an option, where its label is shorthand
+    ///     ("4W" is "4 weeks"). Defaults to the label.
+    public init(
+        _ label: String,
+        selection: Binding<Value>,
+        options: [Value],
+        size: Size = .regular,
+        title: @escaping (Value) -> String,
+        spokenTitle: ((Value) -> String)? = nil
+    ) {
         self.label = label
         _selection = selection
         self.options = options
         self.size = size
         self.title = title
+        self.spokenTitle = spokenTitle ?? title
     }
 
     public var body: some View {
@@ -53,7 +64,7 @@ public struct SegmentedPicker<Value: Hashable>: View {
         .accessibilityRepresentation {
             Picker(label, selection: $selection) {
                 ForEach(options, id: \.self) { option in
-                    Text(verbatim: title(option)).tag(option)
+                    Text(verbatim: spokenTitle(option)).tag(option)
                 }
             }
             .pickerStyle(.segmented)

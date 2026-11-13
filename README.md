@@ -27,6 +27,7 @@ DWELL_OPEN=you ./scripts/run.sh     # open You
 DWELL_OPEN=places ./scripts/run.sh  # open Your places (You → Your places)
 DWELL_OPEN=time ./scripts/run.sh    # open the Time tab
 DWELL_OPEN=wrap ./scripts/run.sh    # open last week's wrap over Today
+DWELL_OPEN=insight ./scripts/run.sh # open the Insights page (Today → the office-time insight)
 ```
 
 Time opens on the week being lived, which on the sample's Monday afternoon is one day so far; tap the dates (or Week → the pill) and pick Oct 19 – 25 for a full week like the design. Behind the sample week are seven generated weeks back to the install day (31 August), so weeks, months and the year have something to compare.

@@ -105,15 +105,19 @@ extension ButtonStyle where Self == SoftButtonStyle {
 
 /// The navy capsule for a sheet's one action: "Yes, turn on" (Today design, "Turn Location").
 /// 44 tall, full width, the label 20 medium in white, with the confirmation card's top light
-/// and its streaks sweeping across on a loop; pressed, it dims.
+/// and its streaks sweeping across on a loop; pressed, it dims. Insights' "Share" sets its
+/// label at 18 (`.primary(role: .action)`, measured from the screenshot).
 public struct PrimaryButtonStyle: ButtonStyle {
     @ScaledMetric(relativeTo: .title3) private var height: CGFloat = 44
+    private let role: TextRole
 
-    public init() {}
+    public init(role: TextRole = .title) {
+        self.role = role
+    }
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .textRole(.title)
+            .textRole(role)
             .foregroundStyle(Palette.inverseText)
             .padding(.horizontal, Space.l)
             .frame(maxWidth: .infinity, minHeight: height)
@@ -130,6 +134,43 @@ public struct PrimaryButtonStyle: ButtonStyle {
 
 extension ButtonStyle where Self == PrimaryButtonStyle {
     public static var primary: PrimaryButtonStyle { PrimaryButtonStyle() }
+
+    public static func primary(role: TextRole) -> PrimaryButtonStyle {
+        PrimaryButtonStyle(role: role)
+    }
+}
+
+/// The white capsule beside a navy one: "Not useful" (Insights design, 13 Nov). 44 tall, full
+/// width, the label 18 medium in ink on the card's white, lifted off the page by a soft shadow
+/// (black 5%, radius 10, y 4, estimated from the screenshot [VALUES NEEDED]); in dark mode,
+/// where shadows vanish, the card's edge. Pressed, it dims.
+public struct SecondaryButtonStyle: ButtonStyle {
+    @ScaledMetric(relativeTo: .body) private var height: CGFloat = 44
+    private let role: TextRole
+
+    public init(role: TextRole = .action) {
+        self.role = role
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .textRole(role)
+            .foregroundStyle(Palette.textPrimary)
+            .padding(.horizontal, Space.l)
+            .frame(maxWidth: .infinity, minHeight: height)
+            .background {
+                Capsule()
+                    .fill(Palette.surface)
+                    .shadow(color: .black.opacity(0.05), radius: 10, y: 4)
+            }
+            .overlay { Capsule().strokeBorder(Palette.cardStroke, lineWidth: 1) }
+            .contentShape(.capsule)
+            .opacity(configuration.isPressed ? 0.6 : 1)
+    }
+}
+
+extension ButtonStyle where Self == SecondaryButtonStyle {
+    public static var secondary: SecondaryButtonStyle { SecondaryButtonStyle() }
 }
 
 /// A section title with its icon and an optional control on the trailing side:

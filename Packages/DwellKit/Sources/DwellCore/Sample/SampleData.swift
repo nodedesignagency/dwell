@@ -107,7 +107,14 @@ public enum SampleData {
 
     /// Today's deck, lines from the brief's copy deck (Appendix B). The first is the hero.
     /// Only lines that hold on Monday 26 October: the 10h 12m record ("…today") lives in `records`.
+    /// Second, the Insights design's office time against usual, counted from the timeline
+    /// (`SampleInsights.swift`).
     public static let insights: [Insight] = [
+        appendixInsights[0],
+        officeInsight,
+    ].compactMap { $0 } + appendixInsights.dropFirst()
+
+    private static let appendixInsights: [Insight] = [
         Insight(
             id: "weekend-zero-work", family: .first,
             topic: "Work hours", // [COPY NEEDED]

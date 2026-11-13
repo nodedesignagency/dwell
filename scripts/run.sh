@@ -8,7 +8,7 @@
 #                                       # failed, offline, transit, lastSeen, locationDenied, whenInUse,
 #                                       # preciseOff, motionDenied
 #   DWELL_OPEN=you ./scripts/run.sh     # open a page: you (the You tab), places (Your places, from You), time (the Time tab),
-#                                       # wrap (last week's wrap, over Today)
+#                                       # wrap (last week's wrap, over Today), insight (the Insights page, from Today)
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.
 set -euo pipefail

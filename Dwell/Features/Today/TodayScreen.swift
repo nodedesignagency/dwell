@@ -16,6 +16,8 @@ struct TodayScreen: View {
     var openProfile: () -> Void = {}
     /// Opens last week's wrap once Today has loaded, for reviewing it (`DWELL_OPEN=wrap`).
     var opensWrap = false
+    /// Opens this insight's page once Today has loaded, for reviewing it (`DWELL_OPEN=insight`).
+    var opensInsight: Insight.ID?
 
     @Environment(\.repository) private var repository
     @Environment(\.fixedNow) private var fixedNow
@@ -38,6 +40,9 @@ struct TodayScreen: View {
     @State private var hasOpenedWrapAtLaunch = false
     @Namespace private var wrapZoom
     @State private var openPlace: PlaceID?
+    /// The insight whose page is pushed (Insights design): an inside page, no tab bar.
+    @State private var openInsight: Insight?
+    @State private var hasOpenedInsightAtLaunch = false
     @State private var pending: PendingSheet?
     @State private var isAskingForLocation = false
     @State private var hasAskedForLocation = false
@@ -67,6 +72,12 @@ struct TodayScreen: View {
             .navigationDestination(item: $openPlace) { _ in
                 PendingView(title: "Place page", systemImage: "mappin.and.ellipse")
                     .clearsTabBar()
+            }
+            .navigationDestination(item: $openInsight) { insight in
+                InsightScreen(
+                    insight: insight,
+                    onShare: { pending = .share($0.id) },
+                    onNotUseful: dismissInsight)
             }
             .sheet(item: $pending) { sheet in
                 PendingView(title: sheet.title, systemImage: sheet.systemImage)
@@ -131,6 +142,12 @@ struct TodayScreen: View {
         withTransaction(still, change)
     }
 
+    /// "Not useful", from the deck or the insight's page: it leaves the deck.
+    private func dismissInsight(_ insight: Insight) {
+        dismissed.insert(insight.id)
+        Task { try? await repository.dismissInsight(insight.id) }
+    }
+
     private func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             openURL(url)
@@ -180,6 +197,10 @@ struct TodayScreen: View {
                 hasOpenedWrapAtLaunch = true
                 showWrap(weeklyWrap)
             }
+            if let opensInsight, !hasOpenedInsightAtLaunch, let insight = insights.first(where: { $0.id == opensInsight }) {
+                hasOpenedInsightAtLaunch = true
+                openInsight = insight
+            }
         } catch is CancellationError {
             return
         } catch let error as LoadError {
@@ -212,12 +233,9 @@ struct TodayScreen: View {
             },
             pickAnother: { pending = .placePicker($0.id) },
             openWeeklyWrap: showWrap,
-            openInsight: { pending = .insight($0.id) },
+            openInsight: { openInsight = $0 },
             share: { pending = .share($0.id) },
-            notUseful: { insight in
-                dismissed.insert(insight.id)
-                Task { try? await repository.dismissInsight(insight.id) }
-            },
+            notUseful: dismissInsight,
             fixPermission: { banner in
                 if banner == .locationDenied {
                     isAskingForLocation = true
@@ -232,13 +250,11 @@ struct TodayScreen: View {
 /// Sheets whose designs haven't arrived. Each says so instead of guessing.
 private enum PendingSheet: Identifiable {
     case placePicker(VisitID)
-    case insight(Insight.ID)
     case share(Insight.ID)
 
     var id: String {
         switch self {
         case .placePicker(let id): "picker-\(id)"
-        case .insight(let id): "insight-\(id)"
         case .share(let id): "share-\(id)"
         }
     }
@@ -246,7 +262,6 @@ private enum PendingSheet: Identifiable {
     var title: String {
         switch self {
         case .placePicker: "Place picker"
-        case .insight: "Insight detail"
         case .share: "Share preview"
         }
     }
@@ -254,7 +269,6 @@ private enum PendingSheet: Identifiable {
     var systemImage: String {
         switch self {
         case .placePicker: "mappin.and.ellipse"
-        case .insight: "sparkles"
         case .share: "square.and.arrow.up"
         }
     }

@@ -2,25 +2,40 @@ import SwiftUI
 
 /// A hero stat: one number, its label, and an icon with a glow behind it (Today design:
 /// "4h 29m · At work", "57m · Yours"). The label is a plain label, never voiced.
+///
+/// Compact (Insights design, "31h · this week"): three to a row, 54 tall, the number and its
+/// label touching (0 apart), 13 across and 9 down, the art 20, corners 13. Measured from the
+/// screenshot. On the page rather than in a card, so the caller lifts it with `.card(radius:)`.
 public struct StatTile<Icon: View>: View {
-    @ScaledMetric(relativeTo: .callout) private var iconSize: CGFloat = 33
+    public enum Size: Sendable {
+        /// Today's hero tiles: 13 all round, art 33, number and label 4 apart, corners 16.
+        case regular
+        /// The Insights tiles.
+        case compact
+    }
+
+    @ScaledMetric(relativeTo: .callout) private var regularIcon: CGFloat = 33
+    @ScaledMetric(relativeTo: .callout) private var compactIcon: CGFloat = 20
     private let value: String
     private let label: String
     private let spokenValue: String
     private let tint: Color
     private let labelFirst: Bool
+    private let size: Size
     private let icon: Icon
 
     /// - Parameters:
     ///   - spokenValue: what VoiceOver reads for `value`, e.g. "4 hours, 40 minutes".
     ///   - labelFirst: the label over the number (Time's "At work · 42h 29m"); Today's tiles
     ///     put the number first.
+    ///   - size: compact for the Insights tiles.
     public init(
         value: String,
         label: String,
         spokenValue: String? = nil,
         tint: Color,
         labelFirst: Bool = false,
+        size: Size = .regular,
         @ViewBuilder icon: () -> Icon
     ) {
         self.value = value
@@ -28,12 +43,16 @@ public struct StatTile<Icon: View>: View {
         self.spokenValue = spokenValue ?? value
         self.tint = tint
         self.labelFirst = labelFirst
+        self.size = size
         self.icon = icon()
     }
 
+    private var iconSize: CGFloat { size == .compact ? compactIcon : regularIcon }
+    private var radius: CGFloat { size == .compact ? Radius.m : Radius.l }
+
     public var body: some View {
         HStack(spacing: Space.s) {
-            VStack(alignment: .leading, spacing: Space.xs) {
+            VStack(alignment: .leading, spacing: size == .compact ? 0 : Space.xs) {
                 if labelFirst {
                     labelText
                     valueText
@@ -47,7 +66,8 @@ public struct StatTile<Icon: View>: View {
                 .frame(width: iconSize, height: iconSize)
                 .accessibilityHidden(true)
         }
-        .padding(13)
+        .padding(.horizontal, 13)
+        .padding(.vertical, size == .compact ? 9 : 13)
         .frame(maxWidth: .infinity)
         .background {
             GeometryReader { proxy in
@@ -59,10 +79,10 @@ public struct StatTile<Icon: View>: View {
                         .position(x: proxy.size.width - 13 - iconSize / 2, y: proxy.size.height / 2)
                 }
             }
-            .clipShape(.rect(cornerRadius: Radius.l))
+            .clipShape(.rect(cornerRadius: radius))
         }
         .overlay {
-            RoundedRectangle(cornerRadius: Radius.l)
+            RoundedRectangle(cornerRadius: radius)
                 .strokeBorder(Palette.separator.opacity(0.7), lineWidth: 1)
         }
         .accessibilityElement(children: .ignore)
@@ -74,12 +94,16 @@ public struct StatTile<Icon: View>: View {
         Text(verbatim: value)
             .textRole(.dataStat)
             .foregroundStyle(Palette.textPrimary)
+            .lineLimit(size == .compact ? 1 : nil)
+            .minimumScaleFactor(size == .compact ? 0.8 : 1)
     }
 
     private var labelText: some View {
         Text(verbatim: label)
             .textRole(.caption)
             .foregroundStyle(Palette.textSecondary)
+            .lineLimit(size == .compact ? 1 : nil)
+            .minimumScaleFactor(size == .compact ? 0.8 : 1)
     }
 }
 
