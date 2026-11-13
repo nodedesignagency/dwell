@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// The design's segmented control (Time design: "Day · Week · Month · Year", and the small
-/// "Weekday · Weekend" on Your rhythm): a capsule track in `segmentTrack` with the tab bar's
-/// white pill behind the chosen option, sliding between them.
+/// "Weekday · Weekend" on Your rhythm): a capsule track in `segmentTrack` with a pill of
+/// glass behind the chosen option (`SelectedPill`), sliding between them.
 ///
 /// Measured from the screenshot (393 pt): the range control spans the content (353), 44 tall,
 /// the pill 34 tall and 5 in from the track; labels 14 medium in ink, the chosen one and the
@@ -99,19 +99,14 @@ public struct SegmentedPicker<Value: Hashable>: View {
     }
 }
 
-/// The white pill behind a chosen option: the tab bar's (Figma "tabPills"): white 80%, a 1-pt
-/// #F6F6F6 border inside and four soft drop shadows (y 26.05, 14.37, 5.86, 1.2; blur 10.78,
-/// 8.36, 5.86, 3.59; black 1, 2, 4, 4%), SwiftUI's radius half Figma's blur.
+/// The pill behind a chosen option (Figma, 13 Nov: Time's Day · Week · Month · Year and
+/// Weekday · Weekend): Glass over white 65% with a drop shadow, y 5, blur 10, #1B1C1D at 5%,
+/// shown behind the glass; no border (`LiftedGlass`, as on Time's share button). The tab bar's
+/// pill keeps its own Figma values (`DwellTabBar`).
 public struct SelectedPill: View {
     public init() {}
 
     public var body: some View {
-        Capsule()
-            .fill(Palette.tabPill)
-            .overlay { Capsule().strokeBorder(Palette.tabPillStroke, lineWidth: 1) }
-            .shadow(color: .black.opacity(0.01), radius: 5.39, y: 26.05)
-            .shadow(color: .black.opacity(0.02), radius: 4.18, y: 14.37)
-            .shadow(color: .black.opacity(0.04), radius: 2.93, y: 5.86)
-            .shadow(color: .black.opacity(0.04), radius: 1.8, y: 1.2)
+        LiftedGlass(shape: Capsule())
     }
 }

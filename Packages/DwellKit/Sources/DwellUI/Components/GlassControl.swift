@@ -34,15 +34,13 @@ extension ButtonStyle where Self == GlassCircleButtonStyle {
 /// white. Before iOS 26, the close button's drawn glass over white 80%, with a soft shadow so
 /// it lifts off a light page; pressed, it sinks a touch.
 public struct GlassSquareButtonStyle: ButtonStyle {
-    private let fill: Color
     private let lifted: Bool
 
     public init() {
-        self.init(fill: Palette.glassControl, lifted: false)
+        self.init(lifted: false)
     }
 
-    fileprivate init(fill: Color, lifted: Bool) {
-        self.fill = fill
+    fileprivate init(lifted: Bool) {
         self.lifted = lifted
     }
 
@@ -63,12 +61,9 @@ public struct GlassSquareButtonStyle: ButtonStyle {
             label
                 .background {
                     if lifted {
-                        ZStack {
-                            GlassDropShadow(shape: shape)
-                            DrawnGlass(shape: shape, fill: fill)
-                        }
+                        LiftedGlass(shape: shape)
                     } else {
-                        DrawnGlass(shape: shape, fill: fill)
+                        DrawnGlass(shape: shape, fill: Palette.glassControl)
                             .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
                     }
                 }
@@ -87,7 +82,30 @@ extension ButtonStyle where Self == GlassSquareButtonStyle {
     /// with a drop shadow, y 5, blur 10, #1B1C1D at 5% (`glassShadow`), shown behind the glass.
     /// On iOS 26 and later the white is left to Liquid Glass's own frost, as on the back button.
     public static var liftedGlassSquare: GlassSquareButtonStyle {
-        GlassSquareButtonStyle(fill: Palette.glassPill, lifted: true)
+        GlassSquareButtonStyle(lifted: true)
+    }
+}
+
+/// Figma's Glass over white 65% with its drop shadow shown behind it (Time, 13 Nov: the share
+/// button and the selected pills): Glass light −45° at 80%, refraction 80, depth 20,
+/// dispersion 50, frost 4, splay 0; fill white 65% (`glassPill`); drop shadow y 5, blur 10,
+/// #1B1C1D at 5% (`glassShadow`); no border. On iOS 26 and later it's Liquid Glass in the
+/// shape, the white left to the glass's own frost (tinting turned the close button solid
+/// white); before, the drawn glass over the white 65%.
+struct LiftedGlass<S: InsettableShape>: View {
+    let shape: S
+
+    var body: some View {
+        if #available(iOS 26.0, macOS 26.0, *) {
+            Color.clear
+                .glassEffect(.regular, in: shape)
+                .background { GlassDropShadow(shape: shape) }
+        } else {
+            ZStack {
+                GlassDropShadow(shape: shape)
+                DrawnGlass(shape: shape, fill: Palette.glassPill)
+            }
+        }
     }
 }
 
