@@ -110,12 +110,14 @@ public enum Palette {
     public static let insetSurface = Color("insetSurface", bundle: .module)
     /// Time: the yours bars in Work and yours (work's are the Work colour). Read from the screenshot
     public static let yoursChart = Color("yoursChart", bundle: .module)
-    /// Time: Calendar vs reality, an attended meeting on the ring. Read from the screenshot
+    /// Time: Calendar vs reality, an attended meeting on the ring. Read from the ring's Figma crop (13 Nov), under its glint
     public static let meetingAttended = Color("meetingAttended", bundle: .module)
-    /// Time: Calendar vs reality, a meeting left early or joined late. Read from the screenshot
+    /// Time: Calendar vs reality, a meeting left early or joined late. Read from the ring's Figma crop (13 Nov), under its glint
     public static let meetingPartial = Color("meetingPartial", bundle: .module)
-    /// Time: Calendar vs reality, a meeting you were elsewhere for. Read from the screenshot
+    /// Time: Calendar vs reality, a meeting you were elsewhere for. Read from the ring's Figma crop (13 Nov); drawn flat
     public static let meetingMissed = Color("meetingMissed", bundle: .module)
+    /// Time: the light the ring's pink marks catch along their top edge. Figma's inner shadows (13 Nov); the same pink as work's glint
+    public static let meetingGlint = Color("meetingGlint", bundle: .module)
     /// Time: a record tile's band, for a length of time (Longest day). Read from the screenshot
     public static let recordDuration = Color("recordDuration", bundle: .module)
     /// Time: a record tile's band, for a time of day (Earliest in). Read from the screenshot

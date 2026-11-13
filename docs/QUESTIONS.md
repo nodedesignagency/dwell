@@ -75,6 +75,8 @@ The user asked to be reminded of these before the work is handed to the client. 
 51. **Insights: art needed.** The tiles' 3D alarm clock (the weekly wrap waits on the same one); the headline's clock stands in [ICON NEEDED]. The briefcase and sunrise are Today's.
 52. **Insights: what we added.** The design shows the page at rest. Derived: touch or scrub a bar to pick it out, with a callout of its week and time ("Oct 12 – 18 · 47h 51m"); the chevrons step back and on a window at a time, as far back as Dwell's first week, never past the insight's week; 3M (your call: thirteen weekly bars) labels the first week of each month ("Sep", "Oct"); weeks before Dwell was recording keep their slot with no bar; bars grow in on arrival; Not useful takes the insight off Today's deck and goes back; Share opens the share placeholder until share cards are designed (S-10); loading, failed and offline with retry, stale; tiles and buttons stack at accessibility sizes.
 
+53. **Time: the meeting ring's fifth shadow.** Figma lists five inner shadows on the ring's marks; four were sent (all #FFB8ED: y 13 blur 4 at 1%, y 8 blur 3 at 5%, y 5 blur 3 at 18%, y 2 blur 2 at 30%) and only those are drawn. The day bar's ticks have the same four plus a fifth (y 1, blur 1, at 35%), which gives the crisp line along the top edge. Is the ring's fifth the same, or something else (it isn't pink)? Also measured from the ring crop rather than given: 106 across, marks 12 thick, 6.2 between their ends, and the fills #E6238F, #F99CCC, #E1E3E7. Send Figma's values if any look off on the phone.
+
 ## Design vs brief
 
 Found in the Today design (Figma 69:81). Settled with the user before building unless marked open.

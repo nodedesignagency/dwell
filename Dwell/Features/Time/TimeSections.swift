@@ -154,8 +154,7 @@ struct CalendarCard: View {
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: Space.l))
             : AnyLayout(HStackLayout(spacing: Space.xl))
         return layout {
-            MeetingRing(meetings(report), attended: report.attended, caption: TimeCopy.meetings(report.scheduled))
-                .accessibilityElement(children: .ignore)
+            MeetingRing(meetings(report), attended: report.attended, caption: TimeCopy.meetings(report.scheduled), title: TimeCopy.calendarTitle)
                 .accessibilityLabel(TimeCopy.attendedSummary(report, this: this))
             VStack(spacing: 6) {
                 legendRow(Palette.meetingAttended, TimeCopy.attended, report.attended)
@@ -168,22 +167,24 @@ struct CalendarCard: View {
         }
     }
 
-    /// One mark per meeting, grouped: attended, then left early, elsewhere, no match.
+    /// One mark per meeting, grouped in the design's order clockwise from twelve: left early,
+    /// elsewhere, no match, then attended, so the attended run closes the ring at the top.
+    /// The pink marks catch the glint; elsewhere and no match are flat.
     private func meetings(_ report: CalendarReport) -> [MeetingRing.Meeting] {
         func rank(_ state: CalendarMatch.State) -> Int {
             switch state {
-            case .attended: 0
-            case .partial: 1
-            case .missed: 2
-            case .unknown: 3
+            case .partial: 0
+            case .missed: 1
+            case .unknown: 2
+            case .attended: 3
             }
         }
         return report.matches
             .sorted { rank($0.state) < rank($1.state) }
             .map { match in
                 switch match.state {
-                case .attended: MeetingRing.Meeting(id: match.id, state: TimeCopy.attended, color: Palette.meetingAttended)
-                case .partial: MeetingRing.Meeting(id: match.id, state: TimeCopy.leftEarly, color: Palette.meetingPartial)
+                case .attended: MeetingRing.Meeting(id: match.id, state: TimeCopy.attended, color: Palette.meetingAttended, glint: Palette.meetingGlint)
+                case .partial: MeetingRing.Meeting(id: match.id, state: TimeCopy.leftEarly, color: Palette.meetingPartial, glint: Palette.meetingGlint)
                 case .missed: MeetingRing.Meeting(id: match.id, state: TimeCopy.elsewhere, color: Palette.meetingMissed)
                 case .unknown: MeetingRing.Meeting(id: match.id, state: TimeCopy.noMatch, color: Palette.separator)
                 }
