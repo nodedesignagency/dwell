@@ -61,6 +61,39 @@ extension ButtonStyle where Self == GlassSquareButtonStyle {
     public static var glassSquare: GlassSquareButtonStyle { GlassSquareButtonStyle() }
 }
 
+/// A square button on the close button's glass (You's settings button, the user's call, 13 Nov:
+/// the sheet's close-button values on You): white 70%, the white rim and the faint shade
+/// inside it, drawn in every iOS version (never Liquid Glass), lifted off the page by
+/// `glassLift()`. 40 with 10 of padding, corners 13, as the back button. Tappable over 44.
+public struct DrawnGlassSquareButtonStyle: ButtonStyle {
+    public init() {}
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(10)
+            .background {
+                DrawnGlass(shape: RoundedRectangle(cornerRadius: Radius.m), fill: Palette.glass)
+                    .glassLift()
+            }
+            .contentShape(Rectangle().inset(by: -2))
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .motion(value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == DrawnGlassSquareButtonStyle {
+    public static var drawnGlassSquare: DrawnGlassSquareButtonStyle { DrawnGlassSquareButtonStyle() }
+}
+
+extension View {
+    /// The soft shadow that lifts glass off a light page (You design, Figma: the pills and the
+    /// settings button). Read from the Figma screenshot: about 9% darker just under the edge,
+    /// gone 12 below and 8 to the sides, so black 10%, radius 8, 4 down.
+    public func glassLift() -> some View {
+        shadow(color: .black.opacity(0.1), radius: 8, y: 4)
+    }
+}
+
 /// The design's glass, drawn: the fill, so what's behind shows through faintly, a faint shade
 /// just inside the edge, and a 1.5 rim of white strongest top left and bottom right (Figma's
 /// light at −45°).

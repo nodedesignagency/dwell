@@ -7,7 +7,8 @@ import SwiftUI
 /// the cells uncovered so far, two facts on glass beside it ("41 places", "3.2% mapped"), then
 /// the name and "@maya • Brooklyn".
 ///
-/// Read from the screenshot: the ring 133 across with its tail 14 below; "41 places" tucked
+/// Read from the screenshot: the ring 133 across with its tail 14 below and a soft shadow
+/// where its tip meets the map; "41 places" tucked
 /// under the ring's left edge, its middle 28 below the ring's; "3.2% mapped" 18 into the
 /// ring's frame on the right, 51 below; 8 to the name (28 medium), 4 to the handle and city
 /// (16, grey, 12 to the dot). At accessibility sizes the two facts leave the pin and sit in a
@@ -110,30 +111,44 @@ private enum AvatarPinMetrics {
 /// touch. The picture sits over the middle of the city, never over home or where the user is
 /// now (brief §8.2).
 ///
-/// Read from the screenshot: about 20 m to the point (a 250 m cell is 12 across), muted, at
-/// about half strength, fading to nothing 165 out from the picture's centre.
+/// Matched to the Figma screenshot (13 Nov): the design's map is a close-up shrunk down, so its
+/// streets read as blocks and its labels are tiny. Drawn the same way: the map at 2.2 times the
+/// size, then shrunk, so a 250 m cell comes out about 10.5 across (24 m to the point) and the
+/// labels about 5 pt. Nearly full strength by the picture, fading to nothing 165 out. The
+/// cells solid (#D698F9) with thin white seams, over a faint lilac haze around them.
 struct ProfileMap: View {
     static let size = CGSize(width: 330, height: 250)
-    static let metresPerPoint = 20.0
+    /// Metres to a point, as seen.
+    static let metresPerPoint = 23.8
+    /// How much larger the map is drawn before it's shrunk to `size`.
+    static let zoom: CGFloat = 2.2
 
     let center: Coordinate
     let cells: [ScratchCell]
 
     var body: some View {
         Map(position: .constant(camera), interactionModes: []) {
+            // The haze first, so the cells sit on it.
+            ForEach(cells) { cell in
+                MapPolygon(coordinates: Self.grown(cell.boundary, by: 1.9).map(\.location))
+                    .foregroundStyle(Palette.scratchCell.opacity(0.1))
+            }
             ForEach(cells) { cell in
                 MapPolygon(coordinates: cell.boundary.map(\.location))
-                    .foregroundStyle(Palette.scratchCell.opacity(0.75))
-                    .stroke(Palette.ring.opacity(0.7), lineWidth: 1)
+                    .foregroundStyle(Palette.scratchCell)
+                    .stroke(Palette.ring, lineWidth: 2)
             }
         }
         .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
-        .opacity(0.55)
+        .frame(width: Self.size.width * Self.zoom, height: Self.size.height * Self.zoom)
+        .scaleEffect(1 / Self.zoom)
+        .frame(width: Self.size.width, height: Self.size.height)
+        .opacity(0.9)
         .mask {
             EllipticalGradient(
                 stops: [
                     .init(color: .black, location: 0),
-                    .init(color: .black.opacity(0.7), location: 0.5),
+                    .init(color: .black.opacity(0.9), location: 0.55),
                     .init(color: .clear, location: 1),
                 ],
                 center: .center)
@@ -147,6 +162,18 @@ struct ProfileMap: View {
             center: center.location,
             latitudinalMeters: Double(Self.size.height) * Self.metresPerPoint,
             longitudinalMeters: Double(Self.size.width) * Self.metresPerPoint))
+    }
+
+    /// A cell's outline pushed out from its middle: the haze around it.
+    static func grown(_ boundary: [Coordinate], by factor: Double) -> [Coordinate] {
+        guard !boundary.isEmpty else { return boundary }
+        let latitude = boundary.map(\.latitude).reduce(0, +) / Double(boundary.count)
+        let longitude = boundary.map(\.longitude).reduce(0, +) / Double(boundary.count)
+        return boundary.map { corner in
+            Coordinate(
+                latitude: latitude + (corner.latitude - latitude) * factor,
+                longitude: longitude + (corner.longitude - longitude) * factor)
+        }
     }
 }
 

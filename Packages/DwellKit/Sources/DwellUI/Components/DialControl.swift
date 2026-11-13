@@ -244,26 +244,37 @@ public struct DialArt: View {
     }
 }
 
-/// The dial card's sky (You design): a blue glow from the top of the card, fading to the
-/// card's white about two thirds of the way down and towards the sides, under faint white
-/// rays turning slowly (still under Reduce Motion). Read from the screenshot: #D0EEFD at its
-/// strongest, 46 below the card's top, reaching nothing 230 down and 220 to each side.
+/// The dial card's sky (You design, Figma): a blue glow and faint white rays turning slowly
+/// (still under Reduce Motion), both centred behind the art: 60 below the card's top, just
+/// under the top of the dark pill, where the rays meet.
+///
+/// Read from the Figma screenshot (13 Nov): #D6ECFA, even out to 40 from the centre, then
+/// fading to the card's white about 200 out, so the card's top edge is still blue and its
+/// corners and the arc are white. The rays are faint, about a tenth of white where they're
+/// brightest.
 public struct DialGlow: View {
+    /// The glow and the rays' centre, below the card's top.
+    static let centre: CGFloat = 60
+    static let reach: CGFloat = 200
+
     public init() {}
 
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .top) {
-                EllipticalGradient(
-                    colors: [Palette.dialSky, Palette.dialSky.opacity(0)],
-                    center: UnitPoint(x: 0.5, y: 0.1),
-                    startRadiusFraction: 0,
-                    endRadiusFraction: 0.5)
-                    .frame(width: 440, height: 460)
+                RadialGradient(
+                    stops: [
+                        .init(color: Palette.dialSky, location: 0),
+                        .init(color: Palette.dialSky, location: 40 / Self.reach),
+                        .init(color: Palette.dialSky.opacity(0), location: 1),
+                    ],
+                    center: .center, startRadius: 0, endRadius: Self.reach)
+                    .frame(width: Self.reach * 2, height: Self.reach * 2)
+                    .offset(y: Self.centre - Self.reach)
                 TurningRays(color: Palette.glowRays, size: 560, fadeRadius: 280)
-                    .opacity(0.6)
+                    .opacity(0.25)
                     .frame(width: 560, height: 560)
-                    .offset(y: 40 - 280)
+                    .offset(y: Self.centre - 280)
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
         }

@@ -2,13 +2,13 @@ import SwiftUI
 
 extension View {
     /// A capsule of glass behind the view (You design: "41 places", "3.2% mapped", "Your
-    /// dial"): white 80%, so what's behind shows through faintly, the glass's white rim, and a
-    /// soft shadow that lifts it off the map or the card. The back button's drawn glass in a
-    /// capsule. Shadow read from the screenshot.
+    /// dial"): the sheet's close-button glass (the user's call, 13 Nov): white 70%, so what's
+    /// behind shows through faintly, the white rim strongest top left and bottom right, a faint
+    /// shade inside it; lifted off the map or the card by `glassLift()`.
     public func glassPill() -> some View {
         background {
-            DrawnGlass(shape: Capsule(), fill: Palette.glassControl)
-                .shadow(color: .black.opacity(0.06), radius: 6, y: 3)
+            DrawnGlass(shape: Capsule(), fill: Palette.glass)
+                .glassLift()
         }
     }
 }

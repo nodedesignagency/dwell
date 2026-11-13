@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// The profile picture as a map pin (You design): the photo in a white ring 4 wide, 133 across,
-/// with a tail 20 wide pointing 14 down from the ring, softly shadowed. Read from the
-/// screenshot.
+/// with a tail 20 wide pointing 14 down from the ring, softly shadowed, and a small blurred
+/// shadow where the tip meets the map (Figma, 13 Nov: grey under the tip, gone about 4 below
+/// it). Read from the screenshots.
 public struct AvatarPin: View {
     static let diameter: CGFloat = 133
     static let ring: CGFloat = 4
@@ -15,6 +16,12 @@ public struct AvatarPin: View {
 
     public var body: some View {
         ZStack(alignment: .top) {
+            // Where the tip touches the map.
+            Ellipse()
+                .fill(.black.opacity(0.28))
+                .frame(width: 16, height: 5)
+                .blur(radius: 2)
+                .offset(y: Self.diameter + Self.tail - 2.5)
             PinShape(tail: Self.tail)
                 .fill(Palette.ring)
                 .shadow(color: .black.opacity(0.1), radius: 8, y: 4)

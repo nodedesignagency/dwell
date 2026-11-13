@@ -76,7 +76,7 @@ public enum Palette {
     public static let streakWash = Color("streakWash", bundle: .module)
     /// You: a streak day a freeze covered, a grey flame. Read from the screenshot
     public static let flameFrozen = Color("flameFrozen", bundle: .module)
-    /// You: the blue glow at the top of the dial card, fading to the card's white. Read from the screenshot
+    /// You: the blue glow behind the dial art, fading to the card's white. Read from the Figma screenshot (13 Nov)
     public static let dialSky = Color("dialSky", bundle: .module)
     /// You: the dial's arc. Read from the screenshot
     public static let dialTrack = Color("dialTrack", bundle: .module)
@@ -92,7 +92,7 @@ public enum Palette {
     public static let privacy = Color("privacy", bundle: .module)
     /// The privacy line's words. Read from the screenshot
     public static let privacyText = Color("privacyText", bundle: .module)
-    /// Uncovered scratch cells on the map behind You's profile. Read from the screenshot
+    /// Uncovered scratch cells on the map behind You's profile. Read from the Figma screenshot (13 Nov)
     public static let scratchCell = Color("scratchCell", bundle: .module)
     /// A bronze badge's medal (stand-in until the badge art arrives). Read from the design's medal
     public static let bronze = Color("bronze", bundle: .module)

@@ -52,7 +52,7 @@ struct YouContent: View {
                     .frame(width: 20, height: 20)
                     .foregroundStyle(Palette.textPrimary)
             }
-            .buttonStyle(.glassSquare)
+            .buttonStyle(.drawnGlassSquare)
             .accessibilityLabel(YouCopy.settings)
         }
     }
