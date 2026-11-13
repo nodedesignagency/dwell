@@ -8,8 +8,8 @@ import SwiftUI
 /// The designer's idea (13 Nov): work's purple fills the top and yours' water the bottom, and
 /// the water settles where the two hours put it: work's share of the screen's height, so a
 /// week that was mostly work is mostly purple. The line never comes nearer the two numbers
-/// than the bubble title needs, so both always read on their own colour. "Work vs yours"
-/// floats on the surface. Over everything, the wavy stripes at 10% (the design's reference
+/// than the title needs, so both always read on their own colour. "Work vs yours" (the
+/// designer's art, 165 wide) pops in and floats on the surface. Over everything, the wavy stripes at 10% (the design's reference
 /// image, redrawn and moving).
 ///
 /// Measured from the screenshot at 393 × 852: "At work" (18, white 80%) 36 below the progress
@@ -25,7 +25,7 @@ struct WrapWorkPage: View {
 
     @State private var workBottom: CGFloat = 270
     @State private var yoursTop: CGFloat = 720
-    @State private var titleHeight: CGFloat = 118
+    @State private var titleHeight: CGFloat = 95
 
     var body: some View {
         GeometryReader { proxy in
@@ -33,8 +33,15 @@ struct WrapWorkPage: View {
                 WavyStripes()
                     .opacity(0.1)
             } floating: {
-                BubbleTitle(WrapCopy.workVsYours, delay: 0.9)
+                // The designer's art, as they asked (13 Nov): it pops in once the water is up.
+                Art.Illustration.workVsYours
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 165)
+                    .popIn(delay: 0.9)
                     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { titleHeight = $0 }
+                    .accessibilityLabel(WrapCopy.workVsYours)
+                    .accessibilityAddTraits(.isHeader)
                     .accessibilityAction(named: WrapCopy.nextPage, onNext)
             }
             .overlay(alignment: .topLeading) {

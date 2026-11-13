@@ -3,7 +3,7 @@ import SwiftUI
 
 // The scenery of the weekly wrap's "Work vs yours" page (Weekly wrap design, 13 Nov): wavy
 // stripes drawn in code from the designer's reference image, the water that splits work from
-// yours, and the puffy bubble title floating on it. Built to be reused by later wrap pages.
+// yours, and the pop that brings its art in. Built to be reused by later wrap pages.
 
 // MARK: - Wavy stripes
 
@@ -226,188 +226,30 @@ public struct WaterSplit<Overlay: View, Floating: View>: View {
     }
 }
 
-// MARK: - Bubble title
+// MARK: - Popping in
 
-/// A title set in puffy type (Weekly wrap design, "Work vs yours", the designer's art rebuilt
-/// as text, never an image): white letters shaded like soft plastic, lighter at the top and
-/// greying towards the bottom, each tipped a few degrees for a hand-placed look; a navy outline
-/// round them that runs into the gaps between letters (`bubbleOutline`, about 3.5 wide) and a
-/// white rim round that (about 3 more). Two lines: everything but the last word, then the last
-/// word, centred. It's live text in the dial's voice: "Work vs off" at Grind.
-///
-/// The type is SF Pro Rounded Black at 39 with tight tracking, the nearest system face to the
-/// art's lettering; a display face could get closer (QUESTIONS.md). Each letter's outline and
-/// rim are the letter blurred and cut off at a low opacity, so they swell evenly with round
-/// corners; drawn in three layers (every rim, then every outline, then every letter) so
-/// neighbours' outlines run together as one. Measured from the art at 162 × 94 on the page.
-///
-/// Text animation (the designer's ask, 13 Nov): the letters arrive one at a time, left to
-/// right, the first line then the second, 0.05 s apart, starting after `delay`. Each springs
-/// up from just below its place, small and turned back, overshoots a touch and settles at its
-/// tip (`Motion.pop`), its outline and rim moving with it. Under Reduce Motion the whole title
-/// fades in at once. VoiceOver reads the title as a header.
-public struct BubbleTitle: View {
-    @Environment(\.dial) private var dial
-    @State private var isShown = false
-    private let line: VoicedLine
-    private let delay: Double
-
-    public init(_ line: VoicedLine, delay: Double = 0) {
-        self.line = line
-        self.delay = delay
-    }
-
-    public var body: some View {
-        let text = line.text(for: dial)
-        let lines = Self.lines(text)
-        ZStack {
-            BubbleLetters(lines: lines, layer: .rim, isShown: isShown, delay: delay)
-            BubbleLetters(lines: lines, layer: .outline, isShown: isShown, delay: delay)
-            BubbleLetters(lines: lines, layer: .face, isShown: isShown, delay: delay)
-        }
-        .padding(12)
-        .onAppear { isShown = true }
-        .onDisappear { isShown = false }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(text)
-        .accessibilityAddTraits(.isHeader)
-    }
-
-    /// "Work vs yours" → ["Work vs", "yours"].
-    static func lines(_ text: String) -> [String] {
-        let words = text.split(separator: " ")
-        guard words.count > 1 else { return [text] }
-        return [words.dropLast().joined(separator: " "), String(words[words.count - 1])]
+extension View {
+    /// Pops in once it appears (the weekly wrap's art, "Work vs yours"): from 30% and turned
+    /// −10°, springing to full size with a little overshoot (`Motion.pop`) after `delay`.
+    /// Under Reduce Motion it fades in.
+    public func popIn(delay: Double = 0) -> some View {
+        modifier(PopIn(delay: delay))
     }
 }
 
-/// One layer of the bubble title: its letters, or their outlines, or their rims, laid out the
-/// same way in each so the three line up, every letter arriving on its own.
-private struct BubbleLetters: View {
-    enum Layer {
-        /// The white rim round the outline.
-        case rim
-        /// The navy outline round the letters.
-        case outline
-        /// The letters themselves.
-        case face
-    }
-
-    let lines: [String]
-    let layer: Layer
-    let isShown: Bool
+private struct PopIn: ViewModifier {
     let delay: Double
-
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    /// Each letter's tip and lift, in turn: enough to look placed by hand, never enough to
-    /// read as a wobble.
-    private static let tips: [Double] = [-6, 4, -3, 5, -4, 3, -5, 4, -2, 6]
-    private static let lifts: [CGFloat] = [0, -1.5, 1, -1, 1.5, 0, -1, 1]
-    /// Between one letter arriving and the next.
-    private static let stagger = 0.05
-
-    var body: some View {
-        VStack(spacing: -10) {
-            ForEach(Array(lines.enumerated()), id: \.offset) { row, line in
-                // Letters before this line, so the second line carries on from the first.
-                let before = lines.prefix(row).reduce(0) { $0 + $1.count }
-                HStack(spacing: -1.5) {
-                    ForEach(Array(line.enumerated()), id: \.offset) { column, letter in
-                        let order = before + column
-                        if letter == " " {
-                            Color.clear.frame(width: 9, height: 1)
-                        } else {
-                            glyph(letter)
-                                .rotationEffect(.degrees(Self.tips[order % Self.tips.count]))
-                                .offset(y: Self.lifts[order % Self.lifts.count])
-                                .modifier(Arrival(isShown: isShown, reduceMotion: reduceMotion))
-                                .animation(
-                                    reduceMotion
-                                        ? Motion.reduced.delay(delay)
-                                        : Motion.pop.delay(delay + Double(order) * Self.stagger),
-                                    value: isShown)
-                        }
-                    }
-                }
-            }
-        }
-        .fixedSize()
-    }
-
-    @ViewBuilder
-    private func glyph(_ letter: Character) -> some View {
-        let text = Text(String(letter)).font(.system(size: 39, weight: .black, design: .rounded))
-        switch layer {
-        case .face:
-            text.foregroundStyle(Self.puffy)
-        case .outline:
-            // The letter keeps its place; its swollen shape spills out round it.
-            text.opacity(0).overlay {
-                Swollen(by: 3.5, color: Palette.bubbleOutline) { text }
-                    .padding(-12)
-            }
-        case .rim:
-            text.opacity(0).overlay {
-                Swollen(by: 6.5, color: .white) { text }
-                    .padding(-12)
-            }
-        }
-    }
-
-    /// White at the top, greying towards the bottom (`bubbleShade`), with a soft shade along
-    /// each letter's lower edge and a bright line along its upper one: soft plastic.
-    private static var puffy: some ShapeStyle {
-        LinearGradient(
-            stops: [
-                .init(color: .white, location: 0.4),
-                .init(color: Palette.bubbleShade, location: 1),
-            ],
-            startPoint: .top, endPoint: .bottom)
-            .shadow(.inner(color: Palette.bubbleOutline.opacity(0.35), radius: 1.2, x: 0, y: -1.6))
-            .shadow(.inner(color: .white, radius: 0.8, x: 0, y: 1.2))
-    }
-}
-
-/// How a bubble letter arrives: from 22 below its place, at 20% and turned back 25°, to its
-/// place, size and tip. Under Reduce Motion it only fades.
-private struct Arrival: ViewModifier {
-    let isShown: Bool
-    let reduceMotion: Bool
+    @State private var isShown = false
 
     func body(content: Content) -> some View {
         let away = !isShown && !reduceMotion
         content
-            .scaleEffect(away ? 0.2 : 1, anchor: .bottom)
-            .rotationEffect(.degrees(away ? -25 : 0))
-            .offset(y: away ? 22 : 0)
+            .scaleEffect(away ? 0.3 : 1)
+            .rotationEffect(.degrees(away ? -10 : 0))
             .opacity(isShown ? 1 : 0)
-    }
-}
-
-/// Its content swollen by about `by` points all round, in one colour, its corners rounded:
-/// the content blurred, then kept wherever it's more than 10% there. Fills the space it's
-/// given, the content centred in it.
-private struct Swollen<Content: View>: View {
-    let by: CGFloat
-    let color: Color
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        let color = color
-        let radius = by / 1.28
-        Canvas { context, size in
-            // A blurred edge passes 10% about 1.28 blur radii out.
-            context.addFilter(.alphaThreshold(min: 0.1, color: color))
-            context.addFilter(.blur(radius: radius))
-            context.drawLayer { layer in
-                if let letters = layer.resolveSymbol(id: 0) {
-                    layer.draw(letters, at: CGPoint(x: size.width / 2, y: size.height / 2))
-                }
-            }
-        } symbols: {
-            content.tag(0)
-        }
-        .accessibilityHidden(true)
+            .animation((reduceMotion ? Motion.reduced : Motion.pop).delay(delay), value: isShown)
+            .onAppear { isShown = true }
+            .onDisappear { isShown = false }
     }
 }

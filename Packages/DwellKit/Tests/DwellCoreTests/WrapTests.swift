@@ -114,9 +114,8 @@ struct WrapWorkAndYoursTests {
         #expect(WrapWorkAndYours(week: [], now: SampleData.now) == WrapWorkAndYours(work: 0, yours: 0))
     }
 
-    @Test func `grind calls yours off, the title too`() {
-        #expect(WrapCopy.workVsYours.text(at: .plain) == "Work vs yours")
-        #expect(WrapCopy.workVsYours.text(at: .grind) == "Work vs off")
+    @Test func `grind calls yours off`() {
         #expect(WrapCopy.yours.text(at: .grind) == "Off")
+        #expect(WrapCopy.yours.text(at: .plain) == "Yours")
     }
 }

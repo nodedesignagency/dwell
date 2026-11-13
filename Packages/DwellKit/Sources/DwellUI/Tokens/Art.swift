@@ -35,6 +35,9 @@ public enum Art {
         public static let pushpin = Image("illustration/pushpin", bundle: .module)
         /// The globe: how much of the city is mapped ("3.2% mapped" on You).
         public static let globe = Image("illustration/globe", bundle: .module)
+        /// "Work vs yours" in puffy white letters with a navy outline and a white rim: the
+        /// weekly wrap's second page (the designer's art, 13 Nov). 3x: 165 × 95 pt.
+        public static let workVsYours = Image("illustration/workVsYours", bundle: .module)
     }
 
     /// Line icons from the design, drawn as templates so they take the ink they're given:

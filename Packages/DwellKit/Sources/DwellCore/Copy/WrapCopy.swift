@@ -52,13 +52,9 @@ public enum WrapCopy {
 
     // MARK: Work vs yours
 
-    /// The bubble title (Weekly wrap design, "Work vs yours"), set on two lines: everything but
-    /// the last word, then the last word. Peace and Plain are the design's; Grind calls yours
-    /// "off" (brief §7.3), as Time does. [COPY NEEDED] Grind.
-    public static let workVsYours = VoicedLine(
-        peace: "Work vs yours",
-        plain: "Work vs yours",
-        grind: "Work vs off")
+    /// What VoiceOver reads for the page's title art (Weekly wrap design, "Work vs yours"). The
+    /// art's words, fixed: an image can't follow the dial (QUESTIONS.md).
+    public static let workVsYours = "Work vs yours"
 
     /// Labels over the two numbers, as Time's tiles: "At work"; "Yours", or "Off" at Grind.
     public static let atWork = TimeCopy.atWork
