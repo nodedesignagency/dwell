@@ -2,20 +2,22 @@ import SwiftUI
 
 /// A wall clock showing a time of day (Weekly wrap design, "Earliest exit this week"): the
 /// designer's face (`Art.Illustration.clockFace`) with its hands drawn in code, so it can show
-/// any time.
+/// any time. Hour and minute only: it shows a moment that has passed, so nothing ticks and
+/// there's no second hand (the user, 13 Nov).
 ///
-/// The hands follow the design's placeholder ones: flat charcoal bars (`clockHand`) with
-/// square ends, each running a little past the centre, casting a soft shadow on the face; the
-/// minute hand 0.335 of the clock long and 0.03 wide, the hour hand 0.215 long and 0.034 wide,
-/// both 0.065 past the centre. The second hand is a thin red line (`clockSecond`, 0.007 wide)
-/// with a disc at its tip (0.048 across), 0.25 long and 0.07 past the centre, as on a railway
-/// clock. Sizes are shares of the clock's width.
+/// The hands follow the designer's reference ("Pure White Clock"): white spears that taper
+/// from a wide base at the centre to a flat tip a little over half as wide, lit along one side
+/// and shaded along the other (`clockHand` to `clockHandShade`), each with a short stub past
+/// the centre, lifted off the face by a soft cool shadow falling down and to the right
+/// (`clockShadow`), the light staying put as they turn. A brass cap covers the centre
+/// (`clockHubLight` to `clockHub`, ringed in `clockHubRim`). Sizes are shares of the clock's
+/// width: the minute hand 0.37 long, 0.036 wide at its base; the hour hand 0.25 long, 0.04
+/// wide; stubs 0.055; the cap 0.045 across. Colours read from the reference.
 ///
 /// Motion: once it appears, the hands sweep forward from 12:00 to the time, the minute hand
-/// round and round, settling with a little give (`Motion.clockSweep`) after `delay`; the
-/// second hand sweeps on round the face, a turn a minute, starting from 6 where the design
-/// draws it. Under Reduce Motion the hands are at the time from the start and the second hand
-/// holds still. Decorative: the page says the time in words.
+/// round and round, and settle with a little give (`Motion.clockSweep`) after `delay`; then
+/// they stay still. Under Reduce Motion they're at the time from the start. Decorative: the
+/// page says the time in words.
 public struct WallClock: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shownMinutes: Double = 0
@@ -23,7 +25,7 @@ public struct WallClock: View {
     private let delay: Double
 
     /// - Parameters:
-    ///   - hour: 0 to 23; `nil` with `minute` to show no time, only the running second hand.
+    ///   - hour: 0 to 23; `nil` with `minute` to show the face with no hands, only its cap.
     ///   - delay: how long after appearing the hands start their sweep.
     public init(hour: Int?, minute: Int?, delay: Double = 0) {
         if let hour, let minute {
@@ -43,15 +45,11 @@ public struct WallClock: View {
                     .scaledToFit()
                 if minutes != nil {
                     // Hour: half a degree a minute. Minute: six.
-                    // The shadows fall after the turn, so the light stays where it is.
-                    Hand(length: 0.215 * size, tail: 0.065 * size, width: 0.034 * size)
-                        .rotationEffect(.degrees(shownMinutes * 0.5))
-                        .shadow(color: .black.opacity(0.25), radius: 1.5, x: 0, y: 1.5)
-                    Hand(length: 0.335 * size, tail: 0.065 * size, width: 0.03 * size)
-                        .rotationEffect(.degrees(shownMinutes * 6))
-                        .shadow(color: .black.opacity(0.25), radius: 1.5, x: 0, y: 1.5)
+                    hand(length: 0.25, base: 0.04, size: size, degrees: shownMinutes * 0.5)
+                    hand(length: 0.37, base: 0.036, size: size, degrees: shownMinutes * 6)
                 }
-                SecondHand(size: size)
+                BrassCap()
+                    .frame(width: 0.045 * size, height: 0.045 * size)
             }
             .frame(width: size, height: size)
             .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
@@ -60,6 +58,21 @@ public struct WallClock: View {
         .onAppear(perform: sweep)
         .onChange(of: minutes) { sweep() }
         .accessibilityHidden(true)
+    }
+
+    private func hand(length: CGFloat, base: CGFloat, size: CGFloat, degrees: Double) -> some View {
+        let reach = length * size
+        let stub = 0.055 * size
+        return TaperedHand(pivot: reach / (reach + stub))
+            .fill(LinearGradient(
+                colors: [Palette.clockHand, Palette.clockHandShade],
+                startPoint: .leading, endPoint: .trailing))
+            .frame(width: base * size, height: reach + stub)
+            // Its pivot, `stub` up from the bottom, on the clock's centre.
+            .offset(y: -(reach - stub) / 2)
+            .rotationEffect(.degrees(degrees))
+            // After the turn, so the shadow always falls the same way.
+            .shadow(color: Palette.clockShadow.opacity(0.3), radius: 3, x: 2.5, y: 3)
     }
 
     private func sweep() {
@@ -72,46 +85,39 @@ public struct WallClock: View {
     }
 }
 
-/// An hour or minute hand pointing at 12, pivoting on the clock's centre.
-private struct Hand: View {
-    let length: CGFloat
-    let tail: CGFloat
-    let width: CGFloat
+/// A clock hand pointing up: a flat tip a little over half the base's width, widening to the
+/// base at `pivot` (a share of the height down), then a stub of the base's width below it.
+nonisolated private struct TaperedHand: Shape {
+    let pivot: CGFloat
 
-    var body: some View {
-        Rectangle()
-            .fill(Palette.clockHand)
-            .frame(width: width, height: length + tail)
-            // Its pivot, `tail` up from the bottom, on the frame's centre.
-            .offset(y: -(length - tail) / 2)
+    func path(in rect: CGRect) -> Path {
+        let tip = rect.width * 0.56
+        let pivotY = rect.minY + rect.height * pivot
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX - tip / 2, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX + tip / 2, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: pivotY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: pivotY))
+        path.closeSubpath()
+        return path
     }
 }
 
-/// The red second hand, sweeping a turn a minute from 6, as the design draws it.
-private struct SecondHand: View {
-    let size: CGFloat
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var start = Date.now
-
+/// The brass cap over the hands' pivot: light at its middle, deeper towards a thin darker
+/// ring, catching the light at its top left, with a small shadow of its own.
+private struct BrassCap: View {
     var body: some View {
-        TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { context in
-            let seconds = 30 + (reduceMotion ? 0 : context.date.timeIntervalSince(start))
-            let length = 0.25 * size
-            let tail = 0.07 * size
-            let disc = 0.048 * size
-            ZStack(alignment: .top) {
-                Rectangle()
-                    .fill(Palette.clockSecond)
-                    .frame(width: 0.007 * size, height: length + tail)
-                Circle()
-                    .fill(Palette.clockSecond)
-                    .frame(width: disc, height: disc)
-                    .offset(y: -disc / 2)
+        Circle()
+            .fill(EllipticalGradient(
+                colors: [Palette.clockHubLight, Palette.clockHub],
+                center: UnitPoint(x: 0.4, y: 0.35),
+                startRadiusFraction: 0,
+                endRadiusFraction: 0.6))
+            .overlay {
+                Circle().strokeBorder(Palette.clockHubRim, lineWidth: 0.75)
             }
-            .frame(width: disc, height: length + tail, alignment: .top)
-            .offset(y: -(length - tail) / 2)
-            .rotationEffect(.degrees(seconds * 6))
-            .shadow(color: .black.opacity(0.25), radius: 1.5, x: 0, y: 1.5)
-        }
+            .shadow(color: Palette.clockShadow.opacity(0.35), radius: 1.5, x: 1, y: 1.5)
     }
 }
