@@ -7,7 +7,7 @@ import SwiftUI
 /// day bar's glint), labels under them, the insight's in grey and the rest fainter.
 ///
 /// Measured from the screenshot (393 pt): bars 61.4 wide in 80-pt slots (77%), 4-pt corners;
-/// the tallest 114 tall; labels 14, their capitals 12.7 below the bars; the glint fades into
+/// the tallest 114 tall; labels 14 regular at -2% (Figma), their capitals 12.7 below the bars; the glint fades into
 /// the bar over its top 8 pt. The design's pink reads #E75ECB; the bars take the insight's
 /// category colour (Work, #FA51D0), as the category colour means the category on every page
 /// (QUESTIONS.md).
@@ -98,8 +98,11 @@ public struct InsightTrendChart: View {
             AxisMarks(values: bars.map(\.id)) { value in
                 AxisValueLabel {
                     if let id = value.as(String.self), let bar = bars.first(where: { $0.id == id }), let label = bar.label {
+                        // A chart label takes a font, not a text role, so the role's -2%
+                        // tracking is set here (Figma: SF Pro Rounded 14 regular, -2%).
                         Text(verbatim: label)
                             .font(TextRole.caption.font(size: labelSize))
+                            .tracking(TextRole.tracking * labelSize)
                             .foregroundStyle(id == strong ? Palette.textSecondary : Palette.textSecondary.opacity(0.4))
                             .lineLimit(1)
                     }
