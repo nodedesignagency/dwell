@@ -27,6 +27,9 @@ public enum Motion {
     public static let pop = Animation.spring(duration: 0.6, bounce: 0.4)
     /// Art drifting where it rests, up and back, on a loop: slow enough to read as floating.
     public static let float = Animation.easeInOut(duration: 2.8)
+    /// A clock's hands sweeping forward to a time, the minute hand round and round, settling
+    /// with a little give.
+    public static let clockSweep = Animation.spring(duration: 1.8, bounce: 0.12)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
     public static let reduced = Animation.easeInOut(duration: 0.2)
     /// The sky turning from one phase to the next: slow enough to watch the sun travel.

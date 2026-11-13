@@ -18,6 +18,7 @@ struct WeeklyWrapScreen: View {
 
     @Environment(\.repository) private var repository
     @Environment(\.fixedNow) private var fixedNow
+    @Environment(\.calendar) private var calendar
     @Environment(\.clockOffset) private var clockOffset
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
@@ -84,8 +85,16 @@ struct WeeklyWrapScreen: View {
 
     private func load() async {
         do {
-            let week = try await repository.days(from: wrap.firstDay, through: wrap.lastDay)
-            state = .loaded(WrapWeek(week: week, now: fixedNow ?? Date.now.addingTimeInterval(clockOffset)))
+            // The week, and the four before it for what's usual (the earliest exit).
+            let first = wrap.firstDay.adding(days: -WrapWeek.lookback, in: calendar)
+            let days = try await repository.days(from: first, through: wrap.lastDay)
+            let week = days.filter { $0.day >= wrap.firstDay }
+            let before = days.filter { $0.day < wrap.firstDay }
+            state = .loaded(WrapWeek(
+                week: week,
+                before: before,
+                now: fixedNow ?? Date.now.addingTimeInterval(clockOffset),
+                calendar: calendar))
         } catch is CancellationError {
             return
         } catch let error as LoadError {

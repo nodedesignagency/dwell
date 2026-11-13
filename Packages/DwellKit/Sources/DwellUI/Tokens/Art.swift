@@ -38,6 +38,9 @@ public enum Art {
         /// "Work vs yours" in puffy white letters with a navy outline and a white rim: the
         /// weekly wrap's second page (the designer's art, 13 Nov). 3x: 165 × 95 pt.
         public static let workVsYours = Image("illustration/workVsYours", bundle: .module)
+        /// A white wall clock's face with no hands (the designer's art, 13 Nov): the weekly
+        /// wrap's earliest exit, its hands drawn in code (`WallClock`). 1080 px, square.
+        public static let clockFace = Image("illustration/clockFace", bundle: .module)
     }
 
     /// Line icons from the design, drawn as templates so they take the ink they're given:

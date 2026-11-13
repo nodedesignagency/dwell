@@ -60,7 +60,57 @@ public enum WrapCopy {
     public static let atWork = TimeCopy.atWork
     public static let yours = TimeCopy.yours
 
-        private static func count(_ value: Int, one: String, many: String) -> String {
+        // MARK: Earliest exit
+
+    /// The page's title (Weekly wrap design, "Earliest exit this week"). Plain is the design's,
+    /// as is Grind (Appendix B's early exit ends "Earliest exit this week."). [COPY NEEDED] Peace.
+    public static let earliestExitTitle = VoicedLine(
+        peace: "Out early this week",
+        plain: "Earliest exit this week",
+        grind: "Earliest exit this week")
+
+    /// With no office weekday in the week. [COPY NEEDED]
+    public static let noExitTitle = VoicedLine(
+        peace: "No office this week",
+        plain: "No office exits this week",
+        grind: "No office days this week")
+
+    /// "38 minutes earlier than your usual. The evening was yours." Plain is the design's (its
+    /// last sentence carries Peace's warmth; QUESTIONS.md). Grind borrows Appendix B's "Soft."
+    /// [COPY NEEDED] the rest.
+    public static func earliestExitLine(_ exit: WrapEarliestExit?) -> VoicedLine {
+        guard let exit else {
+            return VoicedLine(
+                peace: "Every evening was yours.",
+                plain: "No weekday at the office, so no exit to time.",
+                grind: "No exit to time. Monday's a fresh start.")
+        }
+        guard let earlier = exit.minutesEarlier else {
+            return VoicedLine(
+                peace: "Too soon for a usual. Dwell is still learning yours.",
+                plain: "No usual to compare with yet.",
+                grind: "No usual yet. This one sets the bar.")
+        }
+        let span = count(abs(earlier), one: "minute", many: "minutes")
+        if earlier > 0 {
+            return VoicedLine(
+                peace: "\(span) before your usual. The whole evening was yours.",
+                plain: "\(span) earlier than your usual. The evening was yours.",
+                grind: "\(span) earlier than your usual. Soft.")
+        }
+        if earlier < 0 {
+            return VoicedLine(
+                peace: "Even your earliest was \(span) past your usual. Evenings will come back.",
+                plain: "\(span) later than your usual, even at its earliest.",
+                grind: "Even your earliest ran \(span) past your usual.")
+        }
+        return VoicedLine(
+            peace: "Right on your usual. A steady week.",
+            plain: "Right on your usual.",
+            grind: "Right on your usual. Consistent.")
+    }
+
+    private static func count(_ value: Int, one: String, many: String) -> String {
         "\(value) \(value == 1 ? one : many)"
     }
 }

@@ -28,12 +28,24 @@ private struct WrapPreview: View {
     }
 }
 
-private let sampleWeek = WrapWeek(week: SampleData.lastWeek.map(SampleData.snapshot(for:)), now: SampleData.now)
+private let sampleWeek = WrapWeek(
+    week: SampleData.lastWeek.map(SampleData.snapshot(for:)),
+    before: (1...WrapWeek.lookback).reversed().map {
+        SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: SampleData.calendar))
+    },
+    now: SampleData.now,
+    calendar: SampleData.calendar)
 private let lastWeek = Loadable<WrapWeek>.loaded(sampleWeek)
 
 /// Last week with other numbers on one page.
-private func week(opener: WrapOpener? = nil, work: TimeInterval? = nil, yours: TimeInterval? = nil) -> Loadable<WrapWeek> {
+private func week(
+    opener: WrapOpener? = nil,
+    work: TimeInterval? = nil,
+    yours: TimeInterval? = nil,
+    exit: WrapEarliestExit?? = .none
+) -> Loadable<WrapWeek> {
     var week = sampleWeek
+    if let exit { week.earliestExit = exit }
     if let opener { week.opener = opener }
     if let work { week.workAndYours.work = work }
     if let yours { week.workAndYours.yours = yours }
@@ -157,6 +169,67 @@ private let hour: TimeInterval = 3600
 
 #Preview("Work vs yours · loading") {
     WrapPreview(.loading, page: .workAndYours).samplePreview()
+}
+
+// MARK: Earliest exit, across the dial (Tuesday 5:52 PM, 13 minutes before her usual 6:05)
+
+#Preview("Earliest exit · Peace") {
+    WrapPreview(lastWeek, page: .earliestExit).samplePreview(.peace)
+}
+
+#Preview("Earliest exit · Plain") {
+    WrapPreview(lastWeek, page: .earliestExit).samplePreview(.plain)
+}
+
+#Preview("Earliest exit · Grind") {
+    WrapPreview(lastWeek, page: .earliestExit).samplePreview(.grind)
+}
+
+#Preview("Earliest exit · dark") {
+    WrapPreview(lastWeek, page: .earliestExit).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Earliest exit · AX3") {
+    WrapPreview(lastWeek, page: .earliestExit).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Earliest exit · Grind · AX5 · dark") {
+    WrapPreview(lastWeek, page: .earliestExit).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+// MARK: Earliest exit, other weeks
+
+/// Last week's exit (5:52 PM, 832 minutes after 4 AM) against another usual.
+private func exitAgainst(usual: Double?) -> WrapEarliestExit? {
+    sampleWeek.earliestExit.map { exit in
+        var exit = exit
+        exit.usualMinutes = usual
+        return exit
+    }
+}
+
+#Preview("Earliest exit · the design's 38 minutes") {
+    WrapPreview(week(exit: exitAgainst(usual: 832 + 38)), page: .earliestExit).samplePreview()
+}
+
+#Preview("Earliest exit · later than usual") {
+    WrapPreview(week(exit: exitAgainst(usual: 800)), page: .earliestExit).samplePreview()
+}
+
+#Preview("Earliest exit · no usual yet (first weeks)") {
+    WrapPreview(week(exit: exitAgainst(usual: nil)), page: .earliestExit).samplePreview()
+}
+
+#Preview("Earliest exit · no office this week") {
+    WrapPreview(week(exit: .some(nil)), page: .earliestExit).samplePreview()
+}
+
+#Preview("Earliest exit · loading") {
+    WrapPreview(.loading, page: .earliestExit).samplePreview()
 }
 
 // MARK: Pages still to come

@@ -76,6 +76,14 @@ public enum Palette {
     public static let wrapStripe = Color("wrapStripe", bundle: .module)
     /// Weekly wrap, Work vs yours: the deep stripes of the wavy pattern, drawn at 10% (the reference image's navy)
     public static let wrapStripeDeep = Color("wrapStripeDeep", bundle: .module)
+    /// Weekly wrap, Earliest exit: the pink at the middle of the radial fill (Figma)
+    public static let wrapExitCentre = Color("wrapExitCentre", bundle: .module)
+    /// Weekly wrap, Earliest exit: the violet at the edge of the radial fill (Figma)
+    public static let wrapExitEdge = Color("wrapExitEdge", bundle: .module)
+    /// Weekly wrap, Earliest exit: the clock's hour and minute hands. Read from the design's placeholder hands
+    public static let clockHand = Color("clockHand", bundle: .module)
+    /// Weekly wrap, Earliest exit: the clock's red second hand and its disc. Read from the design's placeholder hand
+    public static let clockSecond = Color("clockSecond", bundle: .module)
     /// Your places: the search field's fill, raised off the page by its shadow. Read from the screenshot
     public static let field = Color("field", bundle: .module)
     /// Your places: the search field's magnifier. Read from the screenshot

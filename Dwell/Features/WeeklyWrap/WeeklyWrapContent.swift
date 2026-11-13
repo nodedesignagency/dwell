@@ -154,6 +154,11 @@ struct WeeklyWrapContent: View {
                 state: state.map(\.workAndYours),
                 headerBottom: headerBottom,
                 onNext: actions.next)
+        case .earliestExit:
+            WrapExitPage(
+                state: state.map(\.earliestExit),
+                headerBottom: headerBottom,
+                onNext: actions.next)
         default:
             WrapPendingPage(page: page, reserve: reserve, onNext: actions.next, onPrevious: actions.previous)
         }

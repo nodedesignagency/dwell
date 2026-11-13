@@ -105,17 +105,96 @@ public struct WrapWorkAndYours: Hashable, Sendable {
     }
 }
 
-/// Everything the wrap's pages show, from one load of the week.
+/// The wrap's fifth page (Weekly wrap design, "Earliest exit this week"): the weekday the
+/// user left the office earliest, and how that sat against their usual.
+///
+/// An exit is the day's last departure from work on a weekday (Monday to Friday), as Time's
+/// rhythm reads "Leave", but only from the office: a day worked from home has no exit. The
+/// earliest is the one soonest after the day's 4 AM start, so a late night stays late. The
+/// usual is the median exit over the four weeks before the wrap's week, once there are at
+/// least five to go on.
+public struct WrapEarliestExit: Hashable, Sendable {
+    /// Exits the usual needs before it means anything.
+    public static let exitsForUsual = 5
+
+    public var day: DwellDay
+    /// When the user left work that day.
+    public var time: Date
+    /// Minutes after the day's 4 AM start.
+    public var minutes: Double
+    /// The usual exit, in minutes after 4 AM; `nil` before there are enough exits to tell.
+    public var usualMinutes: Double?
+
+    public init(day: DwellDay, time: Date, minutes: Double, usualMinutes: Double?) {
+        self.day = day
+        self.time = time
+        self.minutes = minutes
+        self.usualMinutes = usualMinutes
+    }
+
+    /// The earliest exit of `week`, against the usual over `before`; `nil` with no office
+    /// weekday in the week.
+    public init?(week: [DaySnapshot], before: [DaySnapshot], calendar: Calendar) {
+        let exits = week.compactMap { Self.exit(from: $0, calendar: calendar) }
+        guard let earliest = exits.min(by: { $0.minutes < $1.minutes }) else { return nil }
+        let usual = before.compactMap { Self.exit(from: $0, calendar: calendar)?.minutes }
+        self.init(
+            day: earliest.day,
+            time: earliest.time,
+            minutes: earliest.minutes,
+            usualMinutes: usual.count >= Self.exitsForUsual ? Self.median(usual) : nil)
+    }
+
+    /// How much earlier than usual, in whole minutes (negative: later); `nil` with no usual.
+    public var minutesEarlier: Int? {
+        usualMinutes.map { Int(($0 - minutes).rounded()) }
+    }
+
+    /// The day's office exit: the last work visit's departure on a weekday, unless the day's
+    /// work was from home.
+    static func exit(from day: DaySnapshot, calendar: Calendar) -> (day: DwellDay, time: Date, minutes: Double)? {
+        let weekday = calendar.component(.weekday, from: day.interval.start)
+        guard (2...6).contains(weekday) else { return nil }
+        let work = day.entries.compactMap(\.visit).filter { visit in
+            visit.category == .work && !visit.isWorkFromHome && day.interval.contains(visit.arrival)
+        }
+        guard let last = work.max(by: { ($0.departure ?? .distantFuture) < ($1.departure ?? .distantFuture) }),
+              let departure = last.departure
+        else { return nil }
+        return (day.day, departure, departure.timeIntervalSince(day.interval.start) / 60)
+    }
+
+    private static func median(_ values: [Double]) -> Double {
+        let sorted = values.sorted()
+        let middle = sorted.count / 2
+        return sorted.count.isMultiple(of: 2) ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle]
+    }
+}
+
+/// Everything the wrap's pages show, from one load of the week (and the four weeks before it,
+/// for what's usual).
 public struct WrapWeek: Hashable, Sendable {
     public var opener: WrapOpener
     public var workAndYours: WrapWorkAndYours
+    /// `nil` when the user wasn't at the office on any weekday.
+    public var earliestExit: WrapEarliestExit?
 
-    public init(opener: WrapOpener, workAndYours: WrapWorkAndYours) {
+    /// Days before the wrap's week that "usual" looks back over.
+    public static let lookback = 28
+
+    public init(opener: WrapOpener, workAndYours: WrapWorkAndYours, earliestExit: WrapEarliestExit?) {
         self.opener = opener
         self.workAndYours = workAndYours
+        self.earliestExit = earliestExit
     }
 
-    public init(week: [DaySnapshot], now: Date) {
-        self.init(opener: WrapOpener(week: week), workAndYours: WrapWorkAndYours(week: week, now: now))
+    /// - Parameters:
+    ///   - week: the wrap's seven days, Monday to Sunday.
+    ///   - before: the days before it, for what's usual (`lookback` of them, or fewer).
+    public init(week: [DaySnapshot], before: [DaySnapshot] = [], now: Date, calendar: Calendar) {
+        self.init(
+            opener: WrapOpener(week: week),
+            workAndYours: WrapWorkAndYours(week: week, now: now),
+            earliestExit: WrapEarliestExit(week: week, before: before, calendar: calendar))
     }
 }

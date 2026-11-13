@@ -253,3 +253,71 @@ private struct PopIn: ViewModifier {
             .onDisappear { isShown = false }
     }
 }
+
+// MARK: - Slanted checks
+
+/// A chequer of slanted tiles drifting up the page (the designer's pattern, "Group 1216257344",
+/// Weekly wrap 5, "Earliest exit this week"): white at 4%, cells 28.714 wide and 28.5 tall,
+/// every other one filled, each row 0.35 of its height further left than the one above, so the
+/// tiles lean like the SVG's. Drawn in code to fill any screen, not from the file.
+///
+/// Moving (the wrap's patterns all move, the user, 13 Nov): the chequer drifts up along its
+/// slant, one repeat (two rows) every 6 s, on a loop that never jumps. Under Reduce Motion it
+/// holds still.
+public struct SlantedChecks: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var start = Date.now
+    private let color: Color
+    private let opacity: Double
+
+    public init(color: Color = .white, opacity: Double = 0.04) {
+        self.color = color
+        self.opacity = opacity
+    }
+
+    public var body: some View {
+        TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { context in
+            let time = reduceMotion ? 0 : context.date.timeIntervalSince(start)
+            let tint = color.opacity(opacity)
+            Canvas { canvas, size in
+                canvas.fill(Self.tiles(in: size, time: time), with: .color(tint))
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    nonisolated private static let cellWidth: Double = 28.714
+    nonisolated private static let cellHeight: Double = 28.5
+    /// How far left a row sits, per point down.
+    nonisolated private static let lean: Double = 0.35
+    nonisolated private static let repeatSeconds: Double = 6
+
+    nonisolated private static func tiles(in size: CGSize, time: Double) -> Path {
+        let w = cellWidth, h = cellHeight
+        // One repeat up the slant: two rows up, and the lean's worth right, so every tile
+        // lands where another was.
+        let progress = (time / repeatSeconds).truncatingRemainder(dividingBy: 1)
+        let shiftX = 2 * h * lean * progress
+        let shiftY = -2 * h * progress
+        var path = Path()
+        let firstRow = Int(((-shiftY) / h).rounded(.down)) - 1
+        let lastRow = Int(((Double(size.height) - shiftY) / h).rounded(.up)) + 1
+        for row in firstRow...lastRow {
+            let top = Double(row) * h
+            // Columns that reach the screen at this row, in the unslanted grid.
+            let firstColumn = Int(((lean * top - shiftX - w) / w).rounded(.down)) - 1
+            let lastColumn = Int(((Double(size.width) + lean * (top + h) - shiftX + w) / w).rounded(.up)) + 1
+            for column in firstColumn...lastColumn where (row + column).isMultiple(of: 2) {
+                let left = Double(column) * w + shiftX
+                let y0 = top + shiftY
+                path.move(to: CGPoint(x: left - lean * top, y: y0))
+                path.addLine(to: CGPoint(x: left + w - lean * top, y: y0))
+                path.addLine(to: CGPoint(x: left + w - lean * (top + h), y: y0 + h))
+                path.addLine(to: CGPoint(x: left - lean * (top + h), y: y0 + h))
+                path.closeSubpath()
+            }
+        }
+        return path
+    }
+}

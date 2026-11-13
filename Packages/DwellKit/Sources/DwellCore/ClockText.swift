@@ -23,6 +23,11 @@ public enum ClockText {
         day.start(in: calendar).formatted(style(calendar).weekday(.abbreviated))
     }
 
+    /// "Friday": a day of the week in full (the weekly wrap's earliest exit).
+    public static func weekdayName(_ day: DwellDay, calendar: Calendar) -> String {
+        day.start(in: calendar).formatted(style(calendar).weekday(.wide))
+    }
+
     /// "Oct 19": a week, by its first day, under a flame.
     public static func monthDay(_ day: DwellDay, calendar: Calendar) -> String {
         day.start(in: calendar).formatted(style(calendar).month(.abbreviated).day())

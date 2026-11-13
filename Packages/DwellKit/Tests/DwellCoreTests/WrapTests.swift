@@ -119,3 +119,60 @@ struct WrapWorkAndYoursTests {
         #expect(WrapCopy.yours.text(at: .plain) == "Yours")
     }
 }
+
+@Suite("Weekly wrap: earliest exit")
+struct WrapEarliestExitTests {
+    let week = SampleData.lastWeek.map(SampleData.snapshot(for:))
+    let before = (1...WrapWeek.lookback).reversed().map {
+        SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: calendar))
+    }
+
+    @Test func `last week's earliest office exit, against the usual`() throws {
+        let exit = try #require(WrapEarliestExit(week: week, before: before, calendar: calendar))
+        #expect(ClockText.weekdayName(exit.day, calendar: calendar) == "Tuesday")
+        #expect(ClockText.time(exit.time, calendar: calendar).replacingOccurrences(of: "\u{202F}", with: " ") == "5:52 PM")
+        // Her usual over the four weeks before is 6:05 PM.
+        #expect(exit.minutesEarlier == 13)
+        // Its day is a weekday, and no other weekday left the office earlier.
+        let weekday = calendar.component(.weekday, from: exit.day.start(in: calendar))
+        #expect((2...6).contains(weekday))
+        for day in week {
+            if let other = WrapEarliestExit.exit(from: day, calendar: calendar) {
+                #expect(other.minutes >= exit.minutes)
+            }
+        }
+    }
+
+    @Test func `no usual without five exits before`() throws {
+        let exit = try #require(WrapEarliestExit(week: week, before: Array(before.suffix(3)), calendar: calendar))
+        #expect(exit.usualMinutes == nil)
+        #expect(exit.minutesEarlier == nil)
+    }
+
+    @Test func `no exit without an office weekday`() {
+        let weekend = week.filter { day in
+            let weekday = calendar.component(.weekday, from: day.interval.start)
+            return weekday == 1 || weekday == 7
+        }
+        #expect(WrapEarliestExit(week: weekend, before: before, calendar: calendar) == nil)
+    }
+
+    @Test func `the same minutes at every stop`() {
+        let day = SampleData.lastWeek[4]
+        for usual in [1090.0, 1052.0, 1014.0] {
+            let exit = WrapEarliestExit(day: day, time: SampleData.now, minutes: 1052, usualMinutes: usual)
+            let line = WrapCopy.earliestExitLine(exit)
+            let numbers = Set(line.allVariants.map { String($0.filter(\.isNumber)) })
+            #expect(numbers.count == 1)
+            for variant in line.allVariants { #expect(!variant.contains("!")) }
+        }
+        let early = WrapEarliestExit(day: day, time: SampleData.now, minutes: 1052, usualMinutes: 1090)
+        #expect(WrapCopy.earliestExitLine(early).plain == "38 minutes earlier than your usual. The evening was yours.")
+        let one = WrapEarliestExit(day: day, time: SampleData.now, minutes: 1052, usualMinutes: 1053)
+        #expect(WrapCopy.earliestExitLine(one).plain.hasPrefix("1 minute earlier"))
+    }
+
+    @Test func `weekday names in full`() {
+        #expect(ClockText.weekdayName(SampleData.lastWeek[4], calendar: calendar) == "Friday")
+    }
+}
