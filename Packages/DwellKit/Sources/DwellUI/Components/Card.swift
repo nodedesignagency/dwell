@@ -13,11 +13,19 @@ extension View {
 
     /// A card with a fill of its own (the weekly wrap invite's blue): the same shadow and
     /// dark-mode edge as every other card.
+    ///
+    /// Figma's card shadow (13 Nov, Time's cards): black drop shadows at x 0, spread 0:
+    /// y 26.35 blur 10.78 at 1%, y 14.37 blur 8.38 at 2%, y 5.99 blur 5.99 at 4%, y 1.2 blur
+    /// 3.59 at 4%. Figma lists a fifth (y 40.73, blur 11.98) at 0%, which draws nothing, so it
+    /// is left out. SwiftUI's radius is half Figma's blur.
     public func card(radius: CGFloat = Radius.xl, fill: some ShapeStyle) -> some View {
         background {
             RoundedRectangle(cornerRadius: radius)
                 .fill(fill)
-                .shadow(color: .black.opacity(0.06), radius: 16, y: 6)
+                .shadow(color: .black.opacity(0.01), radius: 10.78 / 2, y: 26.35)
+                .shadow(color: .black.opacity(0.02), radius: 8.38 / 2, y: 14.37)
+                .shadow(color: .black.opacity(0.04), radius: 5.99 / 2, y: 5.99)
+                .shadow(color: .black.opacity(0.04), radius: 3.59 / 2, y: 1.2)
         }
         .overlay {
             RoundedRectangle(cornerRadius: radius)
