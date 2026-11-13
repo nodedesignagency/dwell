@@ -84,6 +84,14 @@ public enum Palette {
     public static let clockHand = Color("clockHand", bundle: .module)
     /// Weekly wrap, Earliest exit: the clock's red second hand and its disc. Read from the design's placeholder hand
     public static let clockSecond = Color("clockSecond", bundle: .module)
+    /// Weekly wrap, Weekends: the middle of the page's radial fill. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapWeekendCentre = Color("wrapWeekendCentre", bundle: .module)
+    /// Weekly wrap, Weekends: the edge of the page's radial fill. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapWeekendEdge = Color("wrapWeekendEdge", bundle: .module)
+    /// Weekly wrap, Weekends: the lavender of the slanted tiles, drawn at 10% (the reference image's own)
+    public static let wrapTile = Color("wrapTile", bundle: .module)
+    /// Weekly wrap, Weekends: the orange triangles of the slanted tiles, drawn at 10% (the reference image's own)
+    public static let wrapTileDeep = Color("wrapTileDeep", bundle: .module)
     /// Your places: the search field's fill, raised off the page by its shadow. Read from the screenshot
     public static let field = Color("field", bundle: .module)
     /// Your places: the search field's magnifier. Read from the screenshot

@@ -2,8 +2,8 @@ import DwellCore
 import DwellUI
 import SwiftUI
 
-/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov). Only the
-/// opener is designed so far; the rest hold their place until their designs arrive.
+/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov). Pages 1, 2, 3
+/// and 5 are designed; the rest hold their place until their designs arrive.
 enum WrapPage: Int, CaseIterable, Identifiable {
     case opener
     case workAndYours
@@ -154,6 +154,12 @@ struct WeeklyWrapContent: View {
                 state: state.map(\.workAndYours),
                 headerBottom: headerBottom,
                 onNext: actions.next)
+        case .weekends:
+            WrapWeekendsPage(
+                state: state.map(\.weekends),
+                headerBottom: headerBottom,
+                onNext: actions.next,
+                onRetry: actions.retry)
         case .earliestExit:
             WrapExitPage(
                 state: state.map(\.earliestExit),

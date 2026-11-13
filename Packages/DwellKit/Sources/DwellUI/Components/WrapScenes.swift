@@ -118,6 +118,124 @@ public struct WavyStripes: View {
     }
 }
 
+// MARK: - Slanted tiles
+
+/// The weekend page's pattern (Weekly wrap 3, 13 Nov): the designer's reference image
+/// (1393 × 2000, placed in Figma at 608 × 873, at −107, −8 on the 393-wide frame, at 10%),
+/// redrawn in code from its pixels and set moving.
+///
+/// Five columns of tiles in rows that get shorter down the page (826.5, 532, 372.5 and 271 of
+/// the image's pixels). Every tile is one shape stretched to its row: lavender, with an orange
+/// triangle in its top-right corner (from 52.2% along the top edge to 68.1% down the right
+/// edge) and the same turned round in its bottom-left. Across a column the two triangles meet
+/// in a slanted band with a step in it; across a row the colours swap, like a chequer, and
+/// the slant flattens as the rows get shorter. Measured from the image: it matches to within
+/// the anti-aliasing of its edges.
+///
+/// Moving: the rows flow down the page, each shrinking into the place of the one below as it
+/// goes, so its stripes fold flatter, and a new row comes in at the top. One row's step every
+/// 12 s, at a steady pace, so the loop never shows a seam. It starts from where the design
+/// draws it. Under Reduce Motion it holds still there. Draw it at full strength and set its
+/// opacity where it's used (10% on the weekend page). Scales with the width, as the image
+/// does.
+public struct SlantTiles: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var start = Date.now
+    private let light: Color
+    private let deep: Color
+
+    public init(light: Color = Palette.wrapTile, deep: Color = Palette.wrapTileDeep) {
+        self.light = light
+        self.deep = deep
+    }
+
+    public var body: some View {
+        TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { context in
+            let time = reduceMotion ? 0 : context.date.timeIntervalSince(start)
+            let light = light
+            let deep = deep
+            Canvas { canvas, size in
+                Self.draw(in: &canvas, size: size, step: time / Self.period, light: light, deep: deep)
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    /// Seconds for a row to take the place of the one below it.
+    nonisolated static let period: Double = 12
+
+    /// The image as placed on the 393-wide frame.
+    nonisolated private static let imageWidth: Double = 1393
+    nonisolated private static let placedWidth: Double = 608
+    nonisolated private static let placedAt = CGPoint(x: -107, y: -8)
+    nonisolated private static let columnWidth = imageWidth / 5
+    /// Where the top triangle's slant starts along a tile's top edge, and how far down its
+    /// right edge it ends, as shares of the tile.
+    nonisolated private static let slantStart = 0.522
+    nonisolated private static let slantDepth = 0.681
+
+    /// Row edges down the image, in its pixels, a row apart: the image's own four rows from 0
+    /// to 2002, one more above and three below carried on as they shrink, so rows can flow
+    /// in at the top and out past the bottom.
+    nonisolated private static let edges: [Double] = [-4165, -1425, 0, 826.5, 1358.5, 1731, 2002, 2205, 2365, 2495]
+    /// The index in `edges` of the image's top.
+    nonisolated private static let firstEdge = -2
+
+    nonisolated private static func draw(in context: inout GraphicsContext, size: CGSize, step: Double, light: Color, deep: Color) {
+        let unit = size.width / 393
+        let scale = placedWidth / imageWidth * unit
+        context.translateBy(x: placedAt.x * unit, y: placedAt.y * unit)
+        context.scaleBy(x: scale, y: scale)
+
+        // What the screen shows, in the image's pixels.
+        let left = -placedAt.x * unit / scale
+        let bottom = (size.height - placedAt.y * unit) / scale
+        let everywhere = Path(CGRect(x: left - columnWidth, y: -columnWidth, width: size.width / scale + 2 * columnWidth, height: bottom + 2 * columnWidth))
+        context.fill(everywhere, with: .color(light))
+
+        let flow = step.truncatingRemainder(dividingBy: 1)
+        let firstColumn = Int((left / columnWidth).rounded(.down)) - 1
+        let lastColumn = Int(((left + size.width / scale) / columnWidth).rounded(.up))
+        var triangles = Path()
+        for row in -1..<(edges.count + firstEdge - 3) {
+            let top = edge(Double(row) + flow)
+            let foot = edge(Double(row) + 1 + flow)
+            guard top < bottom else { break }
+            let height = foot - top
+            for column in firstColumn...lastColumn {
+                let x = Double(column) * columnWidth
+                triangles.move(to: CGPoint(x: x + slantStart * columnWidth, y: top))
+                triangles.addLine(to: CGPoint(x: x + columnWidth, y: top))
+                triangles.addLine(to: CGPoint(x: x + columnWidth, y: top + slantDepth * height))
+                triangles.closeSubpath()
+                triangles.move(to: CGPoint(x: x, y: top + (1 - slantDepth) * height))
+                triangles.addLine(to: CGPoint(x: x, y: foot))
+                triangles.addLine(to: CGPoint(x: x + (1 - slantStart) * columnWidth, y: foot))
+                triangles.closeSubpath()
+            }
+        }
+        context.fill(triangles, with: .color(deep))
+    }
+
+    /// Where row edge `position` falls, a smooth curve through `edges` (Catmull-Rom), so rows
+    /// change height smoothly as they flow and land exactly on the image's at each step.
+    nonisolated private static func edge(_ position: Double) -> Double {
+        let lowest = firstEdge + 1
+        let highest = firstEdge + edges.count - 3
+        let index = min(max(Int(position.rounded(.down)), lowest), highest)
+        let t = position - Double(index)
+        func at(_ i: Int) -> Double { edges[i - firstEdge] }
+        let p0 = at(index)
+        let p1 = at(index + 1)
+        let m0 = (at(index + 1) - at(index - 1)) / 2
+        let m1 = (at(index + 2) - at(index)) / 2
+        let t2 = t * t
+        let t3 = t2 * t
+        return (2 * t3 - 3 * t2 + 1) * p0 + (t3 - 2 * t2 + t) * m0 + (-2 * t3 + 3 * t2) * p1 + (t3 - t2) * m1
+    }
+}
+
 // MARK: - Water
 
 /// Two colours split by a line of water (Weekly wrap design, "Work vs yours", the designer's

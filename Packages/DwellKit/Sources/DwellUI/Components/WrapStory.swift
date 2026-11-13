@@ -17,25 +17,46 @@ import SwiftUI
 /// to 12% at the right, and the sixteen white rays, meeting 55% down, in the middle of the
 /// page's words, turning a full circle every 24 s. Fitted to the screenshot; send Figma's values
 /// if it looks off. The same in dark mode.
+///
+/// Other pages bring their own colours, middle and reach, and may leave the glow out (the
+/// weekend page: peach to orange, no rays).
 public struct WrapBackdrop: View {
     private let centre: Color
     private let edge: Color
+    private let middle: UnitPoint
+    private let reach: CGFloat
+    private let glows: Bool
 
-    /// The opener's blue by default; each page brings its own colours with its design.
-    public init(centre: Color = Palette.wrapCentre, edge: Color = Palette.wrapEdge) {
+    /// The opener's blue by default.
+    /// - Parameters:
+    ///   - middle: where the fill is lightest.
+    ///   - reach: how far the fill runs before it's all `edge`, as a share of the screen's
+    ///     size: 0.5 would reach its sides.
+    ///   - glows: the invite's white ramp and turning rays over it.
+    public init(
+        centre: Color = Palette.wrapCentre,
+        edge: Color = Palette.wrapEdge,
+        middle: UnitPoint = UnitPoint(x: 0.5, y: 0.516),
+        reach: CGFloat = 0.4,
+        glows: Bool = true
+    ) {
         self.centre = centre
         self.edge = edge
+        self.middle = middle
+        self.reach = reach
+        self.glows = glows
     }
 
     public var body: some View {
         EllipticalGradient(
             colors: [centre, edge],
-            center: UnitPoint(x: 0.5, y: 0.516),
+            center: middle,
             startRadiusFraction: 0,
-            // A fraction of the screen's size: 0.5 would reach its sides.
-            endRadiusFraction: 0.4)
+            endRadiusFraction: reach)
             .overlay {
-                WrapGlow(center: UnitPoint(x: 0.5, y: 0.55))
+                if glows {
+                    WrapGlow(center: UnitPoint(x: 0.5, y: 0.55))
+                }
             }
             .ignoresSafeArea()
             .environment(\.colorScheme, .light)

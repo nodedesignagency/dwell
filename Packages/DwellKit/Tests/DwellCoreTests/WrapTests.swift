@@ -120,6 +120,138 @@ struct WrapWorkAndYoursTests {
     }
 }
 
+@Suite("Weekly wrap: weekends")
+struct WrapWeekendsTests {
+    let week = SampleData.lastWeek.map(SampleData.snapshot(for:))
+    /// Saturday 17 and Sunday 18 October.
+    let lastWeekend = [-2, -1].map { SampleData.lastWeek[0].adding(days: $0, in: calendar) }.map(SampleData.snapshot(for:))
+
+    var weekends: WrapWeekends {
+        WrapWeekends(week: week, lastWeekend: lastWeekend, now: SampleData.now, calendar: calendar)
+    }
+
+    /// The same week with a stretch of Saturday afternoon at work.
+    func weekWithSaturdayWork(_ minutes: Int) -> [DaySnapshot] {
+        week.map { snapshot in
+            guard snapshot.day == SampleData.lastWeek[5] else { return snapshot }
+            var snapshot = snapshot
+            let start = snapshot.interval.start.addingTimeInterval(10 * 3600) // 2 PM
+            let visit = Visit(
+                id: "saturday-work", placeID: "kestriva", placeName: "Kestriva Labs", category: .work,
+                arrival: start, departure: start.addingTimeInterval(Double(minutes) * 60))
+            snapshot.entries.append(.visit(visit))
+            return snapshot
+        }
+    }
+
+    @Test func `the weekend is Saturday and Sunday`() {
+        #expect(weekends.weekend == Array(SampleData.lastWeek.suffix(2)))
+        #expect(WrapWeekends.isWeekend(SampleData.lastWeek[5], calendar: calendar))
+        #expect(!WrapWeekends.isWeekend(SampleData.lastWeek[4], calendar: calendar))
+    }
+
+    @Test func `last weekend had no work`() {
+        #expect(weekends.verdict == .allYours)
+        #expect(weekends.workByDay == [0, 0])
+        #expect(WrapCopy.weekendsTitle(weekends.verdict).plain == "Weekends were all yours.")
+        #expect(WrapCopy.weekendsLine(weekends).plain == "Zero work hours Saturday and Sunday.")
+        #expect(WrapCopy.weekendsBreakdown(weekends.verdict) == "What you did instead")
+    }
+
+    @Test func `work at the weekend is counted, never called all yours`() {
+        let busy = WrapWeekends(week: weekWithSaturdayWork(130), lastWeekend: lastWeekend, now: SampleData.now, calendar: calendar)
+        #expect(busy.verdict == .someWork(130.0 * 60))
+        #expect(busy.workByDay == [130.0 * 60, 0])
+        #expect(WrapCopy.weekendsTitle(busy.verdict).plain == "2h 10m of work this weekend.")
+        #expect(WrapCopy.weekendsLine(busy).plain == "Saturday 2h 10m, Sunday 0m.")
+        // Work is in the title, never among what you did instead.
+        #expect(!busy.breakdown.contains { $0.bucket == .category(.work) })
+    }
+
+    @Test func `a weekend Dwell didn't see claims nothing`() {
+        let asleep = week.map { snapshot in
+            guard WrapWeekends.isWeekend(snapshot.day, calendar: calendar) else { return snapshot }
+            var snapshot = snapshot
+            snapshot.entries = [.gap(snapshot.interval)]
+            return snapshot
+        }
+        let unseen = WrapWeekends(week: asleep, lastWeekend: lastWeekend, now: SampleData.now, calendar: calendar)
+        #expect(unseen.verdict == .notRecorded)
+        #expect(unseen.breakdown.isEmpty)
+        #expect(!WrapCopy.weekendsTitle(unseen.verdict).allVariants.contains { $0.contains("yours") })
+    }
+
+    @Test func `what you did instead, largest first, as Time counts it`() {
+        let slices = weekends.breakdown
+        #expect(slices.map(\.bucket.name) == ["Home", "Food & drink", "Transit", "Outdoors", "Education", "Fitness", "Everything else"])
+        #expect(slices.map { DurationText.short($0.total) } == ["34h 55m", "3h 27m", "3h 07m", "2h 17m", "1h 45m", "1h 05m", "39m"])
+        // Time's totals for Saturday and Sunday, to the second.
+        let saturday = SampleData.lastWeek[5].interval(in: calendar).start
+        let sunday = SampleData.lastWeek[6].interval(in: calendar).end
+        let time = TimeReport.totals(week, within: DateInterval(start: saturday, end: sunday), now: SampleData.now)
+        #expect(slices.reduce(0) { $0 + $1.total } == time.values.reduce(0, +) - (time[.work] ?? 0))
+    }
+
+    @Test func `the grid names work and the weekend's own categories`() {
+        let named = weekends.grid.legend.compactMap { kind -> PlaceCategory? in
+            if case .bucket(.category(let category)) = kind { category } else { nil }
+        }
+        #expect(named.count == ChartBucket.maxNamedCategories)
+        #expect(named.contains(.work))
+        for slice in weekends.breakdown {
+            if let category = slice.bucket.category { #expect(named.contains(category)) }
+        }
+        // Monday to Sunday, a row a day.
+        #expect(weekends.grid.rows.map(\.day) == SampleData.lastWeek)
+    }
+
+    @Test func `the biggest change in time of your own`() {
+        // The library on Sunday morning; last weekend had none.
+        #expect(weekends.change == WrapWeekends.Change(category: .education, difference: 105 * 60))
+        #expect(WrapCopy.weekendsChange(weekends.change!).plain == "1h 45m more education than last weekend.")
+        #expect(WrapCopy.weekendsChange(.init(category: .social, difference: -2 * 3600)).plain
+            == "2h less social than last weekend.")
+    }
+
+    @Test func `the wrap finds the weekend before among the weeks it loads`() {
+        let before = (1...WrapWeek.lookback).reversed().map {
+            SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: calendar))
+        }
+        let wrap = WrapWeek(week: week, before: before, now: SampleData.now, calendar: calendar)
+        #expect(wrap.weekends == weekends)
+        #expect(WrapWeek(week: week, now: SampleData.now, calendar: calendar).weekends.change == nil)
+    }
+
+    @Test func `no change without a whole last weekend to compare`() {
+        let firstWeekend = lastWeekend.map { snapshot in
+            var snapshot = snapshot
+            snapshot.recordingSince = snapshot.interval.start.addingTimeInterval(3600)
+            return snapshot
+        }
+        #expect(WrapWeekends(week: week, lastWeekend: firstWeekend, now: SampleData.now, calendar: calendar).change == nil)
+        #expect(WrapWeekends(week: week, lastWeekend: [], now: SampleData.now, calendar: calendar).change == nil)
+    }
+
+    @Test func `a change under half an hour isn't news`() {
+        #expect(WrapWeekends.change(from: lastWeekend, to: WrapWeekends.totals(lastWeekend, now: SampleData.now), now: SampleData.now) == nil)
+    }
+
+    @Test func `the same numbers at every stop`() {
+        let busy = WrapWeekends(week: weekWithSaturdayWork(130), lastWeekend: lastWeekend, now: SampleData.now, calendar: calendar)
+        let lines = [
+            WrapCopy.weekendsTitle(weekends.verdict), WrapCopy.weekendsLine(weekends),
+            WrapCopy.weekendsTitle(busy.verdict), WrapCopy.weekendsLine(busy),
+            WrapCopy.weekendsChange(weekends.change!),
+        ]
+        for line in lines {
+            for variant in line.allVariants {
+                #expect(digits(variant) == digits(line.plain))
+                #expect(!variant.contains("!"))
+            }
+        }
+    }
+}
+
 @Suite("Weekly wrap: earliest exit")
 struct WrapEarliestExitTests {
     let week = SampleData.lastWeek.map(SampleData.snapshot(for:))

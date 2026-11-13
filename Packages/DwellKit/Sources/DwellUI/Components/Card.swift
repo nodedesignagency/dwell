@@ -34,13 +34,20 @@ extension View {
     }
 }
 
-/// The dashed hairline between Today's sections and between timeline rows.
+/// The dashed hairline between Today's sections and between timeline rows. A wrap page draws
+/// it in its own colour and dashes (the weekend page: white 50%, 3.5 on, 2 off).
 public struct DashedDivider: View {
-    public init() {}
+    private let color: Color
+    private let dash: [CGFloat]
+
+    public init(color: Color = Palette.separator, dash: [CGFloat] = [3, 3]) {
+        self.color = color
+        self.dash = dash
+    }
 
     public var body: some View {
         HorizontalLine()
-            .stroke(Palette.separator, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+            .stroke(color, style: StrokeStyle(lineWidth: 1, dash: dash))
             .frame(height: 1)
             .accessibilityHidden(true)
     }

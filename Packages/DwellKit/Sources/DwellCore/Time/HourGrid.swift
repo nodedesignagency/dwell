@@ -68,14 +68,17 @@ public struct HourGrid: Hashable, Sendable {
     /// Each row is a typical day (the year).
     public var isTypical: Bool { period.range == .year }
 
-    public init(_ snapshot: PeriodSnapshot, now: Date, calendar: Calendar) {
+    /// - Parameter named: the categories to name, most important first, when the caller picks
+    ///   them (the weekly wrap's weekend page names work and the weekend's own); at most seven
+    ///   are named, the rest fold into Everything else. By default, the period's largest seven.
+    public init(_ snapshot: PeriodSnapshot, now: Date, calendar: Calendar, named: [PlaceCategory]? = nil) {
         period = snapshot.period
         let whole = snapshot.period.interval(in: calendar)
         let totals = TimeReport.totals(snapshot.days, within: whole, now: now)
-        let slices = ChartSlice.fold(totals)
+        let chosen = Set((named ?? ChartSlice.fold(totals).compactMap(\.bucket.category)).prefix(ChartBucket.maxNamedCategories))
         var bucketOf: [PlaceCategory: ChartBucket] = [:]
         for category in PlaceCategory.allCases where totals[category] ?? 0 > 0 {
-            bucketOf[category] = slices.contains { $0.bucket == .category(category) } ? .category(category) : .everythingElse
+            bucketOf[category] = chosen.contains(category) ? .category(category) : .everythingElse
         }
         let kind: (PlaceCategory) -> Kind = { .bucket(bucketOf[$0] ?? .everythingElse) }
 

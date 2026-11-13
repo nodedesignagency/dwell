@@ -10,6 +10,9 @@ import SwiftUI
 public enum TextRole: CaseIterable, Sendable {
     /// The voiced title of a wrap page: "This week." 60.
     case storyTitle
+    /// The voiced title of a wrap page that runs to two lines: "Weekends were all yours." 48,
+    /// set with its lines 48 apart (`LeadedText`).
+    case storyHeadline
     /// The voiced line under a wrap page's title, and a wrap page's labels. 18 regular.
     case storyLine
     /// A wrap page's big number: "45h 40m" at work. 64 medium, proportional digits like the
@@ -67,6 +70,7 @@ public enum TextRole: CaseIterable, Sendable {
         switch self {
         case .storyTitle: 60
         case .storyNumber: 64
+        case .storyHeadline: 48
         case .storyHeading: 42
         case .storyTime: 60
         case .storyLine: 18
@@ -91,7 +95,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
-        case .storyTitle, .storyNumber, .storyHeading, .storyTime, .display, .voiceDisplay, .dataDisplay: .largeTitle
+        case .storyTitle, .storyNumber, .storyHeadline, .storyHeading, .storyTime, .display, .voiceDisplay, .dataDisplay: .largeTitle
         case .storyLine: .body
         case .profileName, .cardTitle: .title
         case .rowTitle: .body
@@ -109,7 +113,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .storyTitle, .storyNumber, .storyHeading, .storyTime, .display, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
+        case .storyTitle, .storyNumber, .storyHeadline, .storyHeading, .storyTime, .display, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
              .rowTitle, .body, .label, .action, .tab: .medium
         case .storyLine, .data, .caption, .footnote: .regular
         }

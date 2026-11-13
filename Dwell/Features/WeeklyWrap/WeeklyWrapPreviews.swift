@@ -3,7 +3,8 @@ import DwellUI
 import SwiftUI
 
 // The weekly wrap on the sample: last week, Monday 19 to Sunday 25 October, 7 days and 13
-// places (the design's 9 is its own). Voiced text at Peace, Plain and Grind; the numbers must
+// places (the design's 9 is its own), and the four weeks before it (the weekend before is 17
+// and 18 October). Voiced text at Peace, Plain and Grind; the numbers must
 // match across all three. Stale and the permission banner don't apply: the wrap is a finished
 // week, shown full screen without banners.
 
@@ -28,13 +29,11 @@ private struct WrapPreview: View {
     }
 }
 
-private let sampleWeek = WrapWeek(
-    week: SampleData.lastWeek.map(SampleData.snapshot(for:)),
-    before: (1...WrapWeek.lookback).reversed().map {
-        SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: SampleData.calendar))
-    },
-    now: SampleData.now,
-    calendar: SampleData.calendar)
+private let sampleDays = SampleData.lastWeek.map(SampleData.snapshot(for:))
+private let daysBefore = (1...WrapWeek.lookback).reversed().map {
+    SampleData.snapshot(for: SampleData.lastWeek[0].adding(days: -$0, in: SampleData.calendar))
+}
+private let sampleWeek = WrapWeek(week: sampleDays, before: daysBefore, now: SampleData.now, calendar: SampleData.calendar)
 private let lastWeek = Loadable<WrapWeek>.loaded(sampleWeek)
 
 /// Last week with other numbers on one page.
@@ -53,6 +52,45 @@ private func week(
 }
 
 private let hour: TimeInterval = 3600
+
+/// Last week with its weekend changed day by day, and the weekend before it as given.
+private func weekends(
+    _ change: (DaySnapshot) -> DaySnapshot,
+    lastWeekend: [DaySnapshot] = Array(daysBefore.suffix(2))
+) -> Loadable<WrapWeek> {
+    var week = sampleWeek
+    week.weekends = WrapWeekends(
+        week: sampleDays.map { WrapWeekends.isWeekend($0.day, calendar: SampleData.calendar) ? change($0) : $0 },
+        lastWeekend: lastWeekend,
+        now: SampleData.now,
+        calendar: SampleData.calendar)
+    return .loaded(week)
+}
+
+/// Saturday with an afternoon at Kestriva Labs, 2 to 4:10 PM.
+private let saturdayAtWork = weekends { day in
+    guard day.day == SampleData.lastWeek[5] else { return day }
+    var day = day
+    let start = day.interval.start.addingTimeInterval(10 * 3600)
+    day.entries.append(.visit(Visit(
+        id: "saturday-work", placeID: "kestriva", placeName: "Kestriva Labs", category: .work,
+        arrival: start, departure: start.addingTimeInterval(130 * 60))))
+    return day
+}
+
+/// The phone was off all weekend: Dwell saw nothing.
+private let weekendAsleep = weekends { day in
+    var day = day
+    day.entries = [.gap(day.interval)]
+    return day
+}
+
+/// Dwell started on Saturday afternoon the weekend before, so there's nothing to compare.
+private let noWeekendBefore = weekends({ $0 }, lastWeekend: daysBefore.suffix(2).map { day in
+    var day = day
+    day.recordingSince = day.interval.start.addingTimeInterval(10 * 3600)
+    return day
+})
 
 // MARK: The opener, across the dial
 
@@ -114,7 +152,7 @@ private let hour: TimeInterval = 3600
 }
 
 #Preview("Page 3, running") {
-    // The canvas runs the clock: the third capsule fills over 7 s.
+    // The canvas runs the clock: the third capsule fills over 7 s, the tiles flowing.
     WeeklyWrapContent(
         wrap: SampleData.weeklyWrap,
         state: lastWeek,
@@ -169,6 +207,73 @@ private let hour: TimeInterval = 3600
 
 #Preview("Work vs yours · loading") {
     WrapPreview(.loading, page: .workAndYours).samplePreview()
+}
+
+// MARK: Weekends, across the dial (no work Saturday or Sunday; 1h 45m more education)
+
+#Preview("Weekends · Peace") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview(.peace)
+}
+
+#Preview("Weekends · Plain") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview(.plain)
+}
+
+#Preview("Weekends · Grind") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview(.grind)
+}
+
+#Preview("Weekends · dark") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Weekends · AX3") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Weekends · Grind · AX5 · dark") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+// MARK: Weekends, other weekends
+
+#Preview("Weekends · 2h 10m of work on Saturday") {
+    WrapPreview(saturdayAtWork, page: .weekends).samplePreview()
+}
+
+#Preview("Weekends · work · Peace") {
+    WrapPreview(saturdayAtWork, page: .weekends).samplePreview(.peace)
+}
+
+#Preview("Weekends · work · Grind") {
+    WrapPreview(saturdayAtWork, page: .weekends).samplePreview(.grind)
+}
+
+#Preview("Weekends · Dwell saw nothing") {
+    WrapPreview(weekendAsleep, page: .weekends).samplePreview()
+}
+
+#Preview("Weekends · no weekend before to compare") {
+    WrapPreview(noWeekendBefore, page: .weekends).samplePreview()
+}
+
+#Preview("Weekends · loading") {
+    WrapPreview(.loading, page: .weekends).samplePreview()
+}
+
+#Preview("Weekends · failed · retry") {
+    WrapPreview(.failed(.unavailable), page: .weekends).samplePreview()
+}
+
+// MARK: Weekends, the pattern on its own (moving; still under Reduce Motion)
+
+#Preview("Slanted tiles, full strength") {
+    SlantTiles()
+        .ignoresSafeArea()
 }
 
 // MARK: Earliest exit, across the dial (Tuesday 5:52 PM, 13 minutes before her usual 6:05)
@@ -234,8 +339,8 @@ private func exitAgainst(usual: Double?) -> WrapEarliestExit? {
 
 // MARK: Pages still to come
 
-#Preview("Page 3, waiting for its design") {
-    WrapPreview(lastWeek, page: .weekends).samplePreview()
+#Preview("Page 4, waiting for its design") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview()
 }
 
 // MARK: The real screen, loading the sample week

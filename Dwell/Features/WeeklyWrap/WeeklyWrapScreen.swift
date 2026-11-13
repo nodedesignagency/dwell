@@ -5,8 +5,9 @@ import SwiftUI
 /// The weekly wrap (S-06): last week as a story, a page at a time. Presented full screen from
 /// Today's invite (T-16), growing out of the card on iOS 18 and later.
 ///
-/// Loads the week's days from the repository once, for every page's numbers (`WrapWeek`). Pages move on with a
-/// tap, or by themselves once their time is up (`WrapPage.duration`, the progress bar filling
+/// Loads the week's days from the repository once, for every page's numbers (`WrapWeek`), with
+/// the four weeks before it: what's usual for the earliest exit, and the weekend before for
+/// the weekend page's change. Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the progress bar filling
 /// as it runs, like an Instagram story), and cross-fade (`Motion.reduced`, the same with
 /// Reduce Motion: nothing moves). The clock pauses while a finger is held on the page, while
 /// the app is in the background, and on the opener until its numbers are in. With VoiceOver
@@ -17,6 +18,7 @@ struct WeeklyWrapScreen: View {
     var onClose: () -> Void
 
     @Environment(\.repository) private var repository
+    @Environment(\.calendar) private var calendar
     @Environment(\.fixedNow) private var fixedNow
     @Environment(\.calendar) private var calendar
     @Environment(\.clockOffset) private var clockOffset
@@ -85,7 +87,8 @@ struct WeeklyWrapScreen: View {
 
     private func load() async {
         do {
-            // The week, and the four before it for what's usual (the earliest exit).
+            // The week, and the four before it for what's usual (the earliest exit) and for the
+            // weekend before (the weekend page).
             let first = wrap.firstDay.adding(days: -WrapWeek.lookback, in: calendar)
             let days = try await repository.days(from: first, through: wrap.lastDay)
             let week = days.filter { $0.day >= wrap.firstDay }

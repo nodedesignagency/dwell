@@ -69,6 +69,11 @@ public enum ChartBucket: Hashable, Sendable, Identifiable {
         case .everythingElse: "Everything else"
         }
     }
+
+    /// The named category, or `nil` for Everything else.
+    public var category: PlaceCategory? {
+        if case .category(let category) = self { category } else { nil }
+    }
 }
 
 public struct ChartSlice: Hashable, Sendable, Identifiable {

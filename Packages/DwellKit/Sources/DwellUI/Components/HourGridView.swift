@@ -19,6 +19,11 @@ import SwiftUI
 /// category out across the grid (brief A.4: tappable, category filters); tap again to let go.
 /// The rows sweep in from 4 AM on appear (`Motion.reveal`); under Reduce Motion they fade in.
 /// VoiceOver reads each row's time by category and offers an audio graph.
+///
+/// The weekly wrap's weekend page (Weekly wrap 3) shows it on a card without the dashed line
+/// and legend (its category pills are the legend), with Saturday and Sunday picked out: the
+/// other days' labels fade to a third, as drawn (#D9D9D9 on white). There a tap moves the
+/// story on, so the rows don't take taps.
 public struct HourGridView: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -29,6 +34,9 @@ public struct HourGridView: View {
 
     private let grid: HourGrid
     private let this: String
+    private let showsLegend: Bool
+    private let isInteractive: Bool
+    private let pickedOut: Set<DwellDay>?
 
     /// What's picked out: a category everywhere, and the stretch tapped, if one was.
     struct Selection: Equatable {
@@ -37,10 +45,24 @@ public struct HourGridView: View {
         var index: Int?
     }
 
-    /// - Parameter this: the period in words, for the callout's total: "this week".
-    public init(_ grid: HourGrid, this: String) {
+    /// - Parameters:
+    ///   - this: the period in words, for the callout's total: "this week".
+    ///   - showsLegend: the dashed line and the legend under the rows.
+    ///   - isInteractive: a tap on a stretch or a legend item picks it out.
+    ///   - pickedOut: the days whose labels stay full strength; the others fade. `nil` keeps
+    ///     every label as it is.
+    public init(
+        _ grid: HourGrid,
+        this: String,
+        showsLegend: Bool = true,
+        isInteractive: Bool = true,
+        pickedOut: Set<DwellDay>? = nil
+    ) {
         self.grid = grid
         self.this = this
+        self.showsLegend = showsLegend
+        self.isInteractive = isInteractive
+        self.pickedOut = pickedOut
     }
 
     public var body: some View {
@@ -48,16 +70,18 @@ public struct HourGridView: View {
             axis
             rows
                 .padding(.top, Space.s)
-            DashedDivider()
-                .padding(.top, Space.m)
-            if let selection {
-                callout(selection)
+            if showsLegend {
+                DashedDivider()
                     .padding(.top, Space.m)
-                    .padding(.horizontal, Space.s)
-                    .transition(.opacity)
+                if let selection {
+                    callout(selection)
+                        .padding(.top, Space.m)
+                        .padding(.horizontal, Space.s)
+                        .transition(.opacity)
+                }
+                legend
+                    .padding(.top, Space.m)
             }
-            legend
-                .padding(.top, Space.m)
         }
         .motion(value: selection)
         .onAppear { grown = true }
@@ -117,7 +141,7 @@ public struct HourGridView: View {
                             if let label = label(row) {
                                 Text(verbatim: label)
                                     .textRole(grid.period.range == .month ? .footnote : .caption)
-                                    .foregroundStyle(Palette.textSecondary)
+                                    .foregroundStyle(Palette.textSecondary.opacity(isFaded(row) ? 1 / 3 : 1))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -159,7 +183,14 @@ public struct HourGridView: View {
                 let picked = Selection(kind: row.segments[index].kind, row: row.id, index: index)
                 selection = picked == selection ? nil : picked
             }
+            .allowsHitTesting(isInteractive)
         }
+    }
+
+    /// A day left out when some are picked out.
+    private func isFaded(_ row: HourGrid.Row) -> Bool {
+        guard let pickedOut else { return false }
+        return !pickedOut.contains(row.day)
     }
 
     private func isDimmed(_ kind: HourGrid.Kind) -> Bool {

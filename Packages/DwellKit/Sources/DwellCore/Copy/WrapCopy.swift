@@ -60,7 +60,79 @@ public enum WrapCopy {
     public static let atWork = TimeCopy.atWork
     public static let yours = TimeCopy.yours
 
-        // MARK: Earliest exit
+    // MARK: Weekends
+
+    /// The page's title. A weekend without work: Plain is the design's ("Weekends were all
+    /// yours."); Peace and Grind are Appendix B's "Weekend, zero work", without "First since
+    /// March 8", which needs weekends Dwell doesn't count yet. [COPY NEEDED] the rest.
+    public static func weekendsTitle(_ verdict: WrapWeekends.Verdict) -> VoicedLine {
+        switch verdict {
+        case .allYours:
+            VoicedLine(
+                peace: "A whole weekend to yourself.",
+                plain: "Weekends were all yours.",
+                grind: "Zero work this weekend.")
+        case .someWork(let work):
+            VoicedLine(
+                peace: "The weekend held \(DurationText.short(work)) of work.",
+                plain: "\(DurationText.short(work)) of work this weekend.",
+                grind: "\(DurationText.short(work)) in on the weekend.")
+        case .notRecorded:
+            VoicedLine(
+                peace: "Your weekend went unrecorded.",
+                plain: "No weekend on record.",
+                grind: "No weekend on record.")
+        }
+    }
+
+    /// The line under the title. A weekend without work: Peace and Plain are the design's
+    /// "Zero work hours Saturday and Sunday."; Grind is the rest of Appendix B's line.
+    /// [COPY NEEDED] the rest.
+    public static func weekendsLine(_ weekends: WrapWeekends) -> VoicedLine {
+        weekendsLine(weekends.verdict, workByDay: weekends.workByDay)
+    }
+
+    /// - Parameter workByDay: work on Saturday and on Sunday.
+    public static func weekendsLine(_ verdict: WrapWeekends.Verdict, workByDay: [TimeInterval]) -> VoicedLine {
+        switch verdict {
+        case .allYours:
+            return VoicedLine(
+                peace: "Zero work hours Saturday and Sunday.",
+                plain: "Zero work hours Saturday and Sunday.",
+                grind: "Recharged or slacking? Monday decides.")
+        case .someWork:
+            let days = zip(["Saturday", "Sunday"], workByDay)
+                .map { "\($0) \(DurationText.short($1))" }
+                .joined(separator: ", ")
+            return VoicedLine(peace: "\(days).", plain: "\(days).", grind: "\(days).")
+        case .notRecorded:
+            let line = "Dwell wasn't recording on Saturday or Sunday."
+            return VoicedLine(peace: line, plain: line, grind: line)
+        }
+    }
+
+    /// Over the weekend's categories: the design's "What you did instead"; with work in the
+    /// weekend, what else it held. [COPY NEEDED]
+    public static func weekendsBreakdown(_ verdict: WrapWeekends.Verdict) -> String {
+        switch verdict {
+        case .allYours, .notRecorded: "What you did instead"
+        case .someWork: "The rest of your weekend"
+        }
+    }
+
+    /// "2h more social than last weekend." The design's, at every stop. [COPY NEEDED] Peace
+    /// and Grind, and a better name than "other" or "personal" in a sentence.
+    public static func weekendsChange(_ change: WrapWeekends.Change) -> VoicedLine {
+        let amount = DurationText.short(abs(change.difference))
+        let direction = change.difference > 0 ? "more" : "less"
+        let line = "\(amount) \(direction) \(change.category.name.lowercased()) than last weekend."
+        return VoicedLine(peace: line, plain: line, grind: line)
+    }
+
+    /// VoiceOver: the card's rows, Saturday and Sunday picked out.
+    public static let weekendsGrid = "Every hour of the week, the weekend picked out" // [COPY NEEDED]
+
+    // MARK: Earliest exit
 
     /// The page's title (Weekly wrap design, "Earliest exit this week"). Plain is the design's,
     /// as is Grind (Appendix B's early exit ends "Earliest exit this week."). [COPY NEEDED] Peace.

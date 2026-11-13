@@ -171,30 +171,200 @@ public struct WrapEarliestExit: Hashable, Sendable {
     }
 }
 
-/// Everything the wrap's pages show, from one load of the week (and the four weeks before it,
-/// for what's usual).
+/// The wrap's third page (Weekly wrap design, "Weekends were all yours."): the week hour by
+/// hour with Saturday and Sunday picked out, what the weekend went to, and the biggest change
+/// in time of your own since last weekend.
+///
+/// The weekend is Saturday's and Sunday's Dwell days: Saturday 4 AM to Monday 4 AM, so Friday
+/// night out counts toward Friday. Times are counted as Time counts them (`TimeReport.totals`),
+/// so the wrap and Time never disagree.
+public struct WrapWeekends: Hashable, Sendable {
+    /// What the weekend held, which picks the title.
+    public enum Verdict: Hashable, Sendable {
+        /// Recorded, and not a minute of work.
+        case allYours
+        /// Work on Saturday or Sunday: how much in all.
+        case someWork(TimeInterval)
+        /// Dwell recorded nothing on Saturday or Sunday, so the page claims nothing either way.
+        case notRecorded
+    }
+
+    /// Where time of your own moved most against last weekend: "2h more social than last
+    /// weekend."
+    public struct Change: Hashable, Sendable {
+        public var category: PlaceCategory
+        /// This weekend's time less last weekend's: more when positive.
+        public var difference: TimeInterval
+
+        public init(category: PlaceCategory, difference: TimeInterval) {
+            self.category = category
+            self.difference = difference
+        }
+    }
+
+    /// A change smaller than this isn't worth a sentence.
+    public static let smallestChange: TimeInterval = 30 * 60
+
+    public var verdict: Verdict
+    /// The week, Monday to Sunday, a row a day (Time's "Every hour of the week").
+    public var grid: HourGrid
+    /// Saturday and Sunday, the rows the page picks out.
+    public var weekend: [DwellDay]
+    /// Work on each weekend day, Saturday first.
+    public var workByDay: [TimeInterval]
+    /// The weekend's time by category, largest first, work left out: "What you did instead".
+    /// The grid names work and then the weekend's largest categories, seven in all, so the
+    /// weekend's own colours show in both; anything past them is Everything else, last.
+    /// Categories under a minute are left out.
+    public var breakdown: [ChartSlice]
+    /// `nil` when last weekend wasn't recorded whole, or nothing moved by half an hour.
+    public var change: Change?
+
+    public init(
+        verdict: Verdict,
+        grid: HourGrid,
+        weekend: [DwellDay],
+        workByDay: [TimeInterval],
+        breakdown: [ChartSlice],
+        change: Change?
+    ) {
+        self.verdict = verdict
+        self.grid = grid
+        self.weekend = weekend
+        self.workByDay = workByDay
+        self.breakdown = breakdown
+        self.change = change
+    }
+
+    /// - Parameters:
+    ///   - week: Monday to Sunday.
+    ///   - lastWeekend: the Saturday and Sunday before it, for the change.
+    public init(week: [DaySnapshot], lastWeekend: [DaySnapshot], now: Date, calendar: Calendar) {
+        let first = week.first?.day ?? DwellDay(containing: now, calendar: calendar)
+        let period = TimePeriod(.week, containing: first, calendar: calendar)
+        let weekendDays = week.filter { Self.isWeekend($0.day, calendar: calendar) }
+        let totals = Self.totals(weekendDays, now: now)
+        let work = totals[.work] ?? 0
+
+        // The grid names work, so the weekdays show what the weekend was free of, then the
+        // weekend's own categories, then the rest of the week's, seven in all.
+        let ranked = { (totals: [PlaceCategory: TimeInterval]) in
+            ChartSlice.fold(totals, maxNamed: PlaceCategory.allCases.count).compactMap(\.bucket.category)
+        }
+        let weekTotals = Self.totals(week, now: now)
+        var named: [PlaceCategory] = weekTotals[.work] ?? 0 > 0 ? [.work] : []
+        for category in ranked(totals) + ranked(weekTotals) where !named.contains(category) {
+            named.append(category)
+        }
+        let grid = HourGrid(PeriodSnapshot(period: period, days: week), now: now, calendar: calendar, named: named)
+
+        let verdict: Verdict
+        if totals.values.reduce(0, +) <= 0 {
+            verdict = .notRecorded
+        } else if work >= 60 {
+            verdict = .someWork(work)
+        } else {
+            verdict = .allYours
+        }
+
+        // The grid's buckets: a category it folded into Everything else is folded here too.
+        var buckets: [ChartBucket: TimeInterval] = [:]
+        for (category, total) in totals where category != .work && total >= 60 {
+            let named = grid.legend.contains(.bucket(.category(category)))
+            buckets[named ? .category(category) : .everythingElse, default: 0] += total
+        }
+        let breakdown = buckets
+            .map { ChartSlice(bucket: $0.key, total: $0.value) }
+            .sorted { Self.rank($0) < Self.rank($1) }
+
+        self.init(
+            verdict: verdict,
+            grid: grid,
+            weekend: weekendDays.map(\.day),
+            workByDay: weekendDays.map { Self.totals([$0], now: now)[.work] ?? 0 },
+            breakdown: breakdown,
+            change: Self.change(from: lastWeekend, to: totals, now: now))
+    }
+
+    /// Saturday or Sunday, by the day the Dwell day starts on.
+    public static func isWeekend(_ day: DwellDay, calendar: Calendar) -> Bool {
+        let weekday = calendar.component(.weekday, from: day.start(in: calendar))
+        return weekday == 1 || weekday == 7
+    }
+
+    /// Time of your own, as `TimeReport.yours` counts it: everything but work, home and transit.
+    static let notYours: Set<PlaceCategory> = [.work, .home, .transit]
+
+    static func totals(_ days: [DaySnapshot], now: Date) -> [PlaceCategory: TimeInterval] {
+        guard let first = days.first, let last = days.last else { return [:] }
+        let whole = DateInterval(start: first.interval.start, end: max(first.interval.start, last.interval.end))
+        return TimeReport.totals(days, within: whole, now: now)
+    }
+
+    /// Largest first, Everything else last, ties in category order.
+    private static func rank(_ slice: ChartSlice) -> (Int, TimeInterval, Int) {
+        switch slice.bucket {
+        case .category(let category):
+            (0, -slice.total, PlaceCategory.allCases.firstIndex(of: category) ?? 0)
+        case .everythingElse:
+            (1, 0, 0)
+        }
+    }
+
+    /// The category of your own whose time moved most, if last weekend was recorded from
+    /// Saturday's 4 AM on and something moved by half an hour or more. Ties go to the category
+    /// that comes first.
+    static func change(from lastWeekend: [DaySnapshot], to totals: [PlaceCategory: TimeInterval], now: Date) -> Change? {
+        guard !lastWeekend.isEmpty, lastWeekend.allSatisfy({ ($0.recordingSince ?? .distantPast) <= $0.interval.start }) else {
+            return nil
+        }
+        let before = Self.totals(lastWeekend, now: now)
+        guard before.values.reduce(0, +) > 0 else { return nil }
+        var best: Change?
+        for category in PlaceCategory.allCases where !notYours.contains(category) {
+            let difference = (totals[category] ?? 0) - (before[category] ?? 0)
+            if abs(difference) > abs(best?.difference ?? 0) {
+                best = Change(category: category, difference: difference)
+            }
+        }
+        guard let best, abs(best.difference) >= smallestChange else { return nil }
+        return best
+    }
+}
+
+/// Everything the wrap's pages show, from one load of the week and the four weeks before it
+/// (what's usual for the earliest exit, and the weekend before for the weekend page).
 public struct WrapWeek: Hashable, Sendable {
     public var opener: WrapOpener
     public var workAndYours: WrapWorkAndYours
+    public var weekends: WrapWeekends
     /// `nil` when the user wasn't at the office on any weekday.
     public var earliestExit: WrapEarliestExit?
 
     /// Days before the wrap's week that "usual" looks back over.
     public static let lookback = 28
 
-    public init(opener: WrapOpener, workAndYours: WrapWorkAndYours, earliestExit: WrapEarliestExit?) {
+    public init(opener: WrapOpener, workAndYours: WrapWorkAndYours, weekends: WrapWeekends, earliestExit: WrapEarliestExit?) {
         self.opener = opener
         self.workAndYours = workAndYours
+        self.weekends = weekends
         self.earliestExit = earliestExit
     }
 
     /// - Parameters:
     ///   - week: the wrap's seven days, Monday to Sunday.
-    ///   - before: the days before it, for what's usual (`lookback` of them, or fewer).
+    ///   - before: the days before it, for what's usual and the weekend before (`lookback` of
+    ///     them, or fewer).
     public init(week: [DaySnapshot], before: [DaySnapshot] = [], now: Date, calendar: Calendar) {
+        var lastWeekend: [DaySnapshot] = []
+        if let monday = week.first?.day {
+            let saturday = monday.adding(days: -2, in: calendar)
+            lastWeekend = before.filter { $0.day >= saturday && $0.day < monday }
+        }
         self.init(
             opener: WrapOpener(week: week),
             workAndYours: WrapWorkAndYours(week: week, now: now),
+            weekends: WrapWeekends(week: week, lastWeekend: lastWeekend, now: now, calendar: calendar),
             earliestExit: WrapEarliestExit(week: week, before: before, calendar: calendar))
     }
 }
