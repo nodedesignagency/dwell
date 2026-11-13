@@ -71,12 +71,11 @@ public enum Art {
         public static let open = Image("flame/open", bundle: .module)
     }
 
-    /// The dial's art (You), cut from the design's "Plain" render: a white pill and the dark
-    /// current one, 36.33 wide at their own heights (64.67 and 75.33). Their rounded ends stay
-    /// put while the middle stretches (`DialArt.capInsets`), so one pair draws every stop.
-    public enum DialPill {
-        public static let plain = Image("dial/pill", bundle: .module)
-        public static let current = Image("dial/pillCurrent", bundle: .module)
+    /// The dial's art (You): one 3D icon for each stop, from the design: a sprout (Peace), sun
+    /// behind clouds (Calm), three pills (Plain), a lightning bolt (Push), a flame (Grind).
+    /// Trimmed to the art, so `DialArt` sizes them alike.
+    public static func dial(_ stop: Dial.Stop) -> Image {
+        Image("dial/\(stop.rawValue)", bundle: .module)
     }
 
     /// The tab bar's icons, from the design. Drawn for light; their dark versions invert the

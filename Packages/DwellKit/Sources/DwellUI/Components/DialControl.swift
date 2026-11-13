@@ -203,43 +203,36 @@ private struct StopLabels: Layout {
     }
 }
 
-/// Three pills that rise from Peace to Grind, the current stop's taller and dark (You design,
-/// "Plain"). The design's render, cut into its white pill and its dark one (`Art.DialPill`), so
-/// it can follow the thumb while the dial is dragged: each pill darkens and grows as the dial
-/// nears its stop (Peace, Plain, Grind), and at Calm and Push two pills share it. At Plain it
-/// is the render exactly.
+/// The current stop's art (You design): Peace's sprout, Calm's sun behind clouds, Plain's three
+/// pills, Push's lightning bolt, Grind's flame. As the dial is dragged into another stop's half,
+/// the new art grows in from the bottom as the old one shrinks away (`Motion.standard`); under
+/// Reduce Motion they cross-fade.
 ///
-/// From the render (exported at 4x): 36.33 wide, 6.25 apart, standing on one line; at Plain
-/// 55, 75 and 64.5 tall, so the pills rise 55, 59.75, 64.5 and the current one stands 15.25
-/// taller. Only the middle of each pill stretches; its rounded ends keep their shape.
+/// Sized like the Plain render in the design: at most 75 tall and 125 wide, standing on the
+/// line 129 below the card's top (the 80 under the label, with 1 to spare).
 public struct DialArt: View {
-    private let position: Double
-    static let pillWidth: CGFloat = 109.0 / 3
-    static let spacing: CGFloat = 6.25
-    static let heights: [CGFloat] = [55, 59.75, 64.5]
-    static let lift: CGFloat = 15.25
-    /// The rounded ends, which never stretch.
-    static let capInsets = EdgeInsets(top: 18, leading: 0, bottom: 18, trailing: 0)
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let stop: Dial.Stop
+    static let maxSize = CGSize(width: 125, height: 75)
 
     public init(position: Double) {
-        self.position = position
+        stop = Dial(position: position).stop
     }
 
     public var body: some View {
-        HStack(alignment: .bottom, spacing: Self.spacing) {
-            ForEach(0..<3, id: \.self) { index in
-                let nearness = max(0, 1 - abs(position / Dial.range.upperBound - Double(index) / 2) * 2)
-                ZStack {
-                    Art.DialPill.plain
-                        .resizable(capInsets: Self.capInsets, resizingMode: .stretch)
-                    Art.DialPill.current
-                        .resizable(capInsets: Self.capInsets, resizingMode: .stretch)
-                        .opacity(nearness)
-                }
-                .frame(width: Self.pillWidth, height: Self.heights[index] + Self.lift * nearness)
-            }
+        ZStack(alignment: .bottom) {
+            Art.dial(stop)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: Self.maxSize.width, maxHeight: Self.maxSize.height, alignment: .bottom)
+                .id(stop)
+                .transition(reduceMotion
+                    ? .opacity
+                    : .opacity.combined(with: .scale(scale: 0.8, anchor: .bottom)))
         }
-        .frame(height: (Self.heights.max() ?? 64.5) + Self.lift, alignment: .bottom)
+        .padding(.bottom, 1)
+        .frame(height: 80, alignment: .bottom)
+        .animation(reduceMotion ? Motion.reduced : Motion.standard, value: stop)
         .accessibilityHidden(true)
     }
 }

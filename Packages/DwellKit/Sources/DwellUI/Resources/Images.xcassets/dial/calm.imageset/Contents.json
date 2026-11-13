@@ -1,9 +1,8 @@
 {
   "images": [
     {
-      "filename": "pill.png",
-      "idiom": "universal",
-      "scale": "3x"
+      "filename": "calm.png",
+      "idiom": "universal"
     }
   ],
   "info": {
