@@ -20,7 +20,6 @@ struct WeeklyWrapScreen: View {
     @Environment(\.repository) private var repository
     @Environment(\.calendar) private var calendar
     @Environment(\.fixedNow) private var fixedNow
-    @Environment(\.calendar) private var calendar
     @Environment(\.clockOffset) private var clockOffset
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
