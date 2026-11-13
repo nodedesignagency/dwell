@@ -73,3 +73,49 @@ public enum WrapSticker: String, CaseIterable, Hashable, Sendable {
     /// The design's four, in its order: top left, right, bottom left, bottom right.
     public static let opener: [WrapSticker] = [.alarmClock, .briefcase, .flame, .trophy]
 }
+
+/// The wrap's second page (Weekly wrap design, "Work vs yours"): the week's hours at work and
+/// the hours that were yours, counted as Time counts them (`TimeReport.totals`,
+/// `TimeReport.yours`), so the wrap and Time never disagree.
+public struct WrapWorkAndYours: Hashable, Sendable {
+    public var work: TimeInterval
+    public var yours: TimeInterval
+
+    public init(work: TimeInterval, yours: TimeInterval) {
+        self.work = work
+        self.yours = yours
+    }
+
+    /// Totals a week of days, Monday to Sunday.
+    public init(week: [DaySnapshot], now: Date) {
+        guard let first = week.first, let last = week.last else {
+            self.init(work: 0, yours: 0)
+            return
+        }
+        let whole = DateInterval(start: first.interval.start, end: max(first.interval.start, last.interval.end))
+        let totals = TimeReport.totals(week, within: whole, now: now)
+        self.init(work: totals[.work] ?? 0, yours: TimeReport.yours(totals))
+    }
+
+    /// Work's share of the two, 0 to 1: how much of the page work fills before the water of
+    /// yours begins (the designer's idea, 13 Nov). Half when there's neither.
+    public var workShare: Double {
+        let both = work + yours
+        return both > 0 ? work / both : 0.5
+    }
+}
+
+/// Everything the wrap's pages show, from one load of the week.
+public struct WrapWeek: Hashable, Sendable {
+    public var opener: WrapOpener
+    public var workAndYours: WrapWorkAndYours
+
+    public init(opener: WrapOpener, workAndYours: WrapWorkAndYours) {
+        self.opener = opener
+        self.workAndYours = workAndYours
+    }
+
+    public init(week: [DaySnapshot], now: Date) {
+        self.init(opener: WrapOpener(week: week), workAndYours: WrapWorkAndYours(week: week, now: now))
+    }
+}

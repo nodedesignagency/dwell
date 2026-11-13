@@ -5,7 +5,7 @@ import SwiftUI
 /// The weekly wrap (S-06): last week as a story, a page at a time. Presented full screen from
 /// Today's invite (T-16), growing out of the card on iOS 18 and later.
 ///
-/// Loads the week's days from the repository for the opener's numbers. Pages move on with a
+/// Loads the week's days from the repository once, for every page's numbers (`WrapWeek`). Pages move on with a
 /// tap, or by themselves once their time is up (`WrapPage.duration`, the progress bar filling
 /// as it runs, like an Instagram story), and cross-fade (`Motion.reduced`, the same with
 /// Reduce Motion: nothing moves). The clock pauses while a finger is held on the page, while
@@ -17,10 +17,12 @@ struct WeeklyWrapScreen: View {
     var onClose: () -> Void
 
     @Environment(\.repository) private var repository
+    @Environment(\.fixedNow) private var fixedNow
+    @Environment(\.clockOffset) private var clockOffset
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
     @Environment(\.accessibilitySwitchControlEnabled) private var switchControl
-    @State private var state: Loadable<WrapOpener> = .loading
+    @State private var state: Loadable<WrapWeek> = .loading
     @State private var page: WrapPage = .opener
     @State private var attempt = 0
     @State private var clock = StoryClock(duration: WrapPage.opener.duration ?? 0)
@@ -83,7 +85,7 @@ struct WeeklyWrapScreen: View {
     private func load() async {
         do {
             let week = try await repository.days(from: wrap.firstDay, through: wrap.lastDay)
-            state = .loaded(WrapOpener(week: week))
+            state = .loaded(WrapWeek(week: week, now: fixedNow ?? Date.now.addingTimeInterval(clockOffset)))
         } catch is CancellationError {
             return
         } catch let error as LoadError {

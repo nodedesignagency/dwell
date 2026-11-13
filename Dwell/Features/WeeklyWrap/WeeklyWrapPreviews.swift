@@ -9,10 +9,10 @@ import SwiftUI
 
 /// The wrap holding its page, so taps move through it in the canvas.
 private struct WrapPreview: View {
-    let state: Loadable<WrapOpener>
+    let state: Loadable<WrapWeek>
     @State private var page: WrapPage
 
-    init(_ state: Loadable<WrapOpener>, page: WrapPage = .opener) {
+    init(_ state: Loadable<WrapWeek>, page: WrapPage = .opener) {
         self.state = state
         _page = State(initialValue: page)
     }
@@ -28,8 +28,19 @@ private struct WrapPreview: View {
     }
 }
 
-private let lastWeek = Loadable<WrapOpener>.loaded(
-    WrapOpener(week: SampleData.lastWeek.map(SampleData.snapshot(for:))))
+private let sampleWeek = WrapWeek(week: SampleData.lastWeek.map(SampleData.snapshot(for:)), now: SampleData.now)
+private let lastWeek = Loadable<WrapWeek>.loaded(sampleWeek)
+
+/// Last week with other numbers on one page.
+private func week(opener: WrapOpener? = nil, work: TimeInterval? = nil, yours: TimeInterval? = nil) -> Loadable<WrapWeek> {
+    var week = sampleWeek
+    if let opener { week.opener = opener }
+    if let work { week.workAndYours.work = work }
+    if let yours { week.workAndYours.yours = yours }
+    return .loaded(week)
+}
+
+private let hour: TimeInterval = 3600
 
 // MARK: The opener, across the dial
 
@@ -72,11 +83,11 @@ private let lastWeek = Loadable<WrapOpener>.loaded(
 }
 
 #Preview("A first week, from Thursday") {
-    WrapPreview(.loaded(WrapOpener(days: 4, places: 5))).samplePreview()
+    WrapPreview(week(opener: WrapOpener(days: 4, places: 5))).samplePreview()
 }
 
 #Preview("A week with no visits") {
-    WrapPreview(.loaded(WrapOpener(days: 7, places: 0))).samplePreview()
+    WrapPreview(week(opener: WrapOpener(days: 7, places: 0))).samplePreview()
 }
 
 // MARK: The page's clock
@@ -100,10 +111,58 @@ private let lastWeek = Loadable<WrapOpener>.loaded(
         .samplePreview()
 }
 
+// MARK: Work vs yours, across the dial (45h 40m at work, 23h 03m yours: two-thirds purple)
+
+#Preview("Work vs yours · Peace") {
+    WrapPreview(lastWeek, page: .workAndYours).samplePreview(.peace)
+}
+
+#Preview("Work vs yours · Plain") {
+    WrapPreview(lastWeek, page: .workAndYours).samplePreview(.plain)
+}
+
+#Preview("Work vs yours · Grind") {
+    WrapPreview(lastWeek, page: .workAndYours).samplePreview(.grind)
+}
+
+#Preview("Work vs yours · dark") {
+    WrapPreview(lastWeek, page: .workAndYours).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Work vs yours · AX3") {
+    WrapPreview(lastWeek, page: .workAndYours).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Work vs yours · Grind · AX5 · dark") {
+    WrapPreview(lastWeek, page: .workAndYours).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+// MARK: Work vs yours, the water's level
+
+#Preview("Work vs yours · the design's week (38h 20m, 41h 10m)") {
+    WrapPreview(week(work: 38 * hour + 20 * 60, yours: 41 * hour + 10 * 60), page: .workAndYours).samplePreview()
+}
+
+#Preview("Work vs yours · nearly all work (52h, 4h)") {
+    WrapPreview(week(work: 52 * hour, yours: 4 * hour), page: .workAndYours).samplePreview()
+}
+
+#Preview("Work vs yours · a week off (0m, 31h)") {
+    WrapPreview(week(work: 0, yours: 31 * hour), page: .workAndYours).samplePreview()
+}
+
+#Preview("Work vs yours · loading") {
+    WrapPreview(.loading, page: .workAndYours).samplePreview()
+}
+
 // MARK: Pages still to come
 
-#Preview("Page 2, waiting for its design") {
-    WrapPreview(lastWeek, page: .workAndYours).samplePreview()
+#Preview("Page 3, waiting for its design") {
+    WrapPreview(lastWeek, page: .weekends).samplePreview()
 }
 
 // MARK: The real screen, loading the sample week

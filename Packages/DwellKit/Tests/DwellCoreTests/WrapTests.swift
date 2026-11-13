@@ -92,3 +92,31 @@ struct StoryClockTests {
         #expect(paused.paused(at: start + 5) == paused)
     }
 }
+
+@Suite("Weekly wrap: work vs yours")
+struct WrapWorkAndYoursTests {
+    let week = SampleData.lastWeek.map(SampleData.snapshot(for:))
+
+    @Test func `the same numbers as Time's last week`() {
+        let split = WrapWorkAndYours(week: week, now: SampleData.now)
+        #expect(DurationText.short(split.work) == "45h 40m")
+        #expect(DurationText.short(split.yours) == "23h 03m")
+        let period = TimePeriod(.week, containing: SampleData.lastWeek[0], calendar: calendar)
+        let report = TimeOverview.sample(period).report
+        #expect(split.work == report.work)
+        #expect(split.yours == report.yours)
+    }
+
+    @Test func `work fills its share of the page`() {
+        #expect(WrapWorkAndYours(work: 30, yours: 10).workShare == 0.75)
+        #expect(WrapWorkAndYours(work: 0, yours: 10).workShare == 0)
+        #expect(WrapWorkAndYours(work: 0, yours: 0).workShare == 0.5)
+        #expect(WrapWorkAndYours(week: [], now: SampleData.now) == WrapWorkAndYours(work: 0, yours: 0))
+    }
+
+    @Test func `grind calls yours off, the title too`() {
+        #expect(WrapCopy.workVsYours.text(at: .plain) == "Work vs yours")
+        #expect(WrapCopy.workVsYours.text(at: .grind) == "Work vs off")
+        #expect(WrapCopy.yours.text(at: .grind) == "Off")
+    }
+}

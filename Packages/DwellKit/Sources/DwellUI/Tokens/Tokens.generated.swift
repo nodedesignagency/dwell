@@ -68,6 +68,18 @@ public enum Palette {
     public static let wrapCentre = Color("wrapCentre", bundle: .module)
     /// The weekly wrap invite: the deep blue at the edge of its radial fill
     public static let wrapEdge = Color("wrapEdge", bundle: .module)
+    /// Weekly wrap, Work vs yours: the purple of work, above the water. Read from the screenshot under the 10% pattern
+    public static let wrapWork = Color("wrapWork", bundle: .module)
+    /// Weekly wrap, Work vs yours: the water of yours. Read from the screenshot under the 10% pattern
+    public static let wrapYours = Color("wrapYours", bundle: .module)
+    /// Weekly wrap, Work vs yours: the light stripes of the wavy pattern, drawn at 10% (the reference image's purple)
+    public static let wrapStripe = Color("wrapStripe", bundle: .module)
+    /// Weekly wrap, Work vs yours: the deep stripes of the wavy pattern, drawn at 10% (the reference image's navy)
+    public static let wrapStripeDeep = Color("wrapStripeDeep", bundle: .module)
+    /// Weekly wrap: the navy outline around a bubble title (Work vs yours). Read from the art
+    public static let bubbleOutline = Color("bubbleOutline", bundle: .module)
+    /// Weekly wrap: the grey a bubble title's white letters shade to at their bottom. Read from the art
+    public static let bubbleShade = Color("bubbleShade", bundle: .module)
     /// Your places: the search field's fill, raised off the page by its shadow. Read from the screenshot
     public static let field = Color("field", bundle: .module)
     /// Your places: the search field's magnifier. Read from the screenshot

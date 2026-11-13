@@ -59,7 +59,7 @@ struct WeeklyWrapActions {
 /// the page pauses it, and letting go carries on without moving; only a quick tap moves.
 struct WeeklyWrapContent: View {
     let wrap: WeeklyWrap
-    let state: Loadable<WrapOpener>
+    let state: Loadable<WrapWeek>
     let page: WrapPage
     /// How far the page has run; `nil` when it waits for a tap.
     var clock: StoryClock? = nil
@@ -145,10 +145,15 @@ struct WeeklyWrapContent: View {
         switch page {
         case .opener:
             WrapOpenerPage(
-                state: state,
+                state: state.map(\.opener),
                 reserve: reserve,
                 onNext: actions.next,
                 onRetry: actions.retry)
+        case .workAndYours:
+            WrapWorkPage(
+                state: state.map(\.workAndYours),
+                headerBottom: headerBottom,
+                onNext: actions.next)
         default:
             WrapPendingPage(page: page, reserve: reserve, onNext: actions.next, onPrevious: actions.previous)
         }
@@ -180,5 +185,18 @@ private struct WrapPendingPage: View {
         .padding(.vertical, reserve)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
+    }
+}
+
+extension Loadable {
+    /// The same state, holding part of the value: one page's share of the week.
+    func map<Part>(_ part: (Value) -> Part) -> Loadable<Part> {
+        switch self {
+        case .loading: .loading
+        case .empty: .empty
+        case .stillMapping(let progress): .stillMapping(progress)
+        case .failed(let failure): .failed(failure)
+        case .loaded(let value, let staleSince): .loaded(part(value), staleSince: staleSince)
+        }
     }
 }

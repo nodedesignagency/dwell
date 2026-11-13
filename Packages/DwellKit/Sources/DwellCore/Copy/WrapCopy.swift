@@ -50,7 +50,21 @@ public enum WrapCopy {
     /// label style, so VoiceOver reads words.
     public static let tapToContinue = "Tap to continue"
 
-    private static func count(_ value: Int, one: String, many: String) -> String {
+    // MARK: Work vs yours
+
+    /// The bubble title (Weekly wrap design, "Work vs yours"), set on two lines: everything but
+    /// the last word, then the last word. Peace and Plain are the design's; Grind calls yours
+    /// "off" (brief §7.3), as Time does. [COPY NEEDED] Grind.
+    public static let workVsYours = VoicedLine(
+        peace: "Work vs yours",
+        plain: "Work vs yours",
+        grind: "Work vs off")
+
+    /// Labels over the two numbers, as Time's tiles: "At work"; "Yours", or "Off" at Grind.
+    public static let atWork = TimeCopy.atWork
+    public static let yours = TimeCopy.yours
+
+        private static func count(_ value: Int, one: String, many: String) -> String {
         "\(value) \(value == 1 ? one : many)"
     }
 }
