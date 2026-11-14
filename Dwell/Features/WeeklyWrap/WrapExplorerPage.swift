@@ -18,7 +18,9 @@ import SwiftUI
 /// page connects MapKit (14 Nov).
 ///
 /// Over the map, measured from the screenshot at 393 × 852 [VALUES NEEDED: Figma's fills]:
-/// - At the top, the page's green at 26% fading out by 200 down, so the header reads.
+/// - Behind the header, frosted glass down to just under the progress bar, fading out over 28
+///   below it, so the header reads over the streets (the user, 14 Nov; not in the design).
+/// - At the top, the page's green at 26% fading out by 200 down.
 /// - The green: #0C9B01 with a lime glow (#5CE644), an ellipse 166 across and 310 down from its
 ///   middle (312 above the bottom edge), full to 18% of the way out. It fades in from 482 above
 ///   the bottom edge to full at 327.
@@ -30,8 +32,9 @@ import SwiftUI
 ///
 /// The header is the app's ink on this page (`WrapPage.headerInk`), the map being light.
 ///
-/// Motion: the tags pop out of their tails one after another as the page opens, and the
-/// pattern rolls; under Reduce Motion the tags fade in and the pattern holds still. The page
+/// Motion: the tags pop out of their tails one after another as the page opens, and a swell
+/// runs across the pattern's columns; under Reduce Motion the tags fade in and the pattern
+/// holds still. The page
 /// is a story page: the map takes no touches, a tap anywhere moves on. VoiceOver reads the map
 /// as a list of the new places, then the words. At accessibility sizes the title stops at the
 /// largest standard size and the words grow up over the green.
@@ -68,6 +71,7 @@ struct WrapExplorerPage: View {
                 }
                 .allowsHitTesting(false)
 
+                headerFrost
                 topWash
                 green(in: size)
                 SteppedWavesLive()
@@ -82,16 +86,37 @@ struct WrapExplorerPage: View {
         .ignoresSafeArea()
     }
 
-    /// Where the new places should sit: clear of the header (and the tags' tails) above, and
-    /// of the green below, with room either side for the tags (a little more on the right,
-    /// where a tag hangs a quarter of its width past its place).
+    /// Where the new places should sit: clear of the header's frost above, so no tag sits under
+    /// it (34 for the frost, half a tag, a little air), and of the green below, with room either
+    /// side for the tags (a little more on the right, where a tag hangs a quarter of its width
+    /// past its place).
     private func focus(in size: CGSize) -> CGRect {
-        let top = headerBottom + 30
+        let top = headerBottom + 56
         let bottom = max(size.height - Rise.greenStart + 12, top + 60)
         return CGRect(x: 40, y: top, width: max(size.width - 96, 1), height: bottom - top)
     }
 
     // MARK: Fills
+
+    /// Frosted glass over the map behind the header, so its words and progress bar read (the
+    /// user, 14 Nov: the streets showed through them): full down to just under the progress
+    /// bar, then fading out over 28.
+    private var headerFrost: some View {
+        let full = headerBottom + 6
+        let height = max(full + 28, 1)
+        let stops: [Gradient.Stop] = [
+            .init(color: .black, location: 0),
+            .init(color: .black, location: full / height),
+            .init(color: .clear, location: 1),
+        ]
+        return Rectangle()
+            .fill(.ultraThinMaterial)
+            .frame(height: height)
+            .mask { LinearGradient(stops: stops, startPoint: .top, endPoint: .bottom) }
+            .frame(maxHeight: .infinity, alignment: .top)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
 
     /// The page's green over the top of the map, so the header reads: 26% at the top, gone by
     /// 200 down.

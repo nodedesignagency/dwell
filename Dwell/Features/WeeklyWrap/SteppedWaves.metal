@@ -23,6 +23,10 @@ constant float shear = 0.36f;
 constant float pitch = 58.55f;
 constant float duty = 30.67f / 58.55f;
 constant float wavelength = 611.67f;
+// The swell that moves the columns: how far each rises and falls, and how far apart two
+// columns at the same height are (eight columns).
+constant float swellHeight = 7.0f;
+constant float swellLength = 8.0f * 38.867f;
 
 /// The wave the stripes follow at `u` across the placed image, and its slope.
 static float2 steppedWave(float u) {
@@ -34,11 +38,14 @@ static float2 steppedWave(float u) {
     return float2(value, slope);
 }
 
-/// `travel`: how far the wave has rolled to the right since the page opened, in points of the
-/// placed image; the columns stay put. Light and deep are drawn at full strength; the page sets
-/// their opacity (Figma's 20%). The image hangs from the bottom of the screen as the design
-/// places it, 613 above the bottom edge, and scales with the screen's width.
-[[ stitchable ]] half4 steppedWaves(float2 position, half4 color, float2 size, float travel,
+/// `swell`: where the swell is in its cycle, 0 to 1. Each column rises and falls whole, a sine
+/// `swellHeight` either way, a little after the column to its left, so a wave runs across the
+/// columns from left to right; the stripes' shape never changes, so nothing tips or turns. At 0
+/// every column is exactly where the design draws it (Reduce Motion holds it there). Light and
+/// deep are drawn at full strength; the page sets their opacity (Figma's 20%).
+/// The image hangs from the bottom of the screen as the design places it, 613 above the bottom
+/// edge, and scales with the screen's width.
+[[ stitchable ]] half4 steppedWaves(float2 position, half4 color, float2 size, float swell,
                                     half4 light, half4 deep) {
     float unit = size.x / 393.0f;
     float2 point = position / unit;
@@ -47,8 +54,13 @@ static float2 steppedWave(float u) {
 
     float column = floor((u - firstColumn) / columnWidth);
     float across = u - firstColumn - column * columnWidth;
-    float2 wave = steppedWave(u - travel);
-    float edge = wave.x + shear * (across - columnWidth * 0.5f);
+    float2 wave = steppedWave(u);
+    // The whole column moves together, by the swell at its middle, measured from where it is
+    // at 0 so the still pattern is the design's.
+    float middle = firstColumn + (column + 0.5f) * columnWidth;
+    float lift = swellHeight * (sin(2.0f * M_PI_F * (middle / swellLength - swell))
+        - sin(2.0f * M_PI_F * middle / swellLength));
+    float edge = wave.x + shear * (across - columnWidth * 0.5f) + lift;
 
     // Where this point sits in its stripe pair: grey from 0 to `duty`, white after.
     float phase = (v - edge) / pitch;
