@@ -17,6 +17,8 @@ struct DwellApp: App {
     /// ago, so until the client's app state says who's new, onboarding shows only when asked
     /// for (`DWELL_OPEN=onboarding ./scripts/run.sh`); finishing it opens Today.
     @State private var onboarding: OnboardingPage?
+    /// Whether the app opened straight into its tabs, not onboarding.
+    private let launchedIntoApp: Bool
 
     init() {
         // `-DwellFresh YES` at launch forgets what's been seen, so first-sight animations play
@@ -26,6 +28,7 @@ struct DwellApp: App {
         }
         let open = UserDefaults.standard.string(forKey: "DwellOpen").flatMap(LaunchPage.init(rawValue:))
         _onboarding = State(initialValue: open?.onboardingPage)
+        launchedIntoApp = open?.onboardingPage == nil
         if open == .tone {
             // As if onboarding had just finished: Today asks for the tone.
             UserDefaults.standard.set(true, forKey: ToneSheet.asksKey)
@@ -36,12 +39,20 @@ struct DwellApp: App {
         WindowGroup {
             Group {
                 if let onboarding {
-                    OnboardingScreen(startsAt: onboarding, account: open?.accountStep) {
+                    OnboardingScreen(
+                        startsAt: onboarding,
+                        account: open?.accountStep,
+                        returning: open == .welcomeBack || open == .checking,
+                        startsChecking: open == .checking
+                    ) {
                         withAnimation(Motion.standard) { self.onboarding = nil }
                     }
                     .transition(.opacity)
                 } else {
                     RootView(open: open)
+                        // Re-consent when the terms changed, asked once at launch; after
+                        // onboarding or Welcome back, the flow has already asked.
+                        .reconsentGate(checks: launchedIntoApp, opens: open == .reconsent)
                         .transition(.opacity)
                 }
             }

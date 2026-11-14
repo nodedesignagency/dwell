@@ -217,3 +217,18 @@ public struct Consent: Hashable, Sendable {
     /// Continue needs the visits consent; the models one is the user's either way.
     public var canContinue: Bool { useVisits }
 }
+
+// MARK: - Returning user
+
+// The returning user (onboarding flow, "Returning user"; screens, 14 Nov): My world's "I already
+// have an account", then Welcome back (Apple or phone, nothing else), then Checking ("Finding
+// the account"), then Today with their data back. Re-consent comes between when the terms
+// changed while they were away. Brief A.1: "Sign in to resume", "Re-consent", account states.
+
+/// What Checking finds for the sign-in on Welcome back.
+public enum ResumeCheck: Hashable, Sendable {
+    /// Their account: their places and hours come back.
+    case found
+    /// No Dwell account for this sign-in. Nothing is made: a new world starts on My world.
+    case notFound
+}

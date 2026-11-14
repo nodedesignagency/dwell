@@ -82,11 +82,14 @@ struct SaveYourWorldPage: View {
     }
 }
 
-/// The two documents the legal line links to. Their text and addresses are the client's
-/// [LINK NEEDED]; until then each opens a stand-in sheet. Their links stay inside the app.
+/// The two documents the legal line links to, and Re-consent's summary of what changed. Their
+/// text and addresses are the client's [LINK NEEDED]; until then each opens a stand-in sheet.
+/// Their links stay inside the app.
 enum LegalDocument: String, Identifiable, CaseIterable {
     case terms
     case privacy
+    /// Re-consent's "Read what changed": what's new in the terms.
+    case changes
 
     var id: String { rawValue }
 
@@ -94,6 +97,7 @@ enum LegalDocument: String, Identifiable, CaseIterable {
         switch self {
         case .terms: AccountCopy.terms
         case .privacy: AccountCopy.privacyPolicy
+        case .changes: AccountCopy.whatChanged
         }
     }
 

@@ -213,6 +213,125 @@ import SwiftUI
         .environment(\.colorScheme, .dark)
 }
 
+// The returning user (screens, 14 Nov): Welcome back, Checking over it, and Re-consent. Their
+// words hold at every dial position (sign-in and consent words carry no voice), so one dial stop
+// each; light in dark mode, as all of onboarding. DWELL_OPEN=welcomeBack, checking, reconsent.
+
+#Preview("R1 Welcome back") {
+    OnboardingScreen(returning: true) {}
+        .samplePreview()
+}
+
+#Preview("R1 Welcome back · signing in") {
+    PagePreview { insets in
+        WelcomeBackPage(insets: insets, isSigningIn: true, notice: nil, onBack: {}, onApple: {}, onPhone: {}, onNewHere: {})
+    }
+    .samplePreview()
+}
+
+#Preview("R1 Welcome back · sign-in failed") {
+    PagePreview { insets in
+        WelcomeBackPage(insets: insets, isSigningIn: false, notice: .signInFailed, onBack: {}, onApple: {}, onPhone: {}, onNewHere: {})
+    }
+    .samplePreview()
+}
+
+#Preview("R1 Welcome back · no account") {
+    PagePreview { insets in
+        WelcomeBackPage(insets: insets, isSigningIn: false, notice: .noAccount, onBack: {}, onApple: {}, onPhone: {}, onNewHere: {})
+    }
+    .samplePreview()
+}
+
+#Preview("R1 Welcome back · AX3") {
+    OnboardingScreen(returning: true) {}
+        .samplePreview()
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("R1 Welcome back · Dark") {
+    OnboardingScreen(returning: true) {}
+        .samplePreview()
+        .environment(\.colorScheme, .dark)
+}
+
+#Preview("R2 Checking") {
+    CheckingPreview(didFail: false)
+        .samplePreview()
+}
+
+#Preview("R2 Checking · failed, Try again") {
+    CheckingPreview(didFail: true)
+        .samplePreview()
+}
+
+#Preview("R2 Checking · AX3") {
+    CheckingPreview(didFail: false)
+        .samplePreview()
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("R2 Checking · small phone", traits: .fixedLayout(width: 375, height: 667)) {
+    CheckingPreview(didFail: false)
+        .samplePreview()
+}
+
+#Preview("R2 Checking · Dark") {
+    CheckingPreview(didFail: false)
+        .samplePreview()
+        .environment(\.colorScheme, .dark)
+}
+
+#Preview("R3 Re-consent · after sign-in, with Back") {
+    PagePreview { insets in
+        ReconsentScreen(consent: Consent(), insets: insets, onBack: {}, onDone: {})
+    }
+    .samplePreview()
+}
+
+#Preview("R3 Re-consent · at launch, over Today, blocking") {
+    RootView()
+        .reconsentGate(checks: false, opens: true)
+        .samplePreview()
+}
+
+#Preview("R3 Re-consent · models on, as the user left them") {
+    PagePreview { insets in
+        ReconsentScreen(consent: Consent(improveModels: true), insets: insets, onBack: nil, onDone: {})
+    }
+    .samplePreview()
+}
+
+#Preview("R3 Re-consent · saving failed") {
+    PagePreview { insets in
+        ReconsentPage(
+            insets: insets, consent: .constant(Consent()), isSaving: false, didFail: true,
+            onBack: nil, onContinue: {}, onReadChanges: {})
+    }
+    .samplePreview()
+}
+
+#Preview("R3 Re-consent · AX3") {
+    PagePreview { insets in
+        ReconsentScreen(consent: Consent(), insets: insets, onBack: {}, onDone: {})
+    }
+    .samplePreview()
+    .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("R3 Re-consent · Dark") {
+    PagePreview { insets in
+        ReconsentScreen(consent: Consent(), insets: insets, onBack: nil, onDone: {})
+    }
+    .samplePreview()
+    .environment(\.colorScheme, .dark)
+}
+
+#Preview("R3 What changed, waiting for the client's text") {
+    LegalDocumentSheet(document: .changes)
+        .samplePreview()
+}
+
 #Preview("Next step, waiting for its design") {
     NextStepPending(step: .phoneNumber, onBack: {}, onFinish: {})
         .samplePreview()
@@ -266,6 +385,26 @@ private struct SetupPreview: View {
         PagePreview { insets in
             AccountSetupFlow(setup: $setup, insets: insets, birthday: birthday, onLeave: {}, onPending: { _ in }, onComplete: {})
         }
+    }
+}
+
+/// Welcome back with Checking over it, as after Continue with Apple.
+private struct CheckingPreview: View {
+    let didFail: Bool
+
+    var body: some View {
+        GeometryReader { proxy in
+            WelcomeBackPage(
+                insets: PageInsets(top: proxy.safeAreaInsets.top, bottom: proxy.safeAreaInsets.bottom),
+                isSigningIn: false, notice: nil, onBack: {}, onApple: {}, onPhone: {}, onNewHere: {})
+                .ignoresSafeArea()
+                .promptSheet(isPresented: .constant(true)) {
+                    CheckingCard(
+                        screenHeight: proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom,
+                        didFail: didFail, onTryAgain: {}, onClose: {})
+                }
+        }
+        .preferredColorScheme(.light)
     }
 }
 

@@ -238,6 +238,9 @@ extension Art {
         public static let accountStopped = Image("onboarding/accountStopped", bundle: .module)
         /// A globe with a pin: "Not in your region yet".
         public static let notInRegion = Image("onboarding/notInRegion", bundle: .module)
+        /// A paper map with a route, a clock and a sync badge: "We updated how Dwell works"
+        /// (Re-consent, 14 Nov), cut the same way.
+        public static let termsUpdated = Image("onboarding/termsUpdated", bundle: .module)
 
         /// The glyph on a "Save as" chip, as the design draws them: the house, the office
         /// buildings, and the cup for Other.

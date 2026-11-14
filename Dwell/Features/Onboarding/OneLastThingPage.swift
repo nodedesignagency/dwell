@@ -90,8 +90,8 @@ struct OneLastThingPage: View {
 }
 
 /// A consent's two lines: its title (20 medium, ink) and 4 below it what it means (14
-/// regular, ink at 70%).
-private struct ConsentText: View {
+/// regular, ink at 70%). One last thing and Re-consent.
+struct ConsentText: View {
     let title: String
     let line: String
 

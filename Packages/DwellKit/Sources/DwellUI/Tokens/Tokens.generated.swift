@@ -256,6 +256,14 @@ public enum Palette {
     public static let setupRedFoot = Color("setupRedFoot", bundle: .module)
     /// A light grey capsule under a black one: Continue with phone number (Save your world). Read from the screenshot; the same in dark, as all of onboarding
     public static let mutedButton = Color("mutedButton", bundle: .module)
+    /// Checking ("Getting your world ready"): the palest cell of a raised cluster on the map. Read from the screenshot (14 Nov); the same in dark, as all of onboarding
+    public static let worldCellPale = Color("worldCellPale", bundle: .module)
+    /// Checking: a cluster's light cell. Read from the screenshot
+    public static let worldCellLight = Color("worldCellLight", bundle: .module)
+    /// Checking: a cluster's middle cell. Read from the screenshot
+    public static let worldCellMid = Color("worldCellMid", bundle: .module)
+    /// Checking: a cluster's deepest cell. Read from the screenshot
+    public static let worldCellDeep = Color("worldCellDeep", bundle: .module)
 }
 
 extension PlaceCategory {

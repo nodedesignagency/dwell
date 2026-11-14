@@ -138,6 +138,40 @@ struct ConsentTests {
     }
 }
 
+@Suite("The returning user")
+struct ReturningUserTests {
+    @Test func `the sample finds Maya's account, with nothing to review`() async throws {
+        let repository = SampleRepository()
+        #expect(try await repository.resumeAccount(.apple(userID: "sample", identityToken: nil)) == .found)
+        #expect(try await repository.termsToReview() == nil)
+    }
+
+    @Test func `new terms bring Maya's answers back to review, models off as she left them`() async throws {
+        let consent = try await DemoRepository(.termsChanged).termsToReview()
+        #expect(consent == Consent(useVisits: true, improveModels: false))
+        #expect(consent?.canContinue == true)
+    }
+
+    @Test func `no account for the sign-in`() async throws {
+        let check = try await DemoRepository(.noAccount).resumeAccount(.apple(userID: "someone", identityToken: nil))
+        #expect(check == .notFound)
+    }
+
+    @Test func `offline, Checking fails and can try again`() async {
+        await #expect(throws: LoadError.self) {
+            try await DemoRepository(.offline).resumeAccount(.apple(userID: "sample", identityToken: nil))
+        }
+    }
+
+    @Test func `the design's words, its slips mended`() {
+        #expect(AccountCopy.welcomeTitle == "Welcome back")
+        #expect(AccountCopy.newHere == "New here? Start my world")
+        #expect(AccountCopy.checkingTitle == "Getting your world ready")
+        #expect(AccountCopy.reconsentTitle == "We updated how Dwell works")
+        #expect(AccountCopy.reconsentLine == "Please review before you continue. Your map and hours are untouched.")
+    }
+}
+
 @Suite("Account setup: words")
 struct AccountCopyTests {
     @Test func `vocabulary: no track, no check-in, no exclamation marks, no location`() {
@@ -156,7 +190,7 @@ struct AccountCopyTests {
             let words = line.split(separator: " ").dropFirst()
             for word in words where word.first?.isUppercase == true {
                 let previous = line.components(separatedBy: " " + word).first ?? ""
-                let startsSentence = previous.hasSuffix(".")
+                let startsSentence = previous.hasSuffix(".") || previous.hasSuffix("?")
                 #expect(startsSentence || names.contains { word.hasPrefix($0) }, "\(word) in \(line)")
             }
         }

@@ -39,6 +39,11 @@ public struct DemoRepository: DwellRepository {
         case whenInUse
         case preciseOff
         case motionDenied
+        /// The terms changed since Maya agreed: Re-consent before Today, at launch and after
+        /// Welcome back.
+        case termsChanged
+        /// Welcome back finds no account for the sign-in.
+        case noAccount
 
         /// What the system would report in this mode. Banners only show for the last four.
         public var permissions: Permissions {
@@ -206,6 +211,23 @@ public struct DemoRepository: DwellRepository {
     }
 
     public func stopSetup(_ reason: SetupStop) async {}
+
+    /// Holds (`loading`: Checking stays) or fails (`offline`: Checking's Try again) as the mode
+    /// says; `noAccount` finds nothing.
+    public func resumeAccount(_ credential: SignInCredential) async throws -> ResumeCheck {
+        try await gate()
+        return mode == .noAccount ? .notFound : try await sample.resumeAccount(credential)
+    }
+
+    /// Maya's answers as she left them, models off, when the terms changed.
+    public func termsToReview() async throws -> Consent? {
+        try await gate()
+        return mode == .termsChanged ? Consent() : try await sample.termsToReview()
+    }
+
+    public func agreeToTerms(_ consent: Consent) async throws {
+        try await gate()
+    }
 
     /// Asks about Maya's flat in Crown Heights, as the design's map shows it.
     public func homeQuestion() async throws -> HomeQuestion? {

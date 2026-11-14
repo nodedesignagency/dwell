@@ -64,6 +64,18 @@ public protocol DwellRepository: Sendable {
     /// neither the places from Your places nor the sign-in.
     func stopSetup(_ reason: SetupStop) async
 
+    // MARK: Returning user
+
+    /// Welcome back, then Checking: finds the account for this sign-in. Found, the places and
+    /// hours come back to the phone.
+    func resumeAccount(_ credential: SignInCredential) async throws -> ResumeCheck
+    /// Re-consent (brief A.1, "when consent text changes"): the user's answers as they stand,
+    /// when the terms changed since they last agreed; `nil` when nothing changed.
+    func termsToReview() async throws -> Consent?
+    /// Re-consent's Continue: the new terms agreed. Visits stays on (the brief's "core locked
+    /// on"); the models answer goes as the user left it or changed it, on its own.
+    func agreeToTerms(_ consent: Consent) async throws
+
     // MARK: First week
 
     /// "Is this home?": the place of the first night, while no home is saved; `nil` otherwise.
@@ -175,6 +187,18 @@ public struct SampleRepository: DwellRepository {
     public func completeSetup(_ consent: Consent) async throws {}
 
     public func stopSetup(_ reason: SetupStop) async {}
+
+    /// Maya's account is there to come back to.
+    public func resumeAccount(_ credential: SignInCredential) async throws -> ResumeCheck {
+        .found
+    }
+
+    /// Maya agreed to the terms as they stand.
+    public func termsToReview() async throws -> Consent? {
+        nil
+    }
+
+    public func agreeToTerms(_ consent: Consent) async throws {}
 
     /// Maya's home is saved, so Dwell doesn't ask.
     public func homeQuestion() async throws -> HomeQuestion? {

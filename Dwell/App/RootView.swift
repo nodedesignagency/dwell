@@ -128,6 +128,12 @@ nonisolated enum LaunchPage: Equatable {
     case setupStopped(SetupStop)
     /// Today with Set your tone over it, as onboarding hands over.
     case tone
+    /// The returning user: Welcome back over My world.
+    case welcomeBack
+    /// Welcome back with Checking up, signing in straight away.
+    case checking
+    /// Today with Re-consent over it, as when the terms changed.
+    case reconsent
 
     init?(rawValue: String) {
         switch rawValue {
@@ -140,6 +146,9 @@ nonisolated enum LaunchPage: Equatable {
         case "under16": self = .setupStopped(.underSixteen)
         case "notInRegion": self = .setupStopped(.notInRegion)
         case "tone": self = .tone
+        case "welcomeBack": self = .welcomeBack
+        case "checking": self = .checking
+        case "reconsent": self = .reconsent
         default:
             if rawValue.hasPrefix("onboarding"), let page = Int(rawValue.dropFirst(10)) {
                 self = .onboarding(page: page)
@@ -157,6 +166,7 @@ nonisolated enum LaunchPage: Equatable {
         case .onboarding(let page) where page > OnboardingPage.allCases.count: .startMyDay
         case .onboarding(let page): OnboardingPage(rawValue: page - 1) ?? .myWorld
         case .setupStopped: .startMyDay
+        case .welcomeBack, .checking: .myWorld
         default: nil
         }
     }

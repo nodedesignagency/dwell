@@ -6,8 +6,10 @@ import UIKit
 /// First run (onboarding flow, 13 Nov): four pages a swipe apart, My world, Your places, See
 /// where it all goes and Start my day, each with its own colour and its own dots; then account
 /// setup over them (`AccountSetupFlow`: Save your world, the birthday, One last thing, or a
-/// stop; screens, 14 Nov); then the rest of the flow as its designs arrive. Full screen, no
-/// tabs.
+/// stop; screens, 14 Nov); then the rest of the flow as its designs arrive. My world's "I
+/// already have an account" opens the returning user's flow over the pages instead
+/// (`ReturningUserFlow`: Welcome back, Checking, Re-consent when the terms changed; screens,
+/// 14 Nov). Full screen, no tabs.
 ///
 /// The pages are laid side by side and slid rather than held in a paging `TabView` or
 /// `ScrollView`: each runs edge to edge under the status bar and the home indicator with the
@@ -22,9 +24,8 @@ import UIKit
 struct OnboardingScreen: View {
     /// Steps the flow reaches whose designs haven't arrived yet.
     enum Next: String, Identifiable {
-        /// I already have an account (the returning user's flow).
-        case welcomeBack
-        /// Save your world's Continue with phone number: the number and its code.
+        /// Save your world's or Welcome back's Continue with phone number: the number and its
+        /// code.
         case phoneNumber
         /// A stop's "View a no-data preview" (brief A.1 #2a: Today and Time on example data).
         case noDataPreview
@@ -33,7 +34,6 @@ struct OnboardingScreen: View {
 
         var title: String {
             switch self {
-            case .welcomeBack: "Welcome back"
             case .phoneNumber: "Phone number"
             case .noDataPreview: "No-data preview"
             }
@@ -54,6 +54,10 @@ struct OnboardingScreen: View {
     @State private var next: Next?
     /// Account setup, once Start my day is answered; `nil` while the pages show.
     @State private var account: AccountSetup?
+    /// The returning user's flow, from My world's "I already have an account".
+    @State private var isReturning: Bool
+    /// Signs in as Welcome back opens, for reviewing Checking.
+    private let startsChecking: Bool
     @State private var location = LocationAsk()
     @State private var isAskingForLocation = false
     @State private var isInSettings = false
@@ -63,9 +67,19 @@ struct OnboardingScreen: View {
     /// - Parameters:
     ///   - page: the page to start on, for reviewing it (`DWELL_OPEN=onboarding3`).
     ///   - step: an account step to open over Start my day (`DWELL_OPEN=onboarding6`).
-    init(startsAt page: OnboardingPage = .myWorld, account step: AccountStep? = nil, onFinish: @escaping () -> Void) {
+    ///   - returning: opens Welcome back over My world (`DWELL_OPEN=welcomeBack`).
+    ///   - startsChecking: with `returning`, signs in straight away (`DWELL_OPEN=checking`).
+    init(
+        startsAt page: OnboardingPage = .myWorld,
+        account step: AccountStep? = nil,
+        returning: Bool = false,
+        startsChecking: Bool = false,
+        onFinish: @escaping () -> Void
+    ) {
         _page = State(initialValue: step == nil ? page : .startMyDay)
         _account = State(initialValue: step.map(AccountSetup.reaching))
+        _isReturning = State(initialValue: returning && step == nil)
+        self.startsChecking = startsChecking
         self.onFinish = onFinish
     }
 
@@ -95,8 +109,9 @@ struct OnboardingScreen: View {
                 }
             }
         }
-        // Covered by account setup or a step waiting for its design: VoiceOver reads what's on top.
-        .accessibilityHidden(account != nil || next != nil)
+        // Covered by account setup, the returning user's flow or a step waiting for its design:
+        // VoiceOver reads what's on top.
+        .accessibilityHidden(account != nil || isReturning || next != nil)
         .ignoresSafeArea(.keyboard)
         .overlay {
             if account != nil {
@@ -110,6 +125,26 @@ struct OnboardingScreen: View {
                             asksTone = true
                             onFinish()
                         })
+                        .ignoresSafeArea()
+                }
+                .accessibilityHidden(next != nil)
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing))
+            }
+        }
+        .overlay {
+            if isReturning {
+                GeometryReader { proxy in
+                    ReturningUserFlow(
+                        insets: PageInsets(top: proxy.safeAreaInsets.top, bottom: proxy.safeAreaInsets.bottom),
+                        screenHeight: proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom,
+                        startsChecking: startsChecking,
+                        onBack: { setReturning(false) },
+                        onNewHere: {
+                            setReturning(false)
+                            go(to: .yourPlaces)
+                        },
+                        onPending: { show($0) },
+                        onFinish: onFinish)
                         .ignoresSafeArea()
                 }
                 .accessibilityHidden(next != nil)
@@ -155,7 +190,7 @@ struct OnboardingScreen: View {
             MyWorldPage(
                 insets: insets,
                 onStart: { go(to: .yourPlaces) },
-                onHaveAccount: { show(.welcomeBack) })
+                onHaveAccount: { setReturning(true) })
         case .yourPlaces:
             PlacesSetupPage(
                 setup: $setup,
@@ -224,6 +259,13 @@ struct OnboardingScreen: View {
         }
     }
 
+    /// Opens the returning user's flow over My world, or closes it (Back on Welcome back).
+    private func setReturning(_ returning: Bool) {
+        withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
+            isReturning = returning
+        }
+    }
+
     /// Opens account setup over the pages (Start my day answered), or closes it (Back on Save
     /// your world).
     private func setAccount(_ setup: AccountSetup?) {
@@ -263,8 +305,8 @@ struct OnboardingScreen: View {
     }
 }
 
-/// Holds a step of the flow until its design arrives: Welcome back for a returning user, the
-/// phone number, a stop's no-data preview. Back returns to
+/// Holds a step of the flow until its design arrives: the phone number, a stop's no-data
+/// preview. Back returns to
 /// where it was opened from; Go to Today ends onboarding here, so the rest of the app can be
 /// reviewed.
 struct NextStepPending: View {

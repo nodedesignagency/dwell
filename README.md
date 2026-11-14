@@ -28,7 +28,7 @@ Or build and launch in the simulator without opening Xcode:
 DWELL_SKY=night ./scripts/run.sh  # force Today's sky: sunrise, day, sunset or night
 DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPlace, weeklyWrap, isThisHome, failed,
                                     # offline, transit, lastSeen, locationDenied, whenInUse, preciseOff,
-                                    # motionDenied
+                                    # motionDenied, termsChanged, noAccount
 DWELL_OPEN=you ./scripts/run.sh     # open You
 DWELL_OPEN=places ./scripts/run.sh  # open Your places (You → Your places)
 DWELL_OPEN=time ./scripts/run.sh    # open the Time tab
@@ -40,6 +40,9 @@ DWELL_OPEN=onboarding2 ./scripts/run.sh # onboarding on one of its pages, 1 to 4
 DWELL_OPEN=onboarding5 ./scripts/run.sh # account setup over Start my day: 5 Save your world, 6 the birthday, 7 One last thing
 DWELL_OPEN=under16 ./scripts/run.sh     # Account setup stopped (notInRegion: Not in your region yet)
 DWELL_OPEN=tone ./scripts/run.sh        # Today with Set your tone over it, as onboarding hands over
+DWELL_OPEN=welcomeBack ./scripts/run.sh # the returning user: Welcome back over My world
+DWELL_OPEN=checking ./scripts/run.sh    # Welcome back, signing in straight away: Checking ("Getting your world ready")
+DWELL_OPEN=reconsent ./scripts/run.sh   # Today with Re-consent over it ("We updated how Dwell works"), as when the terms change
 DWELL_FRESH=1 ./scripts/run.sh     # forget what's been seen, so first-sight animations (View more's streaks sweeping away) play again
 ```
 
@@ -51,7 +54,9 @@ Time opens on the week being lived, which on the sample's Monday afternoon is on
 
 Onboarding shows only when asked for: the sample account finished it long ago. Its pages swipe or move on with their buttons; Start my day's Allow location asks iOS for real, so to see the question again reset the simulator's location answers (Settings → General → Transfer or Reset iPhone → Reset → Reset Location & Privacy). `DWELL_STATE=isThisHome` slides "Is this home?" up over Today, as after the first night. `DWELL_OPEN=tone` opens Today with "Set your tone" over it, as when onboarding finishes; it shows once, then Today stops asking (run it again to see it again).
 
-After Start my day comes account setup: Save your world, the birthday, One last thing, then Today with Set your tone. Continue with Apple signs the sample account in without Apple's sheet (which needs the client's Apple team); a birthday under 16 stops setup, and the stop has no way back. `DWELL_STATE=offline DWELL_OPEN=onboarding5` shows a failed sign-in. Continue with phone number, the no-data preview and Welcome back (after I already have an account) wait for their designs; "Go to Today" ends onboarding there.
+After Start my day comes account setup: Save your world, the birthday, One last thing, then Today with Set your tone. Continue with Apple signs the sample account in without Apple's sheet (which needs the client's Apple team); a birthday under 16 stops setup, and the stop has no way back. `DWELL_STATE=offline DWELL_OPEN=onboarding5` shows a failed sign-in. Continue with phone number and the no-data preview wait for their designs; "Go to Today" ends onboarding there.
+
+My world's "I already have an account" opens the returning user's flow: Welcome back, then Continue with Apple signs the sample account in and Checking rises over it for a moment, then Today. `DWELL_STATE=termsChanged` puts Re-consent between them (with a Back to Welcome back) and also shows it over Today at launch (no Back: it blocks); `noAccount` has Checking find no account; `loading` holds Checking up; `offline` fails it with Try again. "New here? Start my world" goes to Your places.
 
 `firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the install day a few minutes after the first place was mapped (at home for 28m, nothing else yet). `weeklyWrap` is the usual Monday with last week's wrap ready and not opened yet. Every state runs on the same clock.
 

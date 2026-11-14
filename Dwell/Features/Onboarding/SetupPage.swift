@@ -19,7 +19,12 @@ struct SetupPage<ArtView: View, Sheet: View>: View {
     /// Where the line breaks: Save your world's at 290 ("…stay with / you, even on a new
     /// phone."); the others run the screen's width.
     var lineWidth: CGFloat? = nil
-    let onBack: () -> Void
+    /// Where a two-line title breaks, its lines 39 apart: Re-consent's at 300 ("We updated how /
+    /// Dwell works"). One-line titles leave it out.
+    var titleWidth: CGFloat? = nil
+    /// Back; `nil` for a page that blocks (Re-consent at launch), which keeps the button's room
+    /// so the page sits where it's drawn.
+    let onBack: (() -> Void)?
     @ViewBuilder let art: () -> ArtView
     @ViewBuilder let sheet: () -> Sheet
 
@@ -40,13 +45,13 @@ struct SetupPage<ArtView: View, Sheet: View>: View {
     /// sheet. In a scroll view both shrink to their least.
     private var page: some View {
         VStack(spacing: 0) {
-            BackButton(action: onBack)
+            backButton
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, Space.l)
                 .padding(.top, insets.top + 17)
             Spacer(minLength: Space.l)
                 .frame(maxHeight: 140)
-            SetupWords(title: title, line: line, lineWidth: lineWidth, art: art)
+            SetupWords(title: title, line: line, lineWidth: lineWidth, titleWidth: titleWidth, art: art)
                 .padding(.horizontal, Space.screen)
             Spacer(minLength: Space.xl)
             sheet()
@@ -54,6 +59,17 @@ struct SetupPage<ArtView: View, Sheet: View>: View {
                 .background(Palette.background, in: .rect(cornerRadius: Radius.xxl))
                 .padding(.horizontal, 10.5)
                 .padding(.bottom, insets.foot(11.1, floor: 10))
+        }
+    }
+
+    @ViewBuilder
+    private var backButton: some View {
+        if let onBack {
+            BackButton(action: onBack)
+        } else {
+            BackButton(action: {})
+                .hidden()
+                .accessibilityHidden(true)
         }
     }
 }
@@ -66,6 +82,7 @@ struct SetupWords<ArtView: View>: View {
     let title: String
     let line: String
     var lineWidth: CGFloat? = nil
+    var titleWidth: CGFloat? = nil
     @ViewBuilder let art: () -> ArtView
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -79,11 +96,8 @@ struct SetupWords<ArtView: View>: View {
                     .accessibilityHidden(true)
                     .padding(.bottom, 14)
             }
-            Text(verbatim: title)
-                .textRole(.setupTitle)
+            titleView
                 .foregroundStyle(Palette.textPrimary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
             Text(verbatim: line)
                 .textRole(.body, weight: .regular)
@@ -95,6 +109,20 @@ struct SetupWords<ArtView: View>: View {
                 .padding(.top, 6)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    /// One line as a `Text`; two, as the design sets them, 39 apart (tighter than a `Text`).
+    @ViewBuilder
+    private var titleView: some View {
+        if let titleWidth {
+            LeadedText(title, role: .setupTitle, lineHeight: 39)
+                .frame(maxWidth: titleWidth)
+        } else {
+            Text(verbatim: title)
+                .textRole(.setupTitle)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

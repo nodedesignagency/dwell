@@ -1,7 +1,7 @@
 import Foundation
 
 /// Account setup's words (screens, 14 Nov): Save your world, the birthday, One last thing and
-/// the two stops. The design's are used as they are, in sentence case and with its slips
+/// the two stops; and the returning user's: Welcome back, Checking and Re-consent. The design's are used as they are, in sentence case and with its slips
 /// mended (QUESTIONS.md); the rest are placeholders marked [COPY NEEDED] until the client's
 /// copy deck arrives. One line each: a new user hasn't set the dial yet (Plain), and setup,
 /// consent and legal words hold at every position.
@@ -67,6 +67,40 @@ public enum AccountCopy {
     /// Both stops' button (brief A.1 #2a).
     public static let noDataPreview = "View a no-data preview"
 
+    // MARK: Welcome back
+
+    public static let welcomeTitle = "Welcome back"
+    public static let welcomeLine = "Sign in to pick up your map and your hours where you left them."
+    /// The link under the buttons: back to the start of a new world (Your places).
+    public static let newHere = "New here? Start my world"
+    /// Checking found no account for that sign-in. [COPY NEEDED]
+    public static let noAccount = "There's no Dwell account for that sign-in."
+
+    // MARK: Checking
+
+    /// The design's title, broken after "your" (`SheetCard`'s title width).
+    public static let checkingTitle = "Getting your world ready"
+    /// The design's line, broken where it breaks it.
+    public static let checkingLines = ["Checking your account.", "This takes only a moment."]
+    /// Checking couldn't reach the account. [COPY NEEDED]
+    public static let checkFailedLines = ["Couldn't reach your account.", "Check your connection and try again."]
+    /// The brief's account-state action (A.1).
+    public static let tryAgain = "Try again"
+    /// What VoiceOver calls the sheet's close button: it stops the check. [COPY NEEDED]
+    public static let stopChecking = "Cancel"
+
+    // MARK: Re-consent
+
+    public static let reconsentTitle = "We updated how Dwell works"
+    /// The design's "Please review before continue. Your map and hours are untouched", mended.
+    public static let reconsentLine = "Please review before you continue. Your map and hours are untouched."
+    public static let readWhatChanged = "Read what changed"
+    /// The sheet "Read what changed" opens, until the client's text arrives.
+    public static let whatChanged = "What changed"
+    /// What VoiceOver adds to the visits switch, which re-consent keeps on (brief A.1: "core
+    /// locked on"). [COPY NEEDED]
+    public static let visitsLocked = "Stays on while you use Dwell."
+
     public static func title(_ stop: SetupStop) -> String {
         switch stop {
         case .underSixteen: stoppedTitle
@@ -88,6 +122,9 @@ public enum AccountCopy {
             birthdayTitle, birthdayLine, birthdayLabel, month, day, year, `continue`,
             consentTitle, consentLine, useVisits, useVisitsLine, improveModels, improveModelsLine, consentFootnote, saveFailed,
             stoppedTitle, stoppedLine, regionTitle, regionLine, noDataPreview,
-        ]
+            welcomeTitle, welcomeLine, newHere, noAccount, tryAgain, stopChecking,
+            reconsentTitle, reconsentLine, readWhatChanged, whatChanged, visitsLocked,
+            checkingTitle,
+        ] + checkingLines + checkFailedLines
     }
 }
