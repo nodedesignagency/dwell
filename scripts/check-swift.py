@@ -128,6 +128,37 @@ def check_gradients(path, code, warnings):
                             f"stops: build them as `let stops: [Gradient.Stop] = …` first")
 
 
+def check_chains(path, code, warnings):
+    # One view with a long run of modifiers whose arguments mix ternaries and arithmetic has made
+    # the type checker give up (HexCluster's cells, 816e3df: `.fill(shades[min(max(…))])`,
+    # `.frame(width: r * 3.squareRoot(), …)`, `.scaleEffect(a || b ? 1 : 0.4)`,
+    # `.animation(c ? x : y.delay(Double(n) * 0.07), …)`, `.position(x: w / 2 + p.x, …)`).
+    # Work the values out in typed lets first, or move the cell into a function or view.
+    lines = code.split("\n")
+    index = 0
+    while index < len(lines):
+        head = lines[index]
+        text = head.strip()
+        if not text or text.startswith(".") or not re.match(r"[A-Z]\w*(\(|\s*\{)", text):
+            index += 1
+            continue
+        indent = len(head) - len(head.lstrip())
+        end = index + 1
+        while end < len(lines) and (not lines[end].strip() or len(lines[end]) - len(lines[end].lstrip()) > indent):
+            end += 1
+        chain = lines[index:end]
+        modifiers = sum(1 for line in chain[1:]
+                        if line.strip().startswith(".") and len(line) - len(line.lstrip()) == indent + 4)
+        body = "\n".join(chain)
+        ternaries = len(re.findall(r"\s\?\s", body))
+        arithmetic = len(re.findall(r"\s[*/+-]\s", body))
+        if modifiers >= 6 and ternaries >= 2 and arithmetic >= 3:
+            warnings.append(f"{path}:{index + 1}: warning: {modifiers} modifiers with {ternaries} ternaries and "
+                            f"{arithmetic} sums in one expression: the type checker has given up on this shape; "
+                            f"work the values out in typed lets first")
+        index = end if modifiers >= 6 else index + 1
+
+
 def main(paths):
     if not paths:
         paths = sorted(glob.glob("Dwell/**/*.swift", recursive=True)
@@ -153,6 +184,7 @@ def main(paths):
                 warnings.append(f"{path}:{line_of(code, match.start())}: warning: `{match.group(2)}{match.group(3)}` "
                                 f"is main-actor and passed as a value: write a closure or a loop")
         check_gradients(path, code, warnings)
+        check_chains(path, code, warnings)
     for line in errors + warnings:
         print(line)
     print(f"{len(errors)} error(s), {len(warnings)} warning(s) in {len(paths)} file(s).")

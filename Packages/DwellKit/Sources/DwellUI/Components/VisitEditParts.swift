@@ -134,25 +134,37 @@ public struct HexCluster: View {
         let size = Self.size
         ZStack {
             ForEach(Self.cells.indices, id: \.self) { index in
-                let cell = Self.cells[index]
-                HexCell()
-                    .fill(shades[min(max(cell.ring - 1, 0), shades.count - 1)])
-                    .overlay {
-                        HexCell().stroke(Palette.surface, lineWidth: 1)
-                    }
-                    .frame(width: Self.radius * 3.squareRoot(), height: Self.radius * 2)
-                    .scaleEffect(shown || reduceMotion ? 1 : 0.4)
-                    .opacity(shown ? 1 : 0)
-                    .animation(
-                        reduceMotion ? Motion.reduced : Motion.reveal.delay(Double(cell.ring) * 0.07),
-                        value: shown)
-                    .position(x: size.width / 2 + cell.center.x, y: size.height / 2 + cell.center.y)
+                cellView(Self.cells[index], shades: shades, in: size)
             }
         }
         .frame(width: size.width, height: size.height)
         .onAppear { shown = true }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+
+    /// One cell, its values worked out first: as one expression the type checker gave up on it
+    /// (the Mac build, 14 Nov).
+    private func cellView(_ cell: Cell, shades: [Color], in size: CGSize) -> some View {
+        let shade: Color = shades[min(max(cell.ring - 1, 0), shades.count - 1)]
+        let width: CGFloat = Self.radius * 3.squareRoot()
+        let height: CGFloat = Self.radius * 2
+        let scale: CGFloat = shown || reduceMotion ? 1 : 0.4
+        let opacity: Double = shown ? 1 : 0
+        let delay: Double = Double(cell.ring) * 0.07
+        let animation: Animation = reduceMotion ? Motion.reduced : Motion.reveal.delay(delay)
+        let x: CGFloat = size.width / 2 + cell.center.x
+        let y: CGFloat = size.height / 2 + cell.center.y
+        return HexCell()
+            .fill(shade)
+            .overlay {
+                HexCell().stroke(Palette.surface, lineWidth: 1)
+            }
+            .frame(width: width, height: height)
+            .scaleEffect(scale)
+            .opacity(opacity)
+            .animation(animation, value: shown)
+            .position(x: x, y: y)
     }
 
     /// Deep (the middle and the first ring), middle, light.
