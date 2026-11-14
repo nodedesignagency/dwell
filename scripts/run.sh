@@ -41,6 +41,10 @@ if ! xcodebuild -project Dwell.xcodeproj -scheme Dwell -configuration Debug \
   -destination "id=$UDID" -derivedDataPath "$DERIVED" -quiet build >"$LOG" 2>&1; then
   # Only the errors, not the compiler's command lines; the whole log stays on disk.
   grep -E "error:" "$LOG" | sort -u || tail -40 "$LOG"
+  if grep -q "Metal Toolchain" "$LOG"; then
+    echo "Xcode's Metal Toolchain is missing (the postcard's shader needs it). Install it once, then run again:"
+    echo "  xcodebuild -downloadComponent MetalToolchain"
+  fi
   echo "Build failed. Full log: $LOG"
   exit 1
 fi

@@ -6,7 +6,13 @@ This repo is the SwiftUI frontend. Product source of truth: [`docs/brief.md`](do
 
 ## Open it
 
-Needs Xcode 26 or later.
+Needs Xcode 26 or later, with its Metal Toolchain (the weekly wrap's postcard draws its stripes with a Metal shader). Xcode 26 doesn't install it by default; once per Mac:
+
+```bash
+xcodebuild -downloadComponent MetalToolchain
+```
+
+or Xcode → Settings → Components → Metal Toolchain → Get.
 
 ```bash
 open Dwell.xcodeproj
