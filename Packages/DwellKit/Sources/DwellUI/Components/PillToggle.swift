@@ -1,112 +1,78 @@
 import SwiftUI
 
 /// The design's switch (You design): smaller than the system's, 41 × 19, green when on and grey
-/// when off, with a white pill for a knob (25 × 17, 1 in from the edge). The system `Toggle`
-/// stays underneath for its state and accessibility; only the look is the design's. Read from
-/// the screenshot.
+/// when off, with a white pill for a knob (25 × 17, 1 in from the edge). Read from the
+/// screenshot.
 ///
-/// It moves like the user's reference video (14 Nov), frame by frame at 60 fps: the knob lifts
-/// into glass, 1.4 times its size in 0.12 s, so it stands proud of the track (see-through,
-/// tinted with the colour it's switching to, a white rim, a light along its top, a deeper
-/// shadow); a beat later it travels across on a spring with a little overshoot, stretching a
-/// tenth wider on the way, while the track's colour changes under it; then it shrinks back to a
-/// solid white knob, 0.62 s in all. Under Reduce Motion it slides a short way with no lift.
-/// No haptic: a switch isn't one of the brief's physical moments (§6.1).
+/// On iOS 26 and later the row uses the system's own switch instead (`SystemSwitch`), so it
+/// moves exactly as Settings' does (the user, 14 Nov). This one is for earlier iOS, whose
+/// Settings switch slides plainly too: the knob slides and the track's colour changes,
+/// `Motion.standard`; under Reduce Motion, `Motion.reduced`.
 public struct PillSwitch: View {
     private let isOn: Bool
     @ScaledMetric(relativeTo: .callout) private var scale: CGFloat = 1
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init(isOn: Bool) {
         self.isOn = isOn
     }
 
     public var body: some View {
-        let track = isOn ? Palette.toggleOn : Palette.toggleOff
         Capsule()
-            .fill(track)
+            .fill(isOn ? Palette.toggleOn : Palette.toggleOff)
             .frame(width: 41 * scale, height: 19 * scale)
             .overlay(alignment: isOn ? .trailing : .leading) {
-                knob(tint: track)
+                Capsule()
+                    .fill(Palette.ring)
+                    .shadow(color: .black.opacity(0.08), radius: 1, y: 0.5)
                     .frame(width: 25 * scale, height: 17 * scale)
                     .padding(scale)
             }
-            .animation(reduceMotion ? Motion.reduced : Motion.switchTravel, value: isOn)
+            .motion(value: isOn)
             .accessibilityHidden(true)
-    }
-
-    @ViewBuilder
-    private func knob(tint: Color) -> some View {
-        // Read here, not inside the animator's closure, which may run off the main actor.
-        let white = Palette.ring
-        let inset = 1.5 * scale
-        if reduceMotion {
-            Capsule()
-                .fill(white)
-                .shadow(color: .black.opacity(0.08), radius: 1, y: 0.5)
-        } else {
-            Capsule()
-                .fill(white)
-                .keyframeAnimator(initialValue: KnobLift(), trigger: isOn) { knob, lift in
-                    knob
-                        // The white thins to glass, showing the track and the tint through it.
-                        .opacity(1 - 0.7 * lift.glass)
-                        .background {
-                            Capsule().fill(tint.opacity(0.45 * lift.glass))
-                        }
-                        .overlay {
-                            Capsule()
-                                .fill(LinearGradient(
-                                    colors: [white.opacity(0.75 * lift.glass), white.opacity(0)],
-                                    startPoint: .top,
-                                    endPoint: .center))
-                                .padding(inset)
-                        }
-                        .overlay {
-                            Capsule().strokeBorder(white.opacity(0.9 * lift.glass), lineWidth: 1)
-                        }
-                        .shadow(
-                            color: .black.opacity(0.08 + 0.12 * lift.glass),
-                            radius: 1 + 3 * lift.glass,
-                            y: 0.5 + 1.5 * lift.glass)
-                        .scaleEffect(x: lift.scale * lift.stretch, y: lift.scale)
-                } keyframes: { _ in
-                    // Lifts in 0.12 s, holds while it travels, settles back by 0.62 s.
-                    KeyframeTrack(\.scale) {
-                        CubicKeyframe(1.4, duration: 0.12)
-                        LinearKeyframe(1.4, duration: 0.26)
-                        SpringKeyframe(1, duration: 0.24, spring: .snappy)
-                    }
-                    // A tenth wider in the middle of the travel.
-                    KeyframeTrack(\.stretch) {
-                        LinearKeyframe(1, duration: 0.1)
-                        CubicKeyframe(1.1, duration: 0.14)
-                        CubicKeyframe(1, duration: 0.18)
-                    }
-                    // Glass while it's up, white again as it lands.
-                    KeyframeTrack(\.glass) {
-                        CubicKeyframe(1, duration: 0.12)
-                        LinearKeyframe(1, duration: 0.24)
-                        CubicKeyframe(0, duration: 0.26)
-                    }
-                }
-        }
     }
 }
 
-/// Where the knob is in its lift: its size (1 at rest), how much wider it's stretched, and how
-/// much glass it is (0 solid white, 1 see-through). Nonisolated: the animator works on it.
-private nonisolated struct KnobLift {
-    var scale: CGFloat = 1
-    var stretch: CGFloat = 1
-    var glass: Double = 0
+/// The system's switch, as Settings has it on iOS 26: Liquid Glass, so as it flips the knob
+/// lifts into a lens over the track, travels and settles, all Apple's own motion (the user
+/// wanted Settings' exact animation, 14 Nov; a drawn copy can't refract). Tinted the design's
+/// green and shrunk to the design's height (19), measured from the switch itself rather than
+/// assumed; its off grey is the system's. It takes its own touches, as in Settings.
+@available(iOS 26.0, macOS 26.0, *)
+struct SystemSwitch: View {
+    @Binding var isOn: Bool
+    /// Shows off whatever `isOn` says: the row can't be changed (the dial doesn't send that push).
+    var showsOff = false
+    @ScaledMetric(relativeTo: .callout) private var height: CGFloat = 19
+    /// The switch's own size, before it's shrunk.
+    @State private var natural = CGSize(width: 63, height: 28)
+
+    var body: some View {
+        let ratio = height / max(natural.height, 1)
+        // Built from Sendable pieces only: the binding and a flag.
+        let binding = $isOn
+        let off = showsOff
+        let shown = Binding(get: { off ? false : binding.wrappedValue }, set: { binding.wrappedValue = $0 })
+        Toggle(isOn: shown) { EmptyView() }
+            .labelsHidden()
+            .toggleStyle(.switch)
+            .tint(Palette.toggleOn)
+            .fixedSize()
+            .onGeometryChange(for: CGSize.self) { proxy in
+                proxy.size
+            } action: { size in
+                natural = size
+            }
+            .scaleEffect(ratio)
+            .frame(width: natural.width * ratio, height: natural.height * ratio)
+    }
 }
 
 /// A setting that turns on and off (You design: "Morning recap · A short summary of your day"):
 /// its glyph in a well, 8 to the title (16 medium) over a line (14, grey) 4 apart, and the
-/// design's switch at the trailing edge. The whole row toggles, so it's easy to hit. Like a
-/// place row, it has 4 below it. When the row can't be changed (the dial doesn't send that
-/// push), it shows off and doesn't respond; the rest looks the same, as drawn.
+/// design's switch at the trailing edge (the system's own on iOS 26, `SystemSwitch`). The whole
+/// row toggles, so it's easy to hit. Like a place row, it has 4 below it. When the row can't be
+/// changed (the dial doesn't send that push), it shows off and doesn't respond (on iOS 26 the
+/// system dims its switch).
 public struct ToggleRowStyle: ToggleStyle {
     public init() {}
 
@@ -121,21 +87,38 @@ private struct ToggleRow: View {
 
     var body: some View {
         let isOn = configuration.isOn && isEnabled
-        Button {
-            configuration.isOn.toggle()
-        } label: {
-            HStack(spacing: Space.s) {
+        HStack(spacing: Space.s) {
+            // The words toggle it too, so the row is easy to hit.
+            Button(action: flip) {
                 configuration.label
                     .frame(maxWidth: .infinity, alignment: .leading)
-                PillSwitch(isOn: isOn)
+                    .contentShape(.rect)
             }
-            .padding(.bottom, Space.xs)
-            .contentShape(.rect)
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isToggle)
+            .accessibilityValue(isOn ? "On" : "Off")
+
+            // The switch takes its own touches, as in Settings; VoiceOver uses the row.
+            Group {
+                if #available(iOS 26.0, macOS 26.0, *) {
+                    SystemSwitch(isOn: configuration.$isOn, showsOff: !isEnabled)
+                } else {
+                    Button(action: flip) {
+                        PillSwitch(isOn: isOn)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .accessibilityHidden(true)
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isToggle)
-        .accessibilityValue(isOn ? "On" : "Off")
+        .padding(.bottom, Space.xs)
+    }
+
+    private func flip() {
+        withAnimation(Motion.standard) {
+            configuration.isOn.toggle()
+        }
     }
 }
 

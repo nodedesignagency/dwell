@@ -33,10 +33,6 @@ public enum Motion {
     /// A clock's hands sweeping forward to a time, the minute hand round and round, settling
     /// with a little give.
     public static let clockSweep = Animation.spring(duration: 1.8, bounce: 0.12)
-    /// A switch's knob travelling across once it has lifted into glass (the user's reference
-    /// video, 14 Nov): a beat after the lift starts, with a little overshoot at the far end.
-    /// The track's colour changes on the same curve.
-    public static let switchTravel = Animation.spring(duration: 0.42, bounce: 0.28).delay(0.08)
     /// What any of the above becomes under Reduce Motion: a short cross-fade, no movement.
     public static let reduced = Animation.easeInOut(duration: 0.2)
     /// The sky turning from one phase to the next: slow enough to watch the sun travel.
