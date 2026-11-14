@@ -10,7 +10,9 @@ import Foundation
 /// - only a visit at home can count as work from home ("Count as Work, shown as home");
 /// - a split leaves two visits at the same place, each a stop long at least;
 /// - a merge runs the visit on through the next visit's departure; the next visit, and the
-///   transit or gap between them, go.
+///   transit or gap between them, go;
+/// - a place picked for it (the place picker) replaces its place, and the visit no longer
+///   waits for review.
 ///
 /// Ends outside the day (a night at home that began yesterday) stay where they are: the sheet
 /// edits the part of the visit inside the day it was opened from.
@@ -30,15 +32,18 @@ public struct VisitDraft: Hashable, Sendable {
     public static let step: TimeInterval = 5 * 60
 
     public let original: Visit
+    /// The visit's place: its own, or the one picked for it.
+    public private(set) var placeID: PlaceID?
+    public private(set) var placeName: String
     /// What the visit counts as when it isn't work from home: its place's category.
-    public let placeCategory: PlaceCategory
-    public let placeSubcategory: PlaceSubcategory?
+    public private(set) var placeCategory: PlaceCategory
+    public private(set) var placeSubcategory: PlaceSubcategory?
     /// Work from home needs home (brief A.2: "Working from home today?").
-    public let isAtHome: Bool
+    public private(set) var isAtHome: Bool
     /// Private and personal places never go on a map, this sheet's included (brief §7.2).
-    public let isHiddenFromMaps: Bool
+    public private(set) var isHiddenFromMaps: Bool
     /// Where the place is, for the map; `nil` until the engine says.
-    public let coordinate: Coordinate?
+    public private(set) var coordinate: Coordinate?
 
     public var arrival: Date
     /// `nil` while the visit is still going.
@@ -51,6 +56,8 @@ public struct VisitDraft: Hashable, Sendable {
     ///   place" has none and keeps its own category.
     public init(visit: Visit, place: Place?) {
         original = visit
+        placeID = visit.placeID
+        placeName = visit.placeName
         if let place {
             placeCategory = place.category
             placeSubcategory = place.subcategory
@@ -71,16 +78,32 @@ public struct VisitDraft: Hashable, Sendable {
         change = .none
     }
 
-    /// Work from home counts as work and is shown as home.
+    /// Work from home counts as work and is shown as home; away from home it can't be.
     public var category: PlaceCategory {
-        isWorkFromHome ? .work : placeCategory
+        isWorkFromHome && isAtHome ? .work : placeCategory
     }
 
     /// Whether Save would change anything.
     public var hasChanges: Bool {
         arrival != original.arrival || departure != original.departure
             || isWorkFromHome != original.isWorkFromHome || isPrivate != original.isPrivate
-            || change != .none
+            || change != .none || hasNewPlace
+    }
+
+    /// A place was picked that isn't the one the visit had.
+    public var hasNewPlace: Bool {
+        placeID != original.placeID || placeName != original.placeName
+    }
+
+    /// The place picker's choice becomes the visit's place.
+    public mutating func choose(_ candidate: PlaceCandidate) {
+        placeID = candidate.placeID
+        placeName = candidate.name
+        placeCategory = candidate.category
+        placeSubcategory = candidate.subcategory
+        isAtHome = candidate.isHome
+        isHiddenFromMaps = candidate.isHiddenFromMaps
+        coordinate = candidate.coordinate
     }
 
     public var isOngoing: Bool { departure == nil }
@@ -233,6 +256,12 @@ public struct VisitDraft: Hashable, Sendable {
     /// The visit or visits Save leaves in the day: one, or two once split.
     public func visits(in snapshot: DaySnapshot) -> [Visit] {
         var visit = original
+        visit.placeID = placeID
+        visit.placeName = placeName
+        if hasNewPlace {
+            // Picked by the user: nothing left to review.
+            visit.needsReview = false
+        }
         visit.arrival = arrival
         visit.departure = departure
         visit.isWorkFromHome = isWorkFromHome && isAtHome

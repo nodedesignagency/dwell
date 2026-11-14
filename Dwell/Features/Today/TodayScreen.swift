@@ -28,6 +28,9 @@ struct TodayScreen: View {
     /// Opens Visit edit on this visit once Today has loaded, for reviewing it
     /// (`DWELL_OPEN=visitEdit`).
     var opensVisitEdit: VisitID?
+    /// Opens the place picker for this visit once Today has loaded, for reviewing it
+    /// (`DWELL_OPEN=placePicker`).
+    var opensPlacePicker: VisitID?
 
     @Environment(\.repository) private var repository
     @Environment(\.fixedNow) private var fixedNow
@@ -56,6 +59,8 @@ struct TodayScreen: View {
     @State private var openInsight: Insight?
     @State private var hasOpenedInsightAtLaunch = false
     @State private var pending: PendingSheet?
+    /// The place picker, for a visit: from Pick another and Review this place.
+    @State private var picking: PlacePickerRequest?
     /// The card over Today, if any.
     @State private var prompt: TodayPrompt?
     /// The card on screen: kept while it slides away, after `prompt` has gone.
@@ -67,6 +72,7 @@ struct TodayScreen: View {
     @State private var visitChanges: [VisitChange] = []
     @State private var visitEdits = 0
     @State private var hasOpenedVisitEditAtLaunch = false
+    @State private var hasOpenedPickerAtLaunch = false
     /// Set your tone's dial while it's dragged; saved to the app's dial by "Set my tone".
     @State private var toneDial = Dial.Stop.plain.position
     @AppStorage("dial.position") private var storedDial = Dial.Stop.plain.position
@@ -90,6 +96,12 @@ struct TodayScreen: View {
                     }
                     .sheet(isPresented: $isPickingDay) {
                         DayPickerSheet(pickedDay: $pickedDay, today: today)
+                    }
+                    .fullScreenCover(item: $picking) { request in
+                        PlacePickerScreen(
+                            request: request,
+                            onSelect: { candidate in try await pick(candidate, for: request.visit) },
+                            onClose: { withoutAnimationUnderReduceMotion { picking = nil } })
                     }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -278,6 +290,24 @@ struct TodayScreen: View {
         }
     }
 
+    /// The place picker's Select for a visit Dwell wasn't sure of. The place it guessed is
+    /// "Looks right"; another becomes the visit's place, and either way it's settled.
+    private func pick(_ candidate: PlaceCandidate, for visit: Visit) async throws {
+        if candidate.isSame(placeID: visit.placeID, name: visit.placeName) {
+            try await repository.confirmVisit(visit.id)
+            confirmed.insert(visit.id)
+        } else {
+            var draft = VisitDraft(visit: visit, place: nil)
+            draft.choose(candidate)
+            try await repository.saveVisit(draft)
+            withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
+                visitChanges.append(.saved(draft))
+            }
+            visitEdits += 1
+        }
+        withoutAnimationUnderReduceMotion { picking = nil }
+    }
+
     /// "Not useful", from the deck or the insight's page: it leaves the deck.
     private func dismissInsight(_ insight: Insight) {
         dismissed.insert(insight.id)
@@ -345,6 +375,11 @@ struct TodayScreen: View {
                 hasOpenedVisitEditAtLaunch = true
                 editVisit(visit, on: day)
             }
+            if let opensPlacePicker, !hasOpenedPickerAtLaunch,
+               let visit = snapshot.entries.compactMap(\.visit).first(where: { $0.id == opensPlacePicker }) {
+                hasOpenedPickerAtLaunch = true
+                picking = PlacePickerRequest(visit: visit, now: fixedNow ?? Date().addingTimeInterval(clockOffset))
+            }
             // Is this home? once per launch, after the cards that go before it.
             if isToday, !hasAskedHome, !asksTone, permissions.banner != .locationDenied,
                let question = try? await repository.homeQuestion() {
@@ -381,7 +416,10 @@ struct TodayScreen: View {
                 confirmed.insert(visit.id)
                 Task { try? await repository.confirmVisit(visit.id) }
             },
-            pickAnother: { pending = .placePicker($0.id) },
+            pickAnother: { visit in
+                let now = fixedNow ?? Date().addingTimeInterval(clockOffset)
+                withoutAnimationUnderReduceMotion { picking = PlacePickerRequest(visit: visit, now: now) }
+            },
             editVisit: { editVisit($0, on: day) },
             openWeeklyWrap: showWrap,
             openInsight: { openInsight = $0 },
@@ -414,26 +452,25 @@ private nonisolated enum TodayPrompt: Hashable {
 
 /// Sheets whose designs haven't arrived. Each says so instead of guessing.
 private enum PendingSheet: Identifiable {
-    case placePicker(VisitID)
-    /// Is this home?'s "Pick another": the place picker, to choose home.
+    /// Is this home?'s "Pick another": which place is home. The place picker is designed for a
+    /// visit ("Where were you?"); choosing home waits for its words (QUESTIONS.md).
     case homePicker
 
     var id: String {
         switch self {
-        case .placePicker(let id): "picker-\(id)"
         case .homePicker: "home-picker"
         }
     }
 
     var title: String {
         switch self {
-        case .placePicker, .homePicker: "Place picker"
+        case .homePicker: "Place picker"
         }
     }
 
     var systemImage: String {
         switch self {
-        case .placePicker, .homePicker: "mappin.and.ellipse"
+        case .homePicker: "mappin.and.ellipse"
         }
     }
 }

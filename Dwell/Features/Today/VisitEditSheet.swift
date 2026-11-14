@@ -18,8 +18,8 @@ nonisolated struct VisitEditRequest: Hashable {
 /// from home and Keep this visit private; Save and Delete.
 ///
 /// Nothing changes until Save (`VisitDraft` holds the changes and their rules); a swipe down
-/// or a tap outside lets them go. Delete asks first. Change place opens the place picker,
-/// waiting for its design (S-02). The map is the design's picture until MapKit draws the
+/// or a tap outside lets them go. Delete asks first. Change place opens the place picker
+/// (`PlacePickerScreen`); its choice waits for Save too. The map is the design's picture until MapKit draws the
 /// place's own (the user's call, 14 Nov); its cluster and tag are drawn here, so they stay.
 ///
 /// Measured at 393 × 852 (`docs/DESIGN.md`): the sheet 10.5 in and 20 up, 730 tall, the
@@ -77,7 +77,7 @@ struct VisitEditSheet: View {
                 .padding(.horizontal, Space.l)
 
             VisitMap(
-                name: draft.original.placeName,
+                name: draft.placeName,
                 time: DurationText.short(duration),
                 category: draft.placeCategory,
                 isHidden: draft.isHiddenFromMaps)
@@ -128,9 +128,16 @@ struct VisitEditSheet: View {
         .background(Palette.background)
         .clipShape(.rect(cornerRadius: Radius.xxl))
         .motion(value: failed)
-        .sheet(isPresented: $isPickingPlace) {
-            PendingView(title: "Place picker", systemImage: "mappin.and.ellipse")
-                .presentationDetents([.medium])
+        .fullScreenCover(isPresented: $isPickingPlace) {
+            PlacePickerScreen(
+                request: PlacePickerRequest(
+                    visit: draft.original, placeID: draft.placeID, placeName: draft.placeName, now: now),
+                onSelect: { candidate in
+                    // Waits for Save, like every change here.
+                    change { draft.choose(candidate) }
+                    isPickingPlace = false
+                },
+                onClose: { isPickingPlace = false })
         }
     }
 
@@ -149,7 +156,7 @@ struct VisitEditSheet: View {
                         .foregroundStyle(Palette.textPrimary)
                 }
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(verbatim: draft.original.placeName)
+                    Text(verbatim: draft.placeName)
                         .textRole(.body)
                         .foregroundStyle(Palette.textPrimary)
                     Text(verbatim: subtitle)

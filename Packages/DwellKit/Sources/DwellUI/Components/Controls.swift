@@ -77,14 +77,23 @@ public struct FilterChip: View {
 /// grey, magnifier and fill read from the screenshot; the shadow is our estimate until the
 /// Figma values come in. A clear button while there's text. A system `TextField` underneath.
 public struct SearchField: View {
+    /// Raised off the page (Your places), or white inside a hairline (the place picker, 14 Nov:
+    /// `surface` in a 1-pt `separator`, read from the screenshot).
+    public nonisolated enum Look: Sendable {
+        case raised
+        case outlined
+    }
+
     @ScaledMetric(relativeTo: .subheadline) private var height: CGFloat = 44
     @ScaledMetric(relativeTo: .subheadline) private var iconSize: CGFloat = 14
     @Binding private var text: String
     private let prompt: String
+    private let look: Look
 
-    public init(_ prompt: String, text: Binding<String>) {
+    public init(_ prompt: String, text: Binding<String>, look: Look = .raised) {
         self.prompt = prompt
         self._text = text
+        self.look = look
     }
 
     public var body: some View {
@@ -123,7 +132,22 @@ public struct SearchField: View {
         .padding(.leading, Space.l - 2)
         .padding(.trailing, Space.l)
         .frame(minHeight: height)
-        .raisedField(Capsule())
+        .modifier(SearchFieldLook(look: look))
+    }
+}
+
+private struct SearchFieldLook: ViewModifier {
+    let look: SearchField.Look
+
+    func body(content: Content) -> some View {
+        switch look {
+        case .raised:
+            content.raisedField(Capsule())
+        case .outlined:
+            content
+                .background(Palette.surface, in: .capsule)
+                .overlay { Capsule().strokeBorder(Palette.separator, lineWidth: 1) }
+        }
     }
 }
 

@@ -45,6 +45,7 @@ struct RootView: View {
     private let opensWrapAt: WrapPage?
     private let opensInsight: Insight.ID?
     private let opensVisitEdit: VisitID?
+    private let opensPlacePicker: VisitID?
 
     /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
     init(open: LaunchPage? = nil) {
@@ -63,13 +64,15 @@ struct RootView: View {
         opensInsight = open == .insight ? SampleData.officeInsightID : nil
         // Monday's morning at Kestriva Labs, 9:14 AM to 12:38 PM.
         opensVisitEdit = open == .visitEdit ? VisitID("10-26-3") : nil
+        // Monday's café visit Dwell isn't sure about, as Pick another opens it.
+        opensPlacePicker = open == .placePicker ? VisitID("10-26-1") : nil
     }
 
     var body: some View {
         TabView(selection: $tab) {
             TodayScreen(
                 openProfile: { tab = .you }, opensWrapAt: opensWrapAt, opensInsight: opensInsight,
-                opensVisitEdit: opensVisitEdit)
+                opensVisitEdit: opensVisitEdit, opensPlacePicker: opensPlacePicker)
                 .tag(Tab.today)
                 .toolbar(.hidden, for: .tabBar)
             MapScreen()
@@ -135,6 +138,8 @@ nonisolated enum LaunchPage: Equatable {
     case tone
     /// Today with Visit edit over it, on Monday's morning at Kestriva Labs.
     case visitEdit
+    /// Today with the place picker over it, for Monday's café visit.
+    case placePicker
     /// The returning user: Welcome back over My world.
     case welcomeBack
     /// Welcome back with Checking up, signing in straight away.
@@ -154,6 +159,7 @@ nonisolated enum LaunchPage: Equatable {
         case "notInRegion": self = .setupStopped(.notInRegion)
         case "tone": self = .tone
         case "visitEdit": self = .visitEdit
+        case "placePicker": self = .placePicker
         case "welcomeBack": self = .welcomeBack
         case "checking": self = .checking
         case "reconsent": self = .reconsent

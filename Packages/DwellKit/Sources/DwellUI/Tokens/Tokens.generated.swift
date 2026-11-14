@@ -188,6 +188,12 @@ public enum Palette {
     public static let visitCellMid = Color("visitCellMid", bundle: .module)
     /// Visit edit: the cluster round a work place, the outer ring. Read from the screenshot (14 Nov)
     public static let visitCellLight = Color("visitCellLight", bundle: .module)
+    /// Place picker: the blue the map fades into round its floating sheet, and over the map's top at 25%. Read from the screenshot (14 Nov); the same in dark
+    public static let mapFrame = Color("mapFrame", bundle: .module)
+    /// A chosen radio: the place picker's picked place. Read from the screenshot (14 Nov)
+    public static let choiceOn = Color("choiceOn", bundle: .module)
+    /// Behind a chosen row: the place picker's picked place. Read from the screenshot (14 Nov)
+    public static let rowSelected = Color("rowSelected", bundle: .module)
     /// Time: a box set into a card (Worth noticing). Read from the screenshot
     public static let insetSurface = Color("insetSurface", bundle: .module)
     /// Time: the yours bars in Work and yours (work's are the Work colour). Read from the screenshot

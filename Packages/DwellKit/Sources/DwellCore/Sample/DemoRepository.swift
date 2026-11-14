@@ -250,6 +250,16 @@ public struct DemoRepository: DwellRepository {
         try failIfDown()
     }
 
+    public func nearbyPlaces(for visit: Visit) async throws -> [PlaceCandidate] {
+        try await gate()
+        return try await sample.nearbyPlaces(for: visit)
+    }
+
+    public func searchPlaces(_ query: String, for visit: Visit) async throws -> [PlaceCandidate] {
+        try await gate()
+        return try await sample.searchPlaces(query, for: visit)
+    }
+
     private func failIfDown() throws {
         switch mode {
         case .failed: throw LoadError(.unavailable)

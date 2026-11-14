@@ -90,6 +90,15 @@ public protocol DwellRepository: Sendable {
     func saveVisit(_ draft: VisitDraft) async throws
     /// The visit edit sheet's Delete: the visit goes and its time counts toward nothing.
     func deleteVisit(_ id: VisitID) async throws
+
+    // MARK: Place picker
+
+    /// Places near where the visit was, nearest first, the place Dwell guessed among them
+    /// (brief A.7: "nearby"). The choice is saved with `saveVisit` (`VisitDraft.choose`).
+    func nearbyPlaces(for visit: Visit) async throws -> [PlaceCandidate]
+    /// The picker's search: the user's places and the venues near the visit whose names match,
+    /// nearest first.
+    func searchPlaces(_ query: String, for visit: Visit) async throws -> [PlaceCandidate]
 }
 
 extension DwellRepository {
@@ -219,4 +228,12 @@ public struct SampleRepository: DwellRepository {
     public func saveVisit(_ draft: VisitDraft) async throws {}
 
     public func deleteVisit(_ id: VisitID) async throws {}
+
+    public func nearbyPlaces(for visit: Visit) async throws -> [PlaceCandidate] {
+        SampleData.nearbyPlaces(for: visit)
+    }
+
+    public func searchPlaces(_ query: String, for visit: Visit) async throws -> [PlaceCandidate] {
+        SampleData.searchPlaces(query, for: visit)
+    }
 }
