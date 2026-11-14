@@ -27,6 +27,9 @@ public enum TextRole: CaseIterable, Sendable {
     case voiceDisplay
     /// A sheet's big title: "Turn on your location". 40.
     case display
+    /// An account step's title on its own page: "Save your world", "Account setup stopped".
+    /// 37 medium, as measured on the five screenshots (14 Nov), a little under onboarding's 40.
+    case setupTitle
     /// The user's name on You: "Maya Cooper". 28.
     case profileName
     /// A card's big title: "Every hour of the week", the year in places. 28. Plain words.
@@ -75,6 +78,7 @@ public enum TextRole: CaseIterable, Sendable {
         case .storyTime: 60
         case .storyLine: 18
         case .display: 40
+        case .setupTitle: 37
         case .voiceDisplay, .dataDisplay: 32
         case .profileName, .cardTitle: 28
         case .voiceHero, .pageTitle: 24
@@ -95,7 +99,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var textStyle: Font.TextStyle {
         switch self {
-        case .storyTitle, .storyNumber, .storyHeadline, .storyHeading, .storyTime, .display, .voiceDisplay, .dataDisplay: .largeTitle
+        case .storyTitle, .storyNumber, .storyHeadline, .storyHeading, .storyTime, .display, .setupTitle, .voiceDisplay, .dataDisplay: .largeTitle
         case .storyLine: .body
         case .profileName, .cardTitle: .title
         case .rowTitle: .body
@@ -113,7 +117,7 @@ public enum TextRole: CaseIterable, Sendable {
 
     public var weight: Font.Weight {
         switch self {
-        case .storyTitle, .storyNumber, .storyHeadline, .storyHeading, .storyTime, .display, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
+        case .storyTitle, .storyNumber, .storyHeadline, .storyHeading, .storyTime, .display, .setupTitle, .voiceDisplay, .profileName, .cardTitle, .voiceHero, .voice, .dataHero, .dataDisplay, .dataStat, .pageTitle, .title,
              .rowTitle, .body, .label, .action, .tab: .medium
         case .storyLine, .data, .caption, .footnote: .regular
         }

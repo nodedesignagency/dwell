@@ -51,6 +51,18 @@ public protocol DwellRepository: Sendable {
     /// place does not record a visit (brief A.1). Runs before the account exists, so the engine
     /// holds them on the phone until sign-in.
     func savePlaces(_ places: [PlaceDraft]) async throws
+
+    // MARK: Account
+
+    /// Save your world: signs in with what the user chose and says whether the account can go
+    /// on (the beta's region). The places saved on the phone during onboarding join the account.
+    func signIn(_ credential: SignInCredential) async throws -> AccountCheck
+    /// One last thing's Continue: the age check passed (the date itself is never sent or kept)
+    /// and the two consents, the models one on its own (brief §8.2: never bundled).
+    func completeSetup(_ consent: Consent) async throws
+    /// Setup stopped: nothing entered is kept (brief A.1 #2a, "Nothing you entered was saved"),
+    /// neither the places from Your places nor the sign-in.
+    func stopSetup(_ reason: SetupStop) async
 }
 
 extension DwellRepository {
@@ -147,4 +159,13 @@ public struct SampleRepository: DwellRepository {
 
     /// The sample's places are already saved; onboarding's are let go.
     public func savePlaces(_ places: [PlaceDraft]) async throws {}
+
+    /// Maya lives in Brooklyn: in the beta's region. No server: the sign-in is let go.
+    public func signIn(_ credential: SignInCredential) async throws -> AccountCheck {
+        .eligible
+    }
+
+    public func completeSetup(_ consent: Consent) async throws {}
+
+    public func stopSetup(_ reason: SetupStop) async {}
 }

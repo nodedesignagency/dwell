@@ -121,8 +121,11 @@ nonisolated enum LaunchPage: Equatable {
     /// The Insights design's insight, pushed from Today's deck.
     case insight
     /// First run, on a page counted from 1: `onboarding` opens it at the start,
-    /// `onboarding2` on Your places (`DWELL_OPEN=onboarding2`).
+    /// `onboarding2` on Your places (`DWELL_OPEN=onboarding2`); 5 to 7 are account setup's
+    /// steps over Start my day (5 Save your world, 6 the birthday, 7 One last thing).
     case onboarding(page: Int)
+    /// Account setup stopped: `under16` (Account setup stopped) or `notInRegion`.
+    case setupStopped(SetupStop)
 
     init?(rawValue: String) {
         switch rawValue {
@@ -132,6 +135,8 @@ nonisolated enum LaunchPage: Equatable {
         case "insight": self = .insight
         case "wrap": self = .wrap(page: 1)
         case "onboarding": self = .onboarding(page: 1)
+        case "under16": self = .setupStopped(.underSixteen)
+        case "notInRegion": self = .setupStopped(.notInRegion)
         default:
             if rawValue.hasPrefix("onboarding"), let page = Int(rawValue.dropFirst(10)) {
                 self = .onboarding(page: page)
@@ -142,10 +147,26 @@ nonisolated enum LaunchPage: Equatable {
         }
     }
 
-    /// The onboarding page to start on, when this opens onboarding.
+    /// The onboarding page to start on, when this opens onboarding: Start my day under an
+    /// account step.
     var onboardingPage: OnboardingPage? {
-        guard case .onboarding(let page) = self else { return nil }
-        return OnboardingPage(rawValue: page - 1) ?? .myWorld
+        switch self {
+        case .onboarding(let page) where page > OnboardingPage.allCases.count: .startMyDay
+        case .onboarding(let page): OnboardingPage(rawValue: page - 1) ?? .myWorld
+        case .setupStopped: .startMyDay
+        default: nil
+        }
+    }
+
+    /// The account step to open over Start my day, if this opens one.
+    var accountStep: AccountStep? {
+        switch self {
+        case .onboarding(page: 5): .saveYourWorld
+        case .onboarding(page: 6): .birthday
+        case .onboarding(page: 7): .oneLastThing
+        case .setupStopped(let stop): .stopped(stop)
+        default: nil
+        }
     }
 }
 

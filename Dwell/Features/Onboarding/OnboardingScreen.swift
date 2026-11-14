@@ -4,8 +4,10 @@ import SwiftUI
 import UIKit
 
 /// First run (onboarding flow, 13 Nov): four pages a swipe apart, My world, Your places, See
-/// where it all goes and Start my day, each with its own colour and its own dots; then the rest
-/// of the flow as its designs arrive. Full screen, no tabs.
+/// where it all goes and Start my day, each with its own colour and its own dots; then account
+/// setup over them (`AccountSetupFlow`: Save your world, the birthday, One last thing, or a
+/// stop; screens, 14 Nov); then the rest of the flow as its designs arrive. Full screen, no
+/// tabs.
 ///
 /// The pages are laid side by side and slid rather than held in a paging `TabView` or
 /// `ScrollView`: each runs edge to edge under the status bar and the home indicator with the
@@ -18,19 +20,25 @@ import UIKit
 /// The design's colours in every scheme: the pages are coloured pictures, so onboarding stays
 /// light in dark mode, as the weekly wrap does.
 struct OnboardingScreen: View {
-    /// Where the flow goes once these pages are done. Neither is designed yet.
+    /// Steps the flow reaches whose designs haven't arrived yet.
     enum Next: String, Identifiable {
-        /// Start my day's answer is in: sign in with Apple or a phone number (flow step 5).
-        case saveYourWorld
         /// I already have an account (the returning user's flow).
         case welcomeBack
+        /// Save your world's Continue with phone number: the number and its code.
+        case phoneNumber
+        /// After One last thing (flow overview: "Set your dial").
+        case setYourDial
+        /// A stop's "View a no-data preview" (brief A.1 #2a: Today and Time on example data).
+        case noDataPreview
 
         var id: String { rawValue }
 
         var title: String {
             switch self {
-            case .saveYourWorld: "Save your world"
             case .welcomeBack: "Welcome back"
+            case .phoneNumber: "Phone number"
+            case .setYourDial: "Set your dial"
+            case .noDataPreview: "No-data preview"
             }
         }
     }
@@ -47,13 +55,18 @@ struct OnboardingScreen: View {
     @State private var setup = PlaceSetup()
     @State private var isPickingOnMap = false
     @State private var next: Next?
+    /// Account setup, once Start my day is answered; `nil` while the pages show.
+    @State private var account: AccountSetup?
     @State private var location = LocationAsk()
     @State private var isAskingForLocation = false
     @State private var isInSettings = false
 
-    /// - Parameter page: the page to start on, for reviewing it (`DWELL_OPEN=onboarding3`).
-    init(startsAt page: OnboardingPage = .myWorld, onFinish: @escaping () -> Void) {
-        _page = State(initialValue: page)
+    /// - Parameters:
+    ///   - page: the page to start on, for reviewing it (`DWELL_OPEN=onboarding3`).
+    ///   - step: an account step to open over Start my day (`DWELL_OPEN=onboarding6`).
+    init(startsAt page: OnboardingPage = .myWorld, account step: AccountStep? = nil, onFinish: @escaping () -> Void) {
+        _page = State(initialValue: step == nil ? page : .startMyDay)
+        _account = State(initialValue: step.map(AccountSetup.reaching))
         self.onFinish = onFinish
     }
 
@@ -83,7 +96,23 @@ struct OnboardingScreen: View {
                 }
             }
         }
+        // Covered by account setup or a step waiting for its design: VoiceOver reads what's on top.
+        .accessibilityHidden(account != nil || next != nil)
         .ignoresSafeArea(.keyboard)
+        .overlay {
+            if account != nil {
+                GeometryReader { proxy in
+                    AccountSetupFlow(
+                        setup: Binding(get: { account ?? AccountSetup() }, set: { account = $0 }),
+                        insets: PageInsets(top: proxy.safeAreaInsets.top, bottom: proxy.safeAreaInsets.bottom),
+                        onLeave: { setAccount(nil) },
+                        onPending: { show($0) })
+                        .ignoresSafeArea()
+                }
+                .accessibilityHidden(next != nil)
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing))
+            }
+        }
         .overlay {
             if let next {
                 NextStepPending(step: next, onBack: { show(nil) }, onFinish: onFinish)
@@ -104,14 +133,14 @@ struct OnboardingScreen: View {
                 },
                 onClose: {
                     isAskingForLocation = false
-                    show(.saveYourWorld)
+                    setAccount(AccountSetup())
                 })
         }
         // Back from Settings, whatever was chosen there: on to the next step.
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, isInSettings else { return }
             isInSettings = false
-            show(.saveYourWorld)
+            setAccount(AccountSetup())
         }
         .preferredColorScheme(.light)
     }
@@ -142,7 +171,7 @@ struct OnboardingScreen: View {
                 isCurrent: page == .startMyDay,
                 insets: insets,
                 onAllow: { allowLocation() },
-                onNotNow: { show(.saveYourWorld) })
+                onNotNow: { setAccount(AccountSetup()) })
         }
     }
 
@@ -192,6 +221,14 @@ struct OnboardingScreen: View {
         }
     }
 
+    /// Opens account setup over the pages (Start my day answered), or closes it (Back on Save
+    /// your world).
+    private func setAccount(_ setup: AccountSetup?) {
+        withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
+            account = setup
+        }
+    }
+
     // MARK: Actions
 
     /// Keeps the places typed in, then moves on. They're the phone's until sign-in; if they
@@ -207,7 +244,7 @@ struct OnboardingScreen: View {
     private func allowLocation() {
         Task {
             switch await location.ask() {
-            case .allowed: show(.saveYourWorld)
+            case .allowed: setAccount(AccountSetup())
             case .declined: isAskingForLocation = true
             }
         }
@@ -215,7 +252,7 @@ struct OnboardingScreen: View {
 
     private func openSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else {
-            show(.saveYourWorld)
+            setAccount(AccountSetup())
             return
         }
         isInSettings = true
@@ -223,9 +260,10 @@ struct OnboardingScreen: View {
     }
 }
 
-/// Holds the flow's next step until its design arrives: Save your world after Start my day,
-/// Welcome back for a returning user. Back returns to the pages; Go to Today ends onboarding
-/// here, so the rest of the app can be reviewed.
+/// Holds a step of the flow until its design arrives: Welcome back for a returning user, the
+/// phone number, Set your dial after One last thing, a stop's no-data preview. Back returns to
+/// where it was opened from; Go to Today ends onboarding here, so the rest of the app can be
+/// reviewed.
 struct NextStepPending: View {
     let step: OnboardingScreen.Next
     let onBack: () -> Void

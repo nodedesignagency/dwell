@@ -216,6 +216,36 @@ public enum Palette {
     public static let link = Color("link", bundle: .module)
     /// A place's tag on the example art: name and time on a light pill (GF's place 9h). Read from the screenshots; the same in dark, since it sits on photos and the map
     public static let tag = Color("tag", bundle: .module)
+    /// Account setup: the warm cream Save your world, the birthday and One last thing pass through below the page's grey (350 of 852). Read from the screenshots; the same in dark, as all of onboarding
+    public static let setupCream = Color("setupCream", bundle: .module)
+    /// Save your world: the gold at 500 of 852. Read from the screenshot
+    public static let setupGoldLight = Color("setupGoldLight", bundle: .module)
+    /// Save your world: the gold at 650 of 852. Read from the screenshot
+    public static let setupGold = Color("setupGold", bundle: .module)
+    /// Save your world: the gold at the screen's foot. Read from the screenshot
+    public static let setupGoldFoot = Color("setupGoldFoot", bundle: .module)
+    /// The birthday: the peach at 500 of 852. Read from the screenshot
+    public static let setupPeachLight = Color("setupPeachLight", bundle: .module)
+    /// The birthday: the peach at 650 of 852. Read from the screenshot
+    public static let setupPeach = Color("setupPeach", bundle: .module)
+    /// The birthday: the pink at the screen's foot. Read from the screenshot
+    public static let setupPeachFoot = Color("setupPeachFoot", bundle: .module)
+    /// One last thing: the lime at 500 of 852. Read from the screenshot
+    public static let setupLimeLight = Color("setupLimeLight", bundle: .module)
+    /// One last thing: the lime at 650 of 852. Read from the screenshot
+    public static let setupLime = Color("setupLime", bundle: .module)
+    /// One last thing: the green at the screen's foot. Read from the screenshot
+    public static let setupLimeFoot = Color("setupLimeFoot", bundle: .module)
+    /// Account setup stopped, Not in your region yet: the faint pink at 350 of 852. Read from the screenshots
+    public static let setupRose = Color("setupRose", bundle: .module)
+    /// The stops: the pink at 500 of 852. Read from the screenshots
+    public static let setupRedLight = Color("setupRedLight", bundle: .module)
+    /// The stops: the coral at 650 of 852. Read from the screenshots
+    public static let setupRed = Color("setupRed", bundle: .module)
+    /// The stops: the red at the screen's foot. Read from the screenshots
+    public static let setupRedFoot = Color("setupRedFoot", bundle: .module)
+    /// A light grey capsule under a black one: Continue with phone number (Save your world). Read from the screenshot; the same in dark, as all of onboarding
+    public static let mutedButton = Color("mutedButton", bundle: .module)
 }
 
 extension PlaceCategory {

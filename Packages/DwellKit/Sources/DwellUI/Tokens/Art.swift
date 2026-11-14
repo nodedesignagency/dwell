@@ -228,6 +228,17 @@ extension Art {
             }
         }
 
+        /// Account setup's 3D art (screens, 14 Nov), cut from the screenshots as stand-ins until
+        /// the files arrive [ASSET NEEDED]: 80 pt squares at 2.35x, the page's colour taken out.
+        /// The birthday cake: "When's your birthday?".
+        public static let birthday = Image("onboarding/birthday", bundle: .module)
+        /// A puzzle piece: "One last thing".
+        public static let puzzle = Image("onboarding/puzzle", bundle: .module)
+        /// An ID card with a minus badge: "Account setup stopped".
+        public static let accountStopped = Image("onboarding/accountStopped", bundle: .module)
+        /// A globe with a pin: "Not in your region yet".
+        public static let notInRegion = Image("onboarding/notInRegion", bundle: .module)
+
         /// The glyph on a "Save as" chip, as the design draws them: the house, the office
         /// buildings, and the cup for Other.
         public static func role(_ role: SetupRole) -> Image {

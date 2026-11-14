@@ -193,6 +193,18 @@ public struct DemoRepository: DwellRepository {
         try await gate()
     }
 
+    /// Fails as the mode says (`DWELL_STATE=offline` shows Save your world's failed sign-in).
+    public func signIn(_ credential: SignInCredential) async throws -> AccountCheck {
+        try await gate()
+        return try await sample.signIn(credential)
+    }
+
+    public func completeSetup(_ consent: Consent) async throws {
+        try await gate()
+    }
+
+    public func stopSetup(_ reason: SetupStop) async {}
+
     /// Holds or fails every load, as the mode says.
     private func gate() async throws {
         switch mode {

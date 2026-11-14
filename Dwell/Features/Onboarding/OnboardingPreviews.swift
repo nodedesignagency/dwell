@@ -101,8 +101,120 @@ import SwiftUI
     .samplePreview()
 }
 
+// Account setup (screens, 14 Nov). Its words hold at every dial position (setup, consent and
+// legal lines carry no voice), so one dial stop each; light in dark mode, as all of onboarding.
+
+#Preview("5 Save your world") {
+    SetupPreview(.saveYourWorld)
+        .samplePreview()
+}
+
+#Preview("5 Save your world · signing in") {
+    PagePreview { insets in
+        SaveYourWorldPage(insets: insets, isSigningIn: true, didFail: false, onBack: {}, onApple: {}, onPhone: {}, onLegal: { _ in })
+    }
+    .samplePreview()
+}
+
+#Preview("5 Save your world · sign-in failed") {
+    PagePreview { insets in
+        SaveYourWorldPage(insets: insets, isSigningIn: false, didFail: true, onBack: {}, onApple: {}, onPhone: {}, onLegal: { _ in })
+    }
+    .samplePreview()
+}
+
+#Preview("5 Save your world · AX3") {
+    SetupPreview(.saveYourWorld)
+        .samplePreview()
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("5 Save your world · Dark") {
+    SetupPreview(.saveYourWorld)
+        .samplePreview()
+        .environment(\.colorScheme, .dark)
+}
+
+#Preview("5 Terms, waiting for the client's text") {
+    LegalDocumentSheet(document: .terms)
+        .samplePreview()
+}
+
+#Preview("6 Birthday · the design's date") {
+    SetupPreview(.birthday, birthday: BirthDate(year: 1995, month: 3, day: 14))
+        .samplePreview()
+}
+
+#Preview("6 Birthday · starting on today") {
+    SetupPreview(.birthday)
+        .samplePreview()
+}
+
+#Preview("6 Birthday · AX3") {
+    SetupPreview(.birthday, birthday: BirthDate(year: 1995, month: 3, day: 14))
+        .samplePreview()
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("6 Birthday · Italian") {
+    SetupPreview(.birthday, birthday: BirthDate(year: 1995, month: 3, day: 14))
+        .samplePreview()
+        .environment(\.locale, Locale(identifier: "it_IT"))
+}
+
+#Preview("7 One last thing") {
+    SetupPreview(.oneLastThing)
+        .samplePreview()
+}
+
+#Preview("7 One last thing · visits off") {
+    PagePreview { insets in
+        OneLastThingPage(
+            insets: insets, consent: .constant(Consent(useVisits: false)), isSaving: false, didFail: false,
+            onBack: {}, onContinue: {})
+    }
+    .samplePreview()
+}
+
+#Preview("7 One last thing · saving failed") {
+    PagePreview { insets in
+        OneLastThingPage(
+            insets: insets, consent: .constant(Consent(improveModels: true)), isSaving: false, didFail: true,
+            onBack: {}, onContinue: {})
+    }
+    .samplePreview()
+}
+
+#Preview("7 One last thing · AX3") {
+    SetupPreview(.oneLastThing)
+        .samplePreview()
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("Account setup stopped") {
+    SetupPreview(.stopped(.underSixteen))
+        .samplePreview()
+}
+
+#Preview("Account setup stopped · AX3") {
+    SetupPreview(.stopped(.underSixteen))
+        .samplePreview()
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("Not in your region yet") {
+    SetupPreview(.stopped(.notInRegion))
+        .samplePreview()
+}
+
+#Preview("Not in your region yet · Dark") {
+    SetupPreview(.stopped(.notInRegion))
+        .samplePreview()
+        .environment(\.colorScheme, .dark)
+}
+
 #Preview("Next step, waiting for its design") {
-    NextStepPending(step: .saveYourWorld, onBack: {}, onFinish: {})
+    NextStepPending(step: .setYourDial, onBack: {}, onFinish: {})
         .samplePreview()
 }
 
@@ -137,5 +249,35 @@ extension PlaceSetup {
         setup.current.area = "Brooklyn, NY"
         setup.current.coordinate = Coordinate(latitude: 40.7033, longitude: -73.9881)
         return setup
+    }
+}
+
+/// Account setup opened on a step, the steps before it behind it.
+private struct SetupPreview: View {
+    @State private var setup: AccountSetup
+    private let birthday: BirthDate?
+
+    init(_ step: AccountStep, birthday: BirthDate? = nil) {
+        _setup = State(initialValue: .reaching(step))
+        self.birthday = birthday
+    }
+
+    var body: some View {
+        PagePreview { insets in
+            AccountSetupFlow(setup: $setup, insets: insets, birthday: birthday, onLeave: {}, onPending: { _ in })
+        }
+    }
+}
+
+/// A page edge to edge, handed the screen's edges as the pager hands them.
+private struct PagePreview<Content: View>: View {
+    @ViewBuilder let content: (PageInsets) -> Content
+
+    var body: some View {
+        GeometryReader { proxy in
+            content(PageInsets(top: proxy.safeAreaInsets.top, bottom: proxy.safeAreaInsets.bottom))
+                .ignoresSafeArea()
+        }
+        .preferredColorScheme(.light)
     }
 }

@@ -10,7 +10,9 @@
 #   DWELL_OPEN=you ./scripts/run.sh     # open a page: you (the You tab), places (Your places, from You), time (the Time tab),
 #                                       # wrap (last week's wrap, over Today), insight (the Insights page, from Today)
 #   DWELL_OPEN=wrap7 ./scripts/run.sh   # the wrap on one of its pages, 1 to 7 (wrap3 is Weekends, wrap7 the postcard)
-#   DWELL_OPEN=onboarding ./scripts/run.sh   # first run, from My world; onboarding2 to onboarding4 open a later page
+#   DWELL_OPEN=onboarding ./scripts/run.sh   # first run, from My world; onboarding2 to onboarding4 open a later page,
+#                                            # onboarding5 to 7 account setup (Save your world, the birthday, One last thing)
+#   DWELL_OPEN=under16 ./scripts/run.sh      # Account setup stopped; notInRegion: Not in your region yet
 #   DWELL_FRESH=1 ./scripts/run.sh      # forget what's been seen, so first-sight animations (View more's streaks sweeping away) play again
 #
 # Needs Xcode 26+ installed (xcodebuild comes with it); the Xcode app can stay closed.

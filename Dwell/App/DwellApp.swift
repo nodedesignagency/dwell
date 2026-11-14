@@ -32,7 +32,7 @@ struct DwellApp: App {
         WindowGroup {
             Group {
                 if let onboarding {
-                    OnboardingScreen(startsAt: onboarding) {
+                    OnboardingScreen(startsAt: onboarding, account: open?.accountStep) {
                         withAnimation(Motion.standard) { self.onboarding = nil }
                     }
                     .transition(.opacity)
@@ -42,7 +42,9 @@ struct DwellApp: App {
                 }
             }
             .environment(\.dial, Dial(position: dialPosition))
-            // No tracking engine yet (CLAUDE.md): run on the sample week, clock ticking.
+            // No tracking engine yet (CLAUDE.md): run on the sample week, clock ticking. Continue
+            // with Apple signs the sample account in (`AppleSignIn.sample`, the environment's
+            // default) until the client's server and Apple team are in.
             .sampleWeek(launchedAt: launch, repository: demo.map { DemoRepository($0) as any DwellRepository } ?? SampleRepository())
             .environment(\.skyPhase, sky)
             .environment(\.permissions, demo?.permissions ?? .full)
