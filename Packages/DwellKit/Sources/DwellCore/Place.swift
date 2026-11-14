@@ -49,7 +49,9 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
     /// When Dwell last saw the user there: the last visit's departure, or now while it goes
     /// on (the brief's place page, "first/last seen"). The weekly wrap's "Last seen".
     public var lastSeen: Date?
-    /// Where the place is, for a map. `nil` until the engine says.
+    /// Where the place is, for maps (the weekly wrap's most-time and explorer pages). `nil`
+    /// until the engine says. Private and personal places never go on a map however they're
+    /// placed (`isHiddenFromMaps`).
     public var coordinate: Coordinate?
 
     public init(

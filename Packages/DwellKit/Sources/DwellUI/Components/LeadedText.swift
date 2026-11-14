@@ -8,7 +8,8 @@ import SwiftUI
 /// like a paragraph, a fifth of the type size apart (about a space, as measured on the
 /// design), and VoiceOver reads the words as one line. The distance between lines scales with
 /// the text. Lines break only between words; a word wider than the space sits on a line of its
-/// own. Hugs its widest line; give it a `maxWidth` frame to set where lines break.
+/// own. A line break in the text starts a new line ("2 new places.\n1 new corner."). Hugs its
+/// widest line; give it a `maxWidth` frame to set where lines break.
 public struct LeadedText: View {
     private let text: String
     private let role: TextRole
@@ -28,15 +29,30 @@ public struct LeadedText: View {
 
     public var body: some View {
         BaselineFlow(alignment: alignment, spacing: wordSpacing, lineHeight: lineHeight) {
-            ForEach(Array(text.split(separator: " ").enumerated()), id: \.offset) { _, word in
-                Text(verbatim: String(word))
+            ForEach(Array(words.enumerated()), id: \.offset) { _, word in
+                Text(verbatim: word.text)
                     .textRole(role)
                     .fixedSize()
+                    .layoutValue(key: StartsLine.self, value: word.startsLine)
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: text))
+        .accessibilityLabel(Text(verbatim: text.replacingOccurrences(of: "\n", with: " ")))
     }
+
+    /// Each word, and whether a line break in the text comes before it.
+    private var words: [(text: String, startsLine: Bool)] {
+        text.split(separator: "\n").enumerated().flatMap { line, words in
+            words.split(separator: " ").enumerated().map { index, word in
+                (String(word), line > 0 && index == 0)
+            }
+        }
+    }
+}
+
+/// A word that starts a line of its own.
+private nonisolated struct StartsLine: LayoutValueKey {
+    static let defaultValue = false
 }
 
 /// Lays words out in lines, each line's baseline `lineHeight` below the one before.
@@ -93,7 +109,7 @@ private struct BaselineFlow: Layout {
             let size = subviews[index].sizeThatFits(.unspecified)
             let ascent = subviews[index].dimensions(in: .unspecified)[VerticalAlignment.firstTextBaseline]
             let needed = line.indices.isEmpty ? size.width : line.width + spacing + size.width
-            if !line.indices.isEmpty, needed > width {
+            if !line.indices.isEmpty, needed > width || subviews[index][StartsLine.self] {
                 lines.append(line)
                 line = Line()
             }

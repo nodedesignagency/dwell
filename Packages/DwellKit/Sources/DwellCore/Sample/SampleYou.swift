@@ -10,9 +10,22 @@ extension SampleData {
     public static let profile = Profile(name: "Maya Cooper", username: "maya", city: "Brooklyn", cityCenter: brooklyn)
 
     /// The 41 neighborhood cells behind the 3.2% (`coverage`): a walk from the middle of
-    /// Brooklyn, one 250 m hexagon at a time, as a few months of errands and evenings would make.
+    /// Brooklyn, one 250 m hexagon at a time, as a few months of errands and evenings would make,
+    /// up to the start of last week; then last week's one new cell, in Red Hook (`redHookCell`).
     public static let scratchCells: [ScratchCell] = ScratchGrid.walk(
-        from: brooklyn, cells: coverage.city?.uncovered ?? 41, since: recordingSince, until: now)
+        from: brooklyn,
+        cells: (coverage.city?.uncovered ?? 41) - 1,
+        since: recordingSince,
+        until: lastWeek[0].start(in: calendar)) + [redHookCell]
+
+    /// Last week's only new cell (the weekly wrap's "1 new corner", Today's "Somewhere new: Red
+    /// Hook."): Tidewater Books' cell, uncovered by Sunday's first visit there at 12:10 PM.
+    public static let redHookCell = ScratchCell(
+        id: "cell-red-hook",
+        level: .neighborhood,
+        boundary: ScratchGrid.hexagon(q: 0, r: 0, around: tidewaterCoordinate),
+        firstUncovered: date(month: 10, day: 25, minutes: 12 * 60 + 10),
+        neighborhood: "Red Hook")
 
     /// The seven days ending today, oldest first, marked as given.
     static func lastSevenDays(_ states: [Streak.Mark.State]) -> [Streak.Mark] {

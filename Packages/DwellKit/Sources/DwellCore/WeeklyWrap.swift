@@ -374,6 +374,122 @@ public struct WrapPostcard: Hashable, Sendable {
     }
 }
 
+/// The wrap's sixth page (Weekly wrap design, "Weekly Wrap 6", "Explorer week"): the places
+/// the user went to for the first time that week, tagged on a map, and the scratch cells the
+/// week uncovered. "2 new places. 1 new corner."
+///
+/// A new place is one whose first visit ever fell inside the week, the postcard's count
+/// (`WrapPostcard.newPlaces`), so the two pages always agree. Private and personal places count
+/// (it's the user's own screen) but never go on the map (brief §7.2). A new cell is a
+/// neighborhood cell first uncovered that week. An explorer week is one with a never-before
+/// place (brief §9, the explorer week streak).
+public struct WrapExplorer: Hashable, Sendable {
+    /// A place first visited that week.
+    public struct NewPlace: Identifiable, Hashable, Sendable {
+        public var id: PlaceID
+        public var name: String
+        public var category: PlaceCategory
+        public var firstVisit: Date
+        /// `nil` when Dwell can't place it.
+        public var coordinate: Coordinate?
+        public var isHiddenFromMaps: Bool
+
+        public init(
+            id: PlaceID,
+            name: String,
+            category: PlaceCategory,
+            firstVisit: Date,
+            coordinate: Coordinate?,
+            isHiddenFromMaps: Bool = false
+        ) {
+            self.id = id
+            self.name = name
+            self.category = category
+            self.firstVisit = firstVisit
+            self.coordinate = coordinate
+            self.isHiddenFromMaps = isHiddenFromMaps
+        }
+
+        public init?(_ place: Place, in week: DateInterval) {
+            guard let first = place.firstSeen, week.start <= first, first < week.end else { return nil }
+            self.init(
+                id: place.id,
+                name: place.name,
+                category: place.category,
+                firstVisit: first,
+                coordinate: place.coordinate,
+                isHiddenFromMaps: place.isHiddenFromMaps)
+        }
+
+        /// Where the map tags it, or `nil` when it stays off the map.
+        public var mapCoordinate: Coordinate? {
+            isHiddenFromMaps ? nil : coordinate
+        }
+    }
+
+    /// Tags the map holds at most: more would crowd it. The title still counts every place.
+    public static let maxTags = 3
+
+    /// Every place first visited that week, the earliest first; `nil` when the places didn't
+    /// load.
+    public var places: [NewPlace]?
+    /// The neighborhood cells first uncovered that week, the earliest first; `nil` when they
+    /// didn't load.
+    public var cells: [ScratchCell]?
+    /// Where the map sits with nothing new to show: the middle of the user's city.
+    public var city: Coordinate?
+
+    public init(places: [NewPlace]?, cells: [ScratchCell]?, city: Coordinate?) {
+        self.places = places
+        self.cells = cells
+        self.city = city
+    }
+
+    /// - Parameters:
+    ///   - places: every place; `nil` if they didn't load.
+    ///   - cells: every uncovered cell; `nil` if they didn't load.
+    public init(places: [Place]?, cells: [ScratchCell]?, week: DateInterval, city: Coordinate?) {
+        self.init(
+            places: places.map { places in
+                places.compactMap { NewPlace($0, in: week) }.sorted { $0.firstVisit < $1.firstVisit }
+            },
+            cells: cells.map { cells in
+                cells
+                    .filter { $0.level == .neighborhood && week.start <= $0.firstUncovered && $0.firstUncovered < week.end }
+                    .sorted { $0.firstUncovered < $1.firstUncovered }
+            },
+            city: city)
+    }
+
+    /// No places loaded and no cells loaded: the page has nothing it can claim.
+    public static let unknown = WrapExplorer(places: nil, cells: nil, city: nil)
+
+    /// A never-before place this week.
+    public var isExplorerWeek: Bool {
+        !(places?.isEmpty ?? true)
+    }
+
+    /// The new places the map tags: on a map, placed, the first `maxTags` of them.
+    public var tagged: [NewPlace] {
+        Array((places ?? []).filter { $0.mapCoordinate != nil }.prefix(Self.maxTags))
+    }
+
+    /// The neighborhoods the new cells lie in, each once, in the order they were first reached.
+    public var neighborhoods: [String] {
+        var names: [String] = []
+        for name in (cells ?? []).compactMap(\.neighborhood) where !names.contains(name) {
+            names.append(name)
+        }
+        return names
+    }
+
+    /// Everything the map should show: the tagged places and the new cells' corners. Empty
+    /// when there's nothing new on it.
+    public var pointsOnMap: [Coordinate] {
+        tagged.compactMap(\.mapCoordinate) + (cells ?? []).flatMap(\.boundary)
+    }
+}
+
 /// Everything the wrap's pages show, from one load of the week and the four weeks before it
 /// (what's usual for the earliest exit, and the weekend before for the weekend page), with the
 /// user's places and city for the postcard.
@@ -393,6 +509,8 @@ public struct WrapWeek: Hashable, Sendable {
     public var newPlaces: Int?
     /// The middle of the user's city, for the postcard's map; `nil` without a profile.
     public var city: Coordinate?
+    /// The week's new places and cells (the explorer page).
+    public var explorer: WrapExplorer
 
     /// Days before the wrap's week that "usual" looks back over.
     public static let lookback = 28
@@ -405,7 +523,8 @@ public struct WrapWeek: Hashable, Sendable {
         mostTime: WrapMostTime? = nil,
         hasPlaces: Bool = true,
         newPlaces: Int? = nil,
-        city: Coordinate? = nil
+        city: Coordinate? = nil,
+        explorer: WrapExplorer = .unknown
     ) {
         self.opener = opener
         self.workAndYours = workAndYours
@@ -415,6 +534,7 @@ public struct WrapWeek: Hashable, Sendable {
         self.hasPlaces = hasPlaces
         self.newPlaces = newPlaces
         self.city = city
+        self.explorer = explorer
     }
 
     /// - Parameters:
@@ -423,11 +543,14 @@ public struct WrapWeek: Hashable, Sendable {
     ///     them, or fewer).
     ///   - places: every place, for the one the week went to most and the ones first visited
     ///     that week; `nil` if they didn't load.
+    ///   - cells: every uncovered scratch cell, for the ones the week uncovered; `nil` if they
+    ///     didn't load.
     ///   - city: the middle of the user's city (`Profile.cityCenter`).
     public init(
         week: [DaySnapshot],
         before: [DaySnapshot] = [],
         places: [Place]? = nil,
+        cells: [ScratchCell]? = nil,
         city: Coordinate? = nil,
         now: Date,
         calendar: Calendar
@@ -438,8 +561,13 @@ public struct WrapWeek: Hashable, Sendable {
             lastWeekend = before.filter { $0.day >= saturday && $0.day < monday }
         }
         var newPlaces: Int?
-        if let places, let first = week.first, let last = week.last {
-            newPlaces = WrapPostcard.newPlaces(places, in: DateInterval(start: first.interval.start, end: last.interval.end))
+        var explorer = WrapExplorer.unknown
+        if let first = week.first, let last = week.last {
+            let span = DateInterval(start: first.interval.start, end: max(first.interval.start, last.interval.end))
+            if let places {
+                newPlaces = WrapPostcard.newPlaces(places, in: span)
+            }
+            explorer = WrapExplorer(places: places, cells: cells, week: span, city: city)
         }
         self.init(
             opener: WrapOpener(week: week),
@@ -449,7 +577,8 @@ public struct WrapWeek: Hashable, Sendable {
             mostTime: places.flatMap { WrapMostTime(week: week, places: $0, now: now) },
             hasPlaces: places != nil,
             newPlaces: newPlaces,
-            city: city)
+            city: city,
+            explorer: explorer)
     }
 
     /// The last page's stamp, from the other pages' numbers, so they never disagree.

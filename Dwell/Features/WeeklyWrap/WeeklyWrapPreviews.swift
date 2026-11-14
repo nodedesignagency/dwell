@@ -37,6 +37,7 @@ private let sampleWeek = WrapWeek(
     week: sampleDays,
     before: daysBefore,
     places: SampleData.places,
+    cells: SampleData.scratchCells,
     city: SampleData.profile.cityCenter,
     now: SampleData.now,
     calendar: SampleData.calendar)
@@ -343,6 +344,116 @@ private func exitAgainst(usual: Double?) -> WrapEarliestExit? {
     WrapPreview(.loading, page: .earliestExit).samplePreview()
 }
 
+// MARK: Explorer week, across the dial (2 new places, Ashgrove Library and Tidewater Books; 1 new cell, Red Hook)
+
+#Preview("Explorer · Peace") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview(.peace)
+}
+
+#Preview("Explorer · Plain") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview(.plain)
+}
+
+#Preview("Explorer · Grind") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview(.grind)
+}
+
+#Preview("Explorer · dark") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Explorer · AX3") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Explorer · Grind · AX5 · dark") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+// MARK: Explorer week, other weeks
+
+/// Last week with other new places and cells.
+private func explorerWeek(places: [Place]?, cells: [ScratchCell]?, city: Coordinate? = SampleData.profile.cityCenter) -> Loadable<WrapWeek> {
+    var week = sampleWeek
+    let span = DateInterval(
+        start: SampleData.lastWeek[0].interval(in: SampleData.calendar).start,
+        end: SampleData.lastWeek[6].interval(in: SampleData.calendar).end)
+    week.explorer = WrapExplorer(places: places, cells: cells, week: span, city: city)
+    week.newPlaces = week.explorer.places?.count
+    return .loaded(week)
+}
+
+/// The sample's places, with these first visited on Wednesday afternoon of last week.
+private func placesNew(_ ids: Set<PlaceID>) -> [Place] {
+    let wednesday = SampleData.lastWeek[2].interval(in: SampleData.calendar).start.addingTimeInterval(11 * 3600)
+    return SampleData.places.map { place in
+        var place = place
+        if ids.contains(place.id) { place.firstSeen = wednesday }
+        return place
+    }
+}
+
+private let oldCells = SampleData.scratchCells.filter { $0.id != SampleData.redHookCell.id }
+
+#Preview("Explorer · new places on mapped streets (no new cell)") {
+    WrapPreview(explorerWeek(places: SampleData.places, cells: oldCells), page: .explorer).samplePreview()
+}
+
+#Preview("Explorer · a new corner, no new place") {
+    WrapPreview(explorerWeek(places: placesNew([]).filter { !["ashgrove", "tidewater"].contains($0.id) }, cells: SampleData.scratchCells), page: .explorer)
+        .samplePreview()
+}
+
+#Preview("Explorer · nothing new (the city)") {
+    WrapPreview(explorerWeek(places: placesNew([]).filter { !["ashgrove", "tidewater"].contains($0.id) }, cells: oldCells), page: .explorer)
+        .samplePreview()
+}
+
+#Preview("Explorer · a private place counts, off the map") {
+    WrapPreview(explorerWeek(places: placesNew(["stagnes"]), cells: SampleData.scratchCells), page: .explorer).samplePreview()
+}
+
+#Preview("Explorer · five new places, three tags") {
+    WrapPreview(explorerWeek(places: placesNew(["larkspur", "maras", "halcyon"]), cells: SampleData.scratchCells), page: .explorer)
+        .samplePreview()
+}
+
+#Preview("Explorer · places and cells didn't load") {
+    WrapPreview(explorerWeek(places: nil, cells: nil), page: .explorer).samplePreview()
+}
+
+#Preview("Explorer · no city, nothing new (paper)") {
+    WrapPreview(explorerWeek(places: [], cells: [], city: nil), page: .explorer).samplePreview()
+}
+
+#Preview("Explorer · loading") {
+    WrapPreview(.loading, page: .explorer).samplePreview()
+}
+
+#Preview("Explorer · failed · retry") {
+    WrapPreview(.failed(.unavailable), page: .explorer).samplePreview()
+}
+
+// MARK: Explorer week, its parts
+
+#Preview("Stepped waves, full strength") {
+    SteppedWavesLive()
+        .ignoresSafeArea()
+}
+
+#Preview("Map tags, both tails") {
+    VStack(spacing: 40) {
+        PlaceTag(name: "Tidewater Books", mark: WrapCopy.newTag, icon: Art.glyph(.shopping), tail: .leading(0.5))
+        PlaceTag(name: "Ashgrove Library", mark: WrapCopy.newTag, icon: Art.glyph(.education), tail: .top(0.75))
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Palette.stampPaper)
+}
+
 // MARK: Postcard, across the dial (45h 40m, 23h 03m, Tue 5:52 PM, 0m, 2 new places; Brooklyn)
 
 #Preview("Postcard · Peace") {
@@ -497,12 +608,6 @@ private func mostTimeWeek(_ change: (inout WrapWeek) -> Void) -> Loadable<WrapWe
 #Preview("Starburst, full strength") {
     Starburst()
         .ignoresSafeArea()
-}
-
-// MARK: Pages still to come
-
-#Preview("Page 6, waiting for its design") {
-    WrapPreview(lastWeek, page: .explorer).samplePreview()
 }
 
 // MARK: The real screen, loading the sample week

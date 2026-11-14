@@ -193,6 +193,12 @@ public struct ChoiceChip: View {
 /// on one edge points at the place. A place saved in onboarding has no time yet, so its tag is
 /// the name alone. Print on the art: the light scheme always, at its own size whatever the
 /// text size. Hidden from VoiceOver: the art's caption says it.
+///
+/// On a map (Weekly wrap 6, "Pioneer Works | NEW", `init(name:mark:icon:tail:)`): smaller and
+/// rimmed. 34 tall: `mapTag` inside a 1-pt `mapTagRim`, its tail 12 wide and 8 deep in the
+/// rim's white, no shadow; 8 in, the glyph 16, 6 to the name (14 medium), 4 to a hairline 16
+/// tall, 6 to the mark (14 medium, `newPlace`, in capitals), 12 to the end. Measured from the
+/// screenshot at 393 wide (the tag is 175 across for "Pioneer Works").
 public struct PlaceTag: View {
     /// Which edge the tail leaves from, and how far along it (0 is the leading or top end).
     public nonisolated enum Tail: Hashable, Sendable {
@@ -202,19 +208,48 @@ public struct PlaceTag: View {
         case leading(CGFloat)
     }
 
+    private nonisolated enum Look: Hashable {
+        case example
+        case map
+    }
+
     private let name: String
     private let time: String?
     private let icon: Image
     private let tail: Tail
+    private let look: Look
 
     public init(name: String, time: String?, icon: Image, tail: Tail = .none) {
         self.name = name
         self.time = time
         self.icon = icon
         self.tail = tail
+        self.look = .example
+    }
+
+    /// A place on a map with a word beside it: "Pioneer Works | NEW".
+    /// - Parameter mark: shown in capitals, in `newPlace`'s green.
+    public init(name: String, mark: String, icon: Image, tail: Tail = .none) {
+        self.name = name
+        self.time = mark
+        self.icon = icon
+        self.tail = tail
+        self.look = .map
+    }
+
+    /// How far the tail reaches past the pill: pad by this on its side to take it in.
+    public static func tailDepth(onMap: Bool) -> CGFloat {
+        onMap ? 8 : 5
     }
 
     public var body: some View {
+        switch look {
+        case .example: example
+        case .map: onMap
+        }
+    }
+
+    private var example: some View {
         HStack(spacing: 0) {
             icon
                 .resizable()
@@ -247,13 +282,54 @@ public struct PlaceTag: View {
         .dynamicTypeSize(.large)
         .accessibilityHidden(true)
     }
+
+    private var onMap: some View {
+        HStack(spacing: 0) {
+            icon
+                .resizable()
+                .scaledToFit()
+                .frame(width: 16, height: 16)
+            Text(verbatim: name)
+                .textRole(.caption, weight: .medium)
+                .padding(.leading, 6)
+            if let time {
+                Rectangle()
+                    .fill(Palette.separator)
+                    .frame(width: 1, height: 16)
+                    .padding(.leading, 4)
+                    .padding(.trailing, 6)
+                Text(verbatim: time.uppercased())
+                    .textRole(.caption, weight: .medium)
+                    .foregroundStyle(Palette.newPlace)
+            }
+        }
+        .foregroundStyle(Palette.textPrimary)
+        .lineLimit(1)
+        .fixedSize()
+        .padding(.leading, 8)
+        .padding(.trailing, 12)
+        .frame(height: 34)
+        .background {
+            // The rim and the tail in one white shape, the tag's grey inside the rim.
+            TagShape(tail: tail, width: 12, depth: Self.tailDepth(onMap: true))
+                .fill(Palette.mapTagRim)
+                .overlay {
+                    Capsule()
+                        .fill(Palette.mapTag)
+                        .padding(1)
+                }
+        }
+        .environment(\.colorScheme, .light)
+        .dynamicTypeSize(.large)
+        .accessibilityHidden(true)
+    }
 }
 
 /// A capsule with a small triangular tail on one edge.
 nonisolated private struct TagShape: Shape {
     let tail: PlaceTag.Tail
-    private let width: CGFloat = 10
-    private let depth: CGFloat = 5
+    var width: CGFloat = 10
+    var depth: CGFloat = 5
 
     func path(in rect: CGRect) -> Path {
         var path = Path(roundedRect: rect, cornerRadius: rect.height / 2)

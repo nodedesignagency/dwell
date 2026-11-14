@@ -24,6 +24,8 @@ public enum SampleData {
     /// Where Maya's home is: a flat in Crown Heights, where onboarding's example pins its home
     /// photo and "Is this home?" asks about.
     public static let homeCoordinate = Coordinate(latitude: 40.6782, longitude: -73.9442)
+    /// Tidewater Books, on Van Brunt Street in Red Hook: new last Sunday.
+    public static let tidewaterCoordinate = Coordinate(latitude: 40.6781, longitude: -74.0119)
     public static let today = DwellDay(containing: now, calendar: calendar)
     /// Monday 19 to Sunday 25 October, the last full week.
     public static let lastWeek: [DwellDay] = (19...25).map { DwellDay(year: 2026, month: 10, day: $0) }
@@ -39,24 +41,39 @@ public enum SampleData {
     /// Every place as saved, before any time is counted: names, categories, roles and flags.
     /// `places` adds each one's lifetime total, visits and first visit from the timeline.
     static let definitions: [Place] = [
-        Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true),
+        Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true, coordinate: homeCoordinate),
         // On Atlantic Avenue at Utica, where the weekly wrap's design pins it.
         Place(id: "kestriva", name: "Kestriva Labs", category: .work, role: .work, shareLevel: .venue, isFavorite: true,
               coordinate: Coordinate(latitude: 40.6786, longitude: -73.9280)),
         Place(id: "brambleline", name: "Brambleline Café", category: .foodAndDrink, subcategory: .coffee,
-              shareLevel: .venue, isFavorite: true),
-        Place(id: "northline", name: "Northline Gym", category: .fitness, role: .gym),
-        Place(id: "sorrel", name: "Sorrel Kitchen", category: .foodAndDrink, subcategory: .food),
-        Place(id: "halloway", name: "Halloway Pharmacy", category: .errands),
-        Place(id: "greenmarket", name: "Carroll Street Greenmarket", category: .shopping),
-        Place(id: "juniper", name: "Juniper & Vine", category: .foodAndDrink, subcategory: .drinks),
-        Place(id: "larkspur", name: "Larkspur Cinema", category: .entertainment),
-        Place(id: "prospect", name: "Prospect Park", category: .outdoors),
-        Place(id: "maras", name: "Mara's place", category: .social),
-        Place(id: "ashgrove", name: "Ashgrove Library", category: .education),
-        Place(id: "tidewater", name: "Tidewater Books", category: .shopping),
-        Place(id: "halcyon", name: "Halcyon Pool", category: .fitness),
-        Place(id: "stagnes", name: "St. Agnes Community Health & Wellness Center", category: .personal, isPrivate: true),
+              shareLevel: .venue, isFavorite: true, coordinate: Coordinate(latitude: 40.6934, longitude: -73.9026)),
+        Place(id: "northline", name: "Northline Gym", category: .fitness, role: .gym,
+              coordinate: Coordinate(latitude: 40.6760, longitude: -73.9500)),
+        Place(id: "sorrel", name: "Sorrel Kitchen", category: .foodAndDrink, subcategory: .food,
+              coordinate: Coordinate(latitude: 40.6880, longitude: -73.9810)),
+        Place(id: "halloway", name: "Halloway Pharmacy", category: .errands,
+              coordinate: Coordinate(latitude: 40.6902, longitude: -73.9868)),
+        Place(id: "greenmarket", name: "Carroll Street Greenmarket", category: .shopping,
+              coordinate: Coordinate(latitude: 40.6795, longitude: -73.9940)),
+        Place(id: "juniper", name: "Juniper & Vine", category: .foodAndDrink, subcategory: .drinks,
+              coordinate: Coordinate(latitude: 40.6807, longitude: -73.9580)),
+        Place(id: "larkspur", name: "Larkspur Cinema", category: .entertainment,
+              coordinate: Coordinate(latitude: 40.6750, longitude: -73.9810)),
+        Place(id: "prospect", name: "Prospect Park", category: .outdoors,
+              coordinate: Coordinate(latitude: 40.6602, longitude: -73.9690)),
+        Place(id: "maras", name: "Mara's place", category: .social,
+              coordinate: Coordinate(latitude: 40.7114, longitude: -73.9659)),
+        // In Flatbush, in a cell Maya uncovered in her first week.
+        Place(id: "ashgrove", name: "Ashgrove Library", category: .education,
+              coordinate: Coordinate(latitude: 40.6505, longitude: -73.9490)),
+        // In Red Hook: last Sunday's visit uncovered its cell (`redHookCell`).
+        Place(id: "tidewater", name: "Tidewater Books", category: .shopping,
+              coordinate: tidewaterCoordinate),
+        Place(id: "halcyon", name: "Halcyon Pool", category: .fitness,
+              coordinate: Coordinate(latitude: 40.6722, longitude: -73.9702)),
+        // Private: never on a map, however it's placed.
+        Place(id: "stagnes", name: "St. Agnes Community Health & Wellness Center", category: .personal, isPrivate: true,
+              coordinate: Coordinate(latitude: 40.6851, longitude: -73.9752)),
     ]
 
     /// Every place with its lifetime total, visits, first visit and when it was last seen,

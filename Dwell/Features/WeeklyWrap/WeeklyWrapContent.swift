@@ -2,8 +2,8 @@ import DwellCore
 import DwellUI
 import SwiftUI
 
-/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov). Pages 1 to 5
-/// and 7 are designed; page 6 holds its place until its design arrives.
+/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov), all seven
+/// designed.
 enum WrapPage: Int, CaseIterable, Identifiable {
     case opener
     case workAndYours
@@ -18,7 +18,6 @@ enum WrapPage: Int, CaseIterable, Identifiable {
     var next: WrapPage? { WrapPage(rawValue: rawValue + 1) }
     var previous: WrapPage? { WrapPage(rawValue: rawValue - 1) }
 
-    /// What the flow shows on each page still to be designed: a name for the placeholder.
     /// How long a page stays before moving on by itself, as an Instagram story does (the
     /// user, 13 Nov: 5–10 s; 7 s reads a title and a sentence without hurrying). Every page,
     /// the postcard too (the user, 14 Nov: the timer shows on all); when the postcard's runs
@@ -27,16 +26,14 @@ enum WrapPage: Int, CaseIterable, Identifiable {
         7
     }
 
-    var pendingTitle: String {
-        switch self {
-        case .opener: "This week"
-        case .workAndYours: "Work and yours"
-        case .weekends: "Weekends"
-        case .mostTime: "Where you spent the most time"
-        case .earliestExit: "Earliest exit"
-        case .explorer: "Explorer week"
-        case .postcard: "Postcard from your week"
-        }
+    /// The header's colour: white on the colourful pages, the app's ink over the explorer
+    /// page's light map (Weekly Wrap 6), its pages to come at 10% there, as drawn.
+    var headerInk: Color {
+        self == .explorer ? Palette.textPrimary : .white
+    }
+
+    var headerTrack: Double {
+        self == .explorer ? 0.1 : StoryProgress.track
     }
 }
 
@@ -93,6 +90,8 @@ struct WeeklyWrapContent: View {
                 pageCount: WrapPage.allCases.count,
                 current: page.rawValue,
                 clock: clock,
+                ink: page.headerInk,
+                track: page.headerTrack,
                 closeLabel: WrapCopy.close,
                 onClose: actions.close,
                 onStep: { direction in
@@ -175,6 +174,12 @@ struct WeeklyWrapContent: View {
                 state: state.map(\.earliestExit),
                 headerBottom: headerBottom,
                 onNext: actions.next)
+        case .explorer:
+            WrapExplorerPage(
+                state: state.map(\.explorer),
+                headerBottom: headerBottom,
+                onNext: actions.next,
+                onRetry: actions.retry)
         case .postcard:
             WrapPostcardPage(
                 state: state.map(\.postcard),
@@ -182,37 +187,7 @@ struct WeeklyWrapContent: View {
                 onNext: actions.next,
                 onRetry: actions.retry,
                 onShare: actions.stopClock)
-        default:
-            WrapPendingPage(page: page, reserve: reserve, onNext: actions.next, onPrevious: actions.previous)
         }
-    }
-}
-
-/// A page whose design hasn't arrived: its name from the flow and "Waiting for the design.",
-/// on the opener's colour.
-private struct WrapPendingPage: View {
-    let page: WrapPage
-    let reserve: CGFloat
-    var onNext: () -> Void
-    var onPrevious: () -> Void
-
-    var body: some View {
-        VStack(spacing: Space.s) {
-            Text(verbatim: page.pendingTitle)
-                .textRole(.voiceDisplay)
-                .foregroundStyle(.white)
-            Text(verbatim: "Waiting for the design.")
-                .textRole(.storyLine)
-                .foregroundStyle(.white.opacity(0.8))
-        }
-        .multilineTextAlignment(.center)
-        .padding(.horizontal, Space.screen)
-        .accessibilityElement(children: .combine)
-        .accessibilityAction(named: WrapCopy.nextPage, onNext)
-        .accessibilityAction(named: WrapCopy.previousPage, onPrevious)
-        .padding(.vertical, reserve)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 }
 

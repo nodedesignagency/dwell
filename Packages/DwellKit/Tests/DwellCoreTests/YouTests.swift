@@ -168,9 +168,12 @@ struct ScratchCellTests {
         #expect(cells.allSatisfy { $0.boundary.count == 6 && $0.level == .neighborhood })
     }
 
-    @Test func `cells stay near the middle of brooklyn`() {
+    @Test func `cells stay near the middle of brooklyn, but last week's in Red Hook`() {
         let centre = SampleData.brooklyn
-        for corner in SampleData.scratchCells.flatMap(\.boundary) {
+        let walk = SampleData.scratchCells.filter { $0.id != SampleData.redHookCell.id }
+        #expect(walk.count == SampleData.scratchCells.count - 1)
+        #expect(SampleData.redHookCell.neighborhood == "Red Hook")
+        for corner in walk.flatMap(\.boundary) {
             #expect(abs(corner.latitude - centre.latitude) < 0.03)
             #expect(abs(corner.longitude - centre.longitude) < 0.04)
         }

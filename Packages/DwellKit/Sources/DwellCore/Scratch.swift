@@ -8,12 +8,16 @@ public struct ScratchCell: Identifiable, Hashable, Sendable {
     /// The cell's corners, in order. The outline closes back on the first.
     public var boundary: [Coordinate]
     public var firstUncovered: Date
+    /// The neighborhood the cell lies in, as the engine names it: "Red Hook". `nil` when it has
+    /// no name for it.
+    public var neighborhood: String?
 
-    public init(id: String, level: ScratchLevel, boundary: [Coordinate], firstUncovered: Date) {
+    public init(id: String, level: ScratchLevel, boundary: [Coordinate], firstUncovered: Date, neighborhood: String? = nil) {
         self.id = id
         self.level = level
         self.boundary = boundary
         self.firstUncovered = firstUncovered
+        self.neighborhood = neighborhood
     }
 }
 

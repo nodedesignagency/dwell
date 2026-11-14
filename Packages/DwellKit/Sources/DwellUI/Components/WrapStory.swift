@@ -68,7 +68,7 @@ public struct WrapBackdrop: View {
 /// The top of every wrap page (Weekly wrap design): "Your weekly recap" (24 medium) over the
 /// week (14), the close button on glass level with them, and 13 below, the progress bar.
 /// 16 from the sides, 12 below the status bar. White on the colourful pages; `ink` for a page
-/// drawn on a light map.
+/// drawn on a light map (Explorer week: the app's ink, its pages to come at 10%).
 public struct StoryHeader: View {
     private let title: String
     private let subtitle: String
@@ -76,6 +76,7 @@ public struct StoryHeader: View {
     private let current: Int
     private let clock: StoryClock?
     private let ink: Color
+    private let track: Double
     private let closeLabel: String
     private let onClose: () -> Void
     private let onStep: (AccessibilityAdjustmentDirection) -> Void
@@ -84,6 +85,7 @@ public struct StoryHeader: View {
     ///   - subtitle: the week, a plain label: "Oct 19 – 25".
     ///   - current: the page showing, from 0.
     ///   - clock: how far the page has run, when it moves on by itself; `nil` shows it full.
+    ///   - track: how strong the pages to come are, as a share of `ink`.
     ///   - onStep: VoiceOver's swipe up or down on the progress bar: the next or previous page.
     public init(
         title: String,
@@ -92,6 +94,7 @@ public struct StoryHeader: View {
         current: Int,
         clock: StoryClock? = nil,
         ink: Color = .white,
+        track: Double = StoryProgress.track,
         closeLabel: String,
         onClose: @escaping () -> Void,
         onStep: @escaping (AccessibilityAdjustmentDirection) -> Void
@@ -102,6 +105,7 @@ public struct StoryHeader: View {
         self.current = current
         self.clock = clock
         self.ink = ink
+        self.track = track
         self.closeLabel = closeLabel
         self.onClose = onClose
         self.onStep = onStep
@@ -128,7 +132,7 @@ public struct StoryHeader: View {
                 .accessibilityLabel(closeLabel)
             }
 
-            StoryProgress(count: pageCount, current: current, clock: clock, ink: ink)
+            StoryProgress(count: pageCount, current: current, clock: clock, ink: ink, track: track)
                 .accessibilityAdjustableAction(onStep)
         }
         .padding(.horizontal, Space.l)
@@ -137,7 +141,7 @@ public struct StoryHeader: View {
 }
 
 /// The progress bar along a wrap's top: a capsule per page, 4 tall and 4 apart, filling the
-/// width. Pages seen are `ink`; pages to come, `ink` at 40%. The page showing fills from its
+/// width. Pages seen are `ink`; pages to come, `ink` at 40% (`track`). The page showing fills from its
 /// leading end as its clock runs, like an Instagram story, and holds still while paused;
 /// without a clock (a page that waits, or VoiceOver on) it shows full. Going to another page,
 /// the capsules it passes fill or empty with `Motion.standard`. The fill is a progress bar, so
@@ -148,12 +152,17 @@ public struct StoryProgress: View {
     private let current: Int
     private let clock: StoryClock?
     private let ink: Color
+    private let track: Double
 
-    public init(count: Int, current: Int, clock: StoryClock? = nil, ink: Color = .white) {
+    /// The pages to come on the colourful pages: white at 40%.
+    public nonisolated static let track: Double = 0.4
+
+    public init(count: Int, current: Int, clock: StoryClock? = nil, ink: Color = .white, track: Double = StoryProgress.track) {
         self.count = count
         self.current = current
         self.clock = clock
         self.ink = ink
+        self.track = track
     }
 
     public var body: some View {
@@ -164,7 +173,7 @@ public struct StoryProgress: View {
                 ForEach(0..<count, id: \.self) { index in
                     let share = index < current ? 1 : index == current ? fill : 0
                     Capsule()
-                        .fill(ink.opacity(0.4))
+                        .fill(ink.opacity(track))
                         .overlay {
                             Rectangle()
                                 .fill(ink)

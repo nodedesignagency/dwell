@@ -484,3 +484,113 @@ struct WrapMostTimeTests {
         #expect(WrapCopy.mostTimeTitle.text(at: .plain) == "Where you spent the most time")
     }
 }
+
+@Suite("Weekly wrap: explorer week")
+struct WrapExplorerTests {
+    let week = SampleData.lastWeek.map(SampleData.snapshot(for:))
+    let span = DateInterval(
+        start: SampleData.lastWeek[0].interval(in: SampleData.calendar).start,
+        end: SampleData.lastWeek[6].interval(in: SampleData.calendar).end)
+
+    var wrap: WrapWeek {
+        WrapWeek(week: week, places: SampleData.places, cells: SampleData.scratchCells,
+                 city: SampleData.profile.cityCenter, now: SampleData.now, calendar: calendar)
+    }
+
+    /// One new place, first visited halfway through the week.
+    func place(_ id: PlaceID, private isPrivate: Bool = false, category: PlaceCategory = .shopping) -> Place {
+        Place(id: id, name: "\(id)", category: category, isPrivate: isPrivate,
+              firstSeen: span.start.addingTimeInterval(3 * 86_400), coordinate: SampleData.tidewaterCoordinate)
+    }
+
+    @Test func `last week: two new places and one new cell, in Red Hook`() {
+        let explorer = wrap.explorer
+        #expect(explorer.places?.map(\.id) == ["ashgrove", "tidewater"])
+        #expect(explorer.cells?.map(\.id) == [SampleData.redHookCell.id])
+        #expect(explorer.neighborhoods == ["Red Hook"])
+        #expect(explorer.isExplorerWeek)
+        #expect(explorer.tagged.count == 2)
+    }
+
+    @Test func `the explorer page and the postcard count the same new places`() {
+        #expect(wrap.explorer.places?.count == wrap.postcard.newPlaces)
+    }
+
+    @Test func `the design's words, the same numbers at every stop`() throws {
+        let title = WrapCopy.explorerTitle(wrap.explorer)
+        #expect(title.plain == "2 new places.\n1 new corner.")
+        let line = try #require(WrapCopy.explorerLine(wrap.explorer))
+        #expect(line.plain == "Your map grew by one cell in Red Hook.")
+        for variant in title.allVariants {
+            #expect(digits(variant) == "21")
+        }
+        for variant in line.allVariants {
+            #expect(digits(variant).isEmpty)
+            #expect(variant.contains("Red Hook"))
+        }
+    }
+
+    @Test func `private and personal places count but stay off the map`() {
+        let explorer = WrapExplorer(
+            places: [place("open"), place("hidden", private: true), place("personal", category: .personal)],
+            cells: [], week: span, city: nil)
+        #expect(explorer.places?.count == 3)
+        #expect(explorer.tagged.map(\.id) == ["open"])
+        #expect(!WrapCopy.explorerMap(explorer).contains("hidden"))
+    }
+
+    @Test func `the map tags at most three places`() {
+        let places = (1...5).map { place(PlaceID("p\($0)")) }
+        let explorer = WrapExplorer(places: places, cells: [], week: span, city: nil)
+        #expect(explorer.tagged.count == WrapExplorer.maxTags)
+        #expect(WrapCopy.explorerTitle(explorer).plain == "5 new places.")
+    }
+
+    @Test func `places from before the week aren't new, cells from before aren't either`() {
+        let old = Place(id: "old", name: "Old", category: .shopping, firstSeen: span.start.addingTimeInterval(-60))
+        let cells = SampleData.scratchCells.filter { $0.id != SampleData.redHookCell.id }
+        let explorer = WrapExplorer(places: [old], cells: cells, week: span, city: nil)
+        #expect(explorer.places == [])
+        #expect(explorer.cells == [])
+        #expect(!explorer.isExplorerWeek)
+        #expect(WrapCopy.explorerTitle(explorer).plain == "No new places this week.")
+        #expect(WrapCopy.explorerLine(explorer)?.plain == "Your map stayed the same this week.")
+    }
+
+    @Test func `new places on mapped streets, and new cells without a new place`() {
+        let placesOnly = WrapExplorer(places: [place("new")], cells: [], week: span, city: nil)
+        #expect(WrapCopy.explorerTitle(placesOnly).plain == "1 new place.")
+        #expect(WrapCopy.explorerLine(placesOnly)?.plain == "All on streets your map already had.")
+
+        let cellsOnly = WrapExplorer(places: [], cells: SampleData.scratchCells, week: span, city: nil)
+        #expect(!cellsOnly.isExplorerWeek)
+        #expect(WrapCopy.explorerTitle(cellsOnly).plain == "1 new corner.")
+    }
+
+    @Test func `several cells name their neighborhoods once each`() {
+        var cells = (0..<3).map { index in
+            var cell = SampleData.redHookCell
+            cell.neighborhood = index == 2 ? "Gowanus" : "Red Hook"
+            return ScratchCell(id: "c\(index)", level: .neighborhood, boundary: cell.boundary,
+                               firstUncovered: cell.firstUncovered.addingTimeInterval(Double(index)), neighborhood: cell.neighborhood)
+        }
+        let explorer = WrapExplorer(places: [], cells: cells, week: span, city: nil)
+        #expect(explorer.neighborhoods == ["Red Hook", "Gowanus"])
+        #expect(WrapCopy.explorerLine(explorer)?.plain == "Your map grew by 3 cells in Red Hook and Gowanus.")
+        cells = cells.map { cell in
+            var cell = cell
+            cell.neighborhood = nil
+            return cell
+        }
+        let unnamed = WrapExplorer(places: [], cells: cells, week: span, city: nil)
+        #expect(WrapCopy.explorerLine(unnamed)?.plain == "Your map grew by 3 cells.")
+    }
+
+    @Test func `nothing loaded claims nothing`() {
+        #expect(WrapCopy.explorerTitle(.unknown).plain == "Your new places couldn't load.")
+        #expect(WrapCopy.explorerLine(.unknown) == nil)
+        let noCells = WrapExplorer(places: [place("new")], cells: nil, week: span, city: nil)
+        #expect(WrapCopy.explorerLine(noCells) == nil)
+        #expect(WrapWeek(week: week, now: SampleData.now, calendar: calendar).explorer.places == nil)
+    }
+}

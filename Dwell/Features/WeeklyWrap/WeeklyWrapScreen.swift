@@ -7,7 +7,8 @@ import SwiftUI
 ///
 /// Loads the week's days from the repository once, for every page's numbers (`WrapWeek`), with
 /// the four weeks before it: what's usual for the earliest exit, and the weekend before for
-/// the weekend page's change; and the places and the user's city, for the postcard.
+/// the weekend page's change; the places and the user's city, for the postcard; and the
+/// scratch cells, for the explorer page.
 ///
 /// Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the
 /// progress bar filling as it runs, like an Instagram story), every page including the
@@ -119,14 +120,17 @@ struct WeeklyWrapScreen: View {
             let days = try await repository.days(from: first, through: wrap.lastDay)
             let week = days.filter { $0.day >= wrap.firstDay }
             let before = days.filter { $0.day < wrap.firstDay }
-            // The postcard's extras: the places first visited that week and the city for its
-            // map. The wrap still opens without them.
+            // The postcard's and the explorer page's extras: the places first visited that week,
+            // the cells it uncovered and the city for their maps. The wrap still opens without
+            // them.
             let places = try? await repository.places()
+            let cells = try? await repository.scratchCells()
             let city = (try? await repository.profile())?.cityCenter
             state = .loaded(WrapWeek(
                 week: week,
                 before: before,
                 places: places,
+                cells: cells,
                 city: city,
                 now: fixedNow ?? Date.now.addingTimeInterval(clockOffset),
                 calendar: calendar))

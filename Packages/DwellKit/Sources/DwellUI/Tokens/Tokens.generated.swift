@@ -110,6 +110,20 @@ public enum Palette {
     public static let wrapBurstPurple = Color("wrapBurstPurple", bundle: .module)
     /// Weekly wrap, Where you spent the most time: the starburst's indigo, drawn at 30% (the reference image's own)
     public static let wrapBurstIndigo = Color("wrapBurstIndigo", bundle: .module)
+    /// Weekly wrap, Explorer week: the lime in the middle of the green's glow. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapExplorerCentre = Color("wrapExplorerCentre", bundle: .module)
+    /// Weekly wrap, Explorer week: the green round the glow, and the wash over the map's top. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapExplorerEdge = Color("wrapExplorerEdge", bundle: .module)
+    /// Weekly wrap, Explorer week: the light stripes of the stepped waves, drawn at 20% (the reference image's white; Figma's 20%)
+    public static let wrapStep = Color("wrapStep", bundle: .module)
+    /// Weekly wrap, Explorer week: the grey stripes of the stepped waves, drawn at 20% (the reference image's grey)
+    public static let wrapStepDeep = Color("wrapStepDeep", bundle: .module)
+    /// A place's tag on a map (Weekly wrap 6: "Pioneer Works  NEW"). Read from the screenshot
+    public static let mapTag = Color("mapTag", bundle: .module)
+    /// The rim round a map tag and its tail, which is drawn in it. Read from the screenshot
+    public static let mapTagRim = Color("mapTagRim", bundle: .module)
+    /// "New" beside a place first visited that week (Weekly wrap 6). Read from the screenshot
+    public static let newPlace = Color("newPlace", bundle: .module)
     /// The postcard stamp's paper, inside its white perforated edge (the stamp SVG)
     public static let stampPaper = Color("stampPaper", bundle: .module)
     /// The Dwell wordmark's navy (the stamp SVG)

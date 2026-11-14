@@ -236,6 +236,110 @@ public enum WrapCopy {
             grind: "Right on your usual. Consistent.")
     }
 
+    // MARK: Explorer week
+
+    /// Over the title in an explorer week (the design's "EXPLORER WEEK", written in sentence
+    /// case and set in capitals as a label style). The streak's name, so not voiced; a week
+    /// without a new place shows none.
+    public static let explorerWeek = "Explorer week"
+
+    /// Beside a new place's name on the map (the design's "NEW", set in capitals).
+    public static let newTag = "New"
+
+    /// The page's title, its sentences on lines of their own. Plain is the design's ("2 new
+    /// places. 1 new corner."). [COPY NEEDED] Peace and Grind, and a week with nothing new.
+    public static func explorerTitle(_ explorer: WrapExplorer) -> VoicedLine {
+        let places = explorer.places?.count ?? 0
+        let cells = explorer.cells?.count ?? 0
+        let newPlaces = count(places, one: "new place", many: "new places")
+        let ownPlaces = count(places, one: "place", many: "places")
+        let corners = count(cells, one: "new corner", many: "new corners")
+        let uncovered = "\(count(cells, one: "cell", many: "cells")) uncovered"
+        switch (places > 0, cells > 0) {
+        case (true, true):
+            return VoicedLine(
+                peace: "\(ownPlaces), new to you.\n\(corners).",
+                plain: "\(newPlaces).\n\(corners).",
+                grind: "\(newPlaces).\n\(uncovered).")
+        case (true, false):
+            return VoicedLine(
+                peace: "\(ownPlaces), new to you.",
+                plain: "\(newPlaces).",
+                grind: "\(newPlaces).")
+        case (false, true):
+            return VoicedLine(
+                peace: "\(corners).",
+                plain: "\(corners).",
+                grind: "\(uncovered).")
+        case (false, false):
+            // Places that didn't load claim nothing either way.
+            guard explorer.places != nil else { return VoicedLine(fixed: "Your new places couldn't load.") }
+            return VoicedLine(
+                peace: "Your usual places this week.",
+                plain: "No new places this week.",
+                grind: "Zero new places.")
+        }
+    }
+
+    /// The line under the title: where the map grew. Plain is the design's ("Your map grew by
+    /// one cell in Red Hook."); Peace and Grind borrow Appendix B's "New cell uncovered"
+    /// ("Somewhere new: Red Hook.", "Red Hook, uncovered."). `nil` when the cells didn't load
+    /// and there's nothing true to say. [COPY NEEDED] the rest.
+    public static func explorerLine(_ explorer: WrapExplorer) -> VoicedLine? {
+        let places = explorer.places?.count ?? 0
+        guard let cells = explorer.cells else {
+            return places > 0 || explorer.places == nil ? nil : VoicedLine(fixed: "Your map couldn't load.")
+        }
+        guard !cells.isEmpty else {
+            if places > 0 {
+                return VoicedLine(
+                    peace: "New places on streets you already knew.",
+                    plain: "All on streets your map already had.",
+                    grind: "New places, same map. Go further.")
+            }
+            return VoicedLine(
+                peace: "Familiar places have their comforts.",
+                plain: "Your map stayed the same this week.",
+                grind: "Same map as last week. Go somewhere.")
+        }
+        // "one cell", as the design spells it; more in figures.
+        let grew = "Your map grew by \(cells.count == 1 ? "one cell" : "\(cells.count) cells")"
+        guard let areas = areaList(explorer.neighborhoods) else {
+            return VoicedLine(
+                peace: "\(grew). Somewhere new.",
+                plain: "\(grew).",
+                grind: "\(grew). Keep going.")
+        }
+        return VoicedLine(
+            peace: "Somewhere new: \(areas). \(grew).",
+            plain: "\(grew) in \(areas).",
+            grind: "\(areas), uncovered. \(grew).")
+    }
+
+    /// "Red Hook", "Red Hook and Gowanus", "Red Hook, Gowanus and more"; `nil` with none.
+    static func areaList(_ names: [String]) -> String? {
+        switch names.count {
+        case 0: nil
+        case 1: names[0]
+        case 2: "\(names[0]) and \(names[1])"
+        default: "\(names[0]), \(names[1]) and more"
+        }
+    }
+
+    /// VoiceOver's reading of the map. [COPY NEEDED]
+    public static func explorerMap(_ explorer: WrapExplorer) -> String {
+        let names = explorer.tagged.map(\.name)
+        let cells = explorer.cells?.count ?? 0
+        var parts: [String] = []
+        if !names.isEmpty {
+            parts.append("Map of your new places: \(names.joined(separator: ", ")).")
+        }
+        if cells > 0 {
+            parts.append("\(count(cells, one: "new cell", many: "new cells")) shaded.")
+        }
+        return parts.isEmpty ? "Map of your city." : parts.joined(separator: " ")
+    }
+
     // MARK: Postcard
 
     /// The last page's title (Weekly wrap design, "Postcard from your week"), the design's
