@@ -46,6 +46,11 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
     /// The first visit, or when the place was saved if it has none yet. Your places reads it
     /// for home ("Since March"), where a count of visits says little.
     public var firstSeen: Date?
+    /// When Dwell last saw the user there: the last visit's departure, or now while it goes
+    /// on (the brief's place page, "first/last seen"). The weekly wrap's "Last seen".
+    public var lastSeen: Date?
+    /// Where the place is, for a map. `nil` until the engine says.
+    public var coordinate: Coordinate?
 
     public init(
         id: PlaceID,
@@ -58,7 +63,9 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
         isPrivate: Bool = false,
         lifetimeTotal: TimeInterval = 0,
         visitCount: Int = 0,
-        firstSeen: Date? = nil
+        firstSeen: Date? = nil,
+        lastSeen: Date? = nil,
+        coordinate: Coordinate? = nil
     ) {
         self.id = id
         self.name = name
@@ -71,6 +78,8 @@ public struct Place: Identifiable, Hashable, Codable, Sendable {
         self.lifetimeTotal = lifetimeTotal
         self.visitCount = visitCount
         self.firstSeen = firstSeen
+        self.lastSeen = lastSeen
+        self.coordinate = coordinate
     }
 
     /// Personal and private places are never on any map, the user's own included (brief §7.2).

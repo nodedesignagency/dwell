@@ -369,3 +369,114 @@ struct WrapPostcardTests {
         #expect(!spoken.contains("Home"))
     }
 }
+
+@Suite("Weekly wrap: where you spent the most time")
+struct WrapMostTimeTests {
+    let week = SampleData.lastWeek.map(SampleData.snapshot(for:))
+    let now = SampleData.now
+
+    /// A place's time and visits in the week, counted by hand.
+    private func counted(_ id: PlaceID) -> (total: TimeInterval, visits: Int) {
+        let whole = DateInterval(start: week[0].interval.start, end: week[6].interval.end)
+        var total: TimeInterval = 0
+        var visits = Set<VisitID>()
+        for day in week {
+            for entry in day.entries {
+                guard let visit = entry.visit, visit.placeID == id else { continue }
+                let span = entry.interval(now: now)
+                let start = max(span.start, day.interval.start, whole.start)
+                let end = min(span.end, day.interval.end, whole.end, now)
+                if end > start {
+                    total += end.timeIntervalSince(start)
+                    visits.insert(visit.id)
+                }
+            }
+        }
+        return (total, visits.count)
+    }
+
+    @Test func `last week went most to Kestriva Labs`() throws {
+        let most = try #require(WrapMostTime(week: week, places: SampleData.places, now: now))
+        #expect(most.place.id == "kestriva")
+        let kestriva = counted("kestriva")
+        #expect(most.total == kestriva.total)
+        #expect(most.visits == kestriva.visits)
+        // Every other place that could be shown had less.
+        for place in SampleData.places where WrapMostTime.isShown(place) && place.id != "kestriva" {
+            #expect(counted(place.id).total < most.total)
+        }
+    }
+
+    @Test func `home holds more, and is left out`() throws {
+        #expect(counted("home").total > counted("kestriva").total)
+        let most = try #require(WrapMostTime(week: week, places: SampleData.places, now: now))
+        #expect(most.place.id != "home")
+        #expect(!WrapMostTime.isShown(SampleData.place("home")))
+    }
+
+    @Test func `private and personal places never go on the map`() throws {
+        #expect(!WrapMostTime.isShown(SampleData.place("stagnes")))
+        var places = SampleData.places
+        let index = try #require(places.firstIndex { $0.id == "kestriva" })
+        places[index].isPrivate = true
+        let most = try #require(WrapMostTime(week: week, places: places, now: now))
+        #expect(most.place.id != "kestriva")
+        #expect(!most.place.isHiddenFromMaps)
+    }
+
+    @Test func `a week at home has no place to show`() {
+        let atHome = week.map { day in
+            var day = day
+            day.entries = day.entries.filter { $0.visit?.placeID == "home" || $0.visit == nil }
+            return day
+        }
+        #expect(WrapMostTime(week: atHome, places: SampleData.places, now: now) == nil)
+    }
+
+    @Test func `the wrap names no place when the places didn't load`() {
+        let loaded = WrapWeek(week: week, places: SampleData.places, now: now, calendar: calendar)
+        #expect(loaded.hasPlaces)
+        #expect(loaded.mostTime?.place.id == "kestriva")
+        let failed = WrapWeek(week: week, places: nil, now: now, calendar: calendar)
+        #expect(!failed.hasPlaces)
+        #expect(failed.mostTime == nil)
+    }
+
+    @Test func `the sample's work has a place on the map and was seen today`() throws {
+        let kestriva = SampleData.place("kestriva")
+        #expect(kestriva.coordinate != nil)
+        // At Kestriva Labs since 9:02 this Monday morning, still there.
+        #expect(kestriva.lastSeen == now)
+        let first = try #require(kestriva.firstSeen)
+        #expect(WrapCopy.visitingSince(first, calendar: calendar) == "Visiting since: August 31, 2026")
+    }
+
+    @Test func `last seen reads by Dwell days`() {
+        let monday = SampleData.today.interval(in: calendar).start  // Monday 26 October, 4 AM
+        func seen(_ offset: TimeInterval) -> String {
+            WrapCopy.lastSeenValue(monday.addingTimeInterval(offset), now: now, calendar: calendar)
+        }
+        #expect(seen(5 * 3600) == "Today")
+        // 3:30 AM on Monday is still Sunday's.
+        #expect(seen(-30 * 60) == "Yesterday")
+        #expect(seen(-20 * 3600) == "Yesterday")
+        #expect(seen(-2 * 86_400) == "Sat")
+        #expect(seen(-6 * 86_400) == "Tue")
+        let tuesday = monday.addingTimeInterval(-6 * 86_400)
+        #expect(WrapCopy.lastSeenValue(tuesday, now: now, calendar: calendar, spoken: true) == "Tuesday")
+        #expect(seen(-7 * 86_400) == "Oct 19")
+    }
+
+    @Test func `one visit, or many`() {
+        #expect(WrapCopy.visitsLabel(1) == "Visit")
+        #expect(WrapCopy.visitsLabel(5) == "Visits")
+    }
+
+    @Test func `the titles carry no numbers and no exclamation marks`() {
+        for variant in [WrapCopy.mostTimeTitle, WrapCopy.noMostTimeTitle].flatMap(\.allVariants) {
+            #expect(digits(variant).isEmpty)
+            #expect(!variant.contains("!"))
+        }
+        #expect(WrapCopy.mostTimeTitle.text(at: .plain) == "Where you spent the most time")
+    }
+}

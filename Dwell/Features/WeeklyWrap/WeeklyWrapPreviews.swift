@@ -421,10 +421,88 @@ private func postcardWeek(_ change: (inout WrapWeek) -> Void) -> Loadable<WrapWe
         .ignoresSafeArea()
 }
 
+// MARK: Where you spent the most time, across the dial (Kestriva Labs, 36h, 6 visits, since
+// August 31, seen today)
+
+#Preview("Most time · Peace") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview(.peace)
+}
+
+#Preview("Most time · Plain") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview(.plain)
+}
+
+#Preview("Most time · Grind") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview(.grind)
+}
+
+#Preview("Most time · dark") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Most time · AX3") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Most time · Grind · AX5 · dark") {
+    WrapPreview(lastWeek, page: .mostTime).samplePreview(.grind)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+// MARK: Where you spent the most time, other weeks
+
+/// Last week with another place, or none.
+private func mostTimeWeek(_ change: (inout WrapWeek) -> Void) -> Loadable<WrapWeek> {
+    var week = sampleWeek
+    change(&week)
+    return .loaded(week)
+}
+
+#Preview("Most time · a long name, seen last Tuesday") {
+    WrapPreview(mostTimeWeek { week in
+        var place = SampleData.place("greenmarket")
+        place.coordinate = Coordinate(latitude: 40.6795, longitude: -73.9985)
+        place.lastSeen = SampleData.lastWeek[1].interval(in: SampleData.calendar).start.addingTimeInterval(14 * 3600)
+        week.mostTime = WrapMostTime(place: place, total: 4 * hour + 25 * 60, visits: 1)
+    }, page: .mostTime).samplePreview()
+}
+
+#Preview("Most time · a place not yet on the map (the city)") {
+    WrapPreview(mostTimeWeek { week in
+        guard var most = week.mostTime else { return }
+        most.place.coordinate = nil
+        week.mostTime = most
+    }, page: .mostTime).samplePreview()
+}
+
+#Preview("Most time · a week at home (no place to show)") {
+    WrapPreview(mostTimeWeek { $0.mostTime = nil }, page: .mostTime).samplePreview()
+}
+
+#Preview("Most time · places didn't load · retry") {
+    WrapPreview(mostTimeWeek { $0.mostTime = nil; $0.hasPlaces = false }, page: .mostTime).samplePreview()
+}
+
+#Preview("Most time · loading") {
+    WrapPreview(.loading, page: .mostTime).samplePreview()
+}
+
+#Preview("Most time · failed · retry") {
+    WrapPreview(.failed(.offline), page: .mostTime).samplePreview()
+}
+
+#Preview("Starburst, full strength") {
+    Starburst()
+        .ignoresSafeArea()
+}
+
 // MARK: Pages still to come
 
-#Preview("Page 4, waiting for its design") {
-    WrapPreview(lastWeek, page: .mostTime).samplePreview()
+#Preview("Page 6, waiting for its design") {
+    WrapPreview(lastWeek, page: .explorer).samplePreview()
 }
 
 // MARK: The real screen, loading the sample week

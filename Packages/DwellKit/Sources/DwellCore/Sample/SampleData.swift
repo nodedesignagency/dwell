@@ -40,7 +40,9 @@ public enum SampleData {
     /// `places` adds each one's lifetime total, visits and first visit from the timeline.
     static let definitions: [Place] = [
         Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true),
-        Place(id: "kestriva", name: "Kestriva Labs", category: .work, role: .work, shareLevel: .venue, isFavorite: true),
+        // On Atlantic Avenue at Utica, where the weekly wrap's design pins it.
+        Place(id: "kestriva", name: "Kestriva Labs", category: .work, role: .work, shareLevel: .venue, isFavorite: true,
+              coordinate: Coordinate(latitude: 40.6786, longitude: -73.9280)),
         Place(id: "brambleline", name: "Brambleline Café", category: .foodAndDrink, subcategory: .coffee,
               shareLevel: .venue, isFavorite: true),
         Place(id: "northline", name: "Northline Gym", category: .fitness, role: .gym),
@@ -57,14 +59,15 @@ public enum SampleData {
         Place(id: "stagnes", name: "St. Agnes Community Health & Wellness Center", category: .personal, isPrivate: true),
     ]
 
-    /// Every place with its lifetime total, visits and first visit, counted from the timeline
-    /// up to `now`. Home dates from when Dwell started.
+    /// Every place with its lifetime total, visits, first visit and when it was last seen,
+    /// counted from the timeline up to `now`. Home dates from when Dwell started.
     public static let places: [Place] = definitions.map { definition in
         var place = definition
         let visits = timeline.entries.compactMap(\.visit).filter { $0.placeID == definition.id && $0.arrival < now }
         place.lifetimeTotal = visits.reduce(0) { $0 + $1.interval(now: now).duration }
         place.visitCount = visits.count
         place.firstSeen = visits.map(\.arrival).min()
+        place.lastSeen = visits.map { min($0.interval(now: now).end, now) }.max()
         return place
     }
 
@@ -241,7 +244,7 @@ extension SampleData {
         public static let places: [Place] = [
             Place(id: "home", name: "Home", category: .home, role: .home, isFavorite: true,
                   lifetimeTotal: SampleData.now.timeIntervalSince(recordingSince), visitCount: 1,
-                  firstSeen: recordingSince),
+                  firstSeen: recordingSince, lastSeen: SampleData.now),
         ]
     }
 }

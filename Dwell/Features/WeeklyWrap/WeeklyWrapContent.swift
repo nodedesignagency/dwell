@@ -2,8 +2,8 @@ import DwellCore
 import DwellUI
 import SwiftUI
 
-/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov). Pages 1, 2, 3,
-/// 5 and 7 are designed; the rest hold their place until their designs arrive.
+/// The weekly wrap's pages (S-06), in the order of the designer's flow (13 Nov). Pages 1 to 5
+/// and 7 are designed; page 6 holds its place until its design arrives.
 enum WrapPage: Int, CaseIterable, Identifiable {
     case opener
     case workAndYours
@@ -163,6 +163,13 @@ struct WeeklyWrapContent: View {
                 headerBottom: headerBottom,
                 onNext: actions.next,
                 onRetry: actions.retry)
+        case .mostTime:
+            WrapMostTimePage(
+                state: state.mostTime,
+                city: state.value?.city,
+                headerBottom: headerBottom,
+                onNext: actions.next,
+                onRetry: actions.retry)
         case .earliestExit:
             WrapExitPage(
                 state: state.map(\.earliestExit),
@@ -206,6 +213,15 @@ private struct WrapPendingPage: View {
         .padding(.vertical, reserve)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
+    }
+}
+
+extension Loadable where Value == WrapWeek {
+    /// The most-time page's share of the week. Without the user's places no place can be named,
+    /// so the page offers Retry.
+    var mostTime: Loadable<WrapMostTime?> {
+        if case .loaded(let week, _) = self, !week.hasPlaces { return .failed(.unavailable) }
+        return map(\.mostTime)
     }
 }
 

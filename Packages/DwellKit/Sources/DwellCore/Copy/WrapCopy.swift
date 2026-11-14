@@ -132,6 +132,60 @@ public enum WrapCopy {
     /// VoiceOver: the card's rows, Saturday and Sunday picked out.
     public static let weekendsGrid = "Every hour of the week, the weekend picked out" // [COPY NEEDED]
 
+    // MARK: Where you spent the most time
+
+    /// The page's title (Weekly wrap design, "Where you spent the most time"). Plain is the
+    /// design's. [COPY NEEDED] Peace and Grind.
+    public static let mostTimeTitle = VoicedLine(
+        peace: "Where your week settled",
+        plain: "Where you spent the most time",
+        grind: "Where the hours went")
+
+    /// With no place outside home to show (a week at home, or only at private places).
+    /// [COPY NEEDED]
+    public static let noMostTimeTitle = VoicedLine(
+        peace: "A week close to home",
+        plain: "No place to map this week",
+        grind: "Nowhere to map this week")
+
+    /// "Visiting since: March 12, 2026", the design's, under the place's name: its first visit.
+    /// A label, not voiced.
+    public static func visitingSince(_ date: Date, calendar: Calendar) -> String {
+        "Visiting since: \(ClockText.fullDate(date, calendar: calendar))"
+    }
+
+    /// The card's three tiles: plain labels, never voiced (they are data). The design's "Last
+    /// Seen" in sentence case (brief §8.6).
+    public static let thisWeek = "this week"
+    public static let lastSeen = "Last seen"
+
+    public static func visitsLabel(_ count: Int) -> String {
+        count == 1 ? "Visit" : "Visits"
+    }
+
+    /// "Today", "Yesterday", a weekday within the week ("Tue", so it fits its tile), then the
+    /// date ("Oct 12"), by Dwell days (4 AM to 4 AM).
+    /// - Parameter spoken: the weekday in full, for VoiceOver ("Tuesday").
+    public static func lastSeenValue(_ date: Date, now: Date, calendar: Calendar, spoken: Bool = false) -> String {
+        let today = DwellDay(containing: now, calendar: calendar)
+        let day = DwellDay(containing: date, calendar: calendar)
+        if day >= today { return "Today" }
+        if day == today.adding(days: -1, in: calendar) { return "Yesterday" }
+        if day > today.adding(days: -7, in: calendar) {
+            return spoken ? ClockText.weekdayName(day, calendar: calendar) : ClockText.weekday(day, calendar: calendar)
+        }
+        return ClockText.monthDay(day, calendar: calendar)
+    }
+
+    /// VoiceOver: the map, as the page shows it.
+    /// - Parameter total: the week's time there as spoken ("45 hours").
+    public static func mostTimeMap(_ name: String, total: String) -> String {
+        "Map. \(name), \(total) this week." // [COPY NEEDED]
+    }
+
+    /// VoiceOver: the map without a place on it.
+    public static let mostTimeCityMap = "Map of your city" // [COPY NEEDED]
+
     // MARK: Earliest exit
 
     /// The page's title (Weekly wrap design, "Earliest exit this week"). Plain is the design's,

@@ -383,6 +383,12 @@ public struct WrapWeek: Hashable, Sendable {
     public var weekends: WrapWeekends
     /// `nil` when the user wasn't at the office on any weekday.
     public var earliestExit: WrapEarliestExit?
+    /// The place the week went to most; `nil` when no place outside home had a minute, or the
+    /// places didn't load (`hasPlaces`).
+    public var mostTime: WrapMostTime?
+    /// Whether the user's places loaded: without them no place can be named, and the most-time
+    /// page offers Retry.
+    public var hasPlaces: Bool
     /// Places visited for the first time that week; `nil` when the places didn't load.
     public var newPlaces: Int?
     /// The middle of the user's city, for the postcard's map; `nil` without a profile.
@@ -396,6 +402,8 @@ public struct WrapWeek: Hashable, Sendable {
         workAndYours: WrapWorkAndYours,
         weekends: WrapWeekends,
         earliestExit: WrapEarliestExit?,
+        mostTime: WrapMostTime? = nil,
+        hasPlaces: Bool = true,
         newPlaces: Int? = nil,
         city: Coordinate? = nil
     ) {
@@ -403,6 +411,8 @@ public struct WrapWeek: Hashable, Sendable {
         self.workAndYours = workAndYours
         self.weekends = weekends
         self.earliestExit = earliestExit
+        self.mostTime = mostTime
+        self.hasPlaces = hasPlaces
         self.newPlaces = newPlaces
         self.city = city
     }
@@ -411,7 +421,8 @@ public struct WrapWeek: Hashable, Sendable {
     ///   - week: the wrap's seven days, Monday to Sunday.
     ///   - before: the days before it, for what's usual and the weekend before (`lookback` of
     ///     them, or fewer).
-    ///   - places: every place, for the ones first visited that week; `nil` if they didn't load.
+    ///   - places: every place, for the one the week went to most and the ones first visited
+    ///     that week; `nil` if they didn't load.
     ///   - city: the middle of the user's city (`Profile.cityCenter`).
     public init(
         week: [DaySnapshot],
@@ -435,6 +446,8 @@ public struct WrapWeek: Hashable, Sendable {
             workAndYours: WrapWorkAndYours(week: week, now: now),
             weekends: WrapWeekends(week: week, lastWeekend: lastWeekend, now: now, calendar: calendar),
             earliestExit: WrapEarliestExit(week: week, before: before, calendar: calendar),
+            mostTime: places.flatMap { WrapMostTime(week: week, places: $0, now: now) },
+            hasPlaces: places != nil,
             newPlaces: newPlaces,
             city: city)
     }

@@ -100,6 +100,16 @@ public enum Palette {
     public static let wrapSwirl = Color("wrapSwirl", bundle: .module)
     /// Weekly wrap, Postcard: the deep stripes of the swirl pattern, drawn at 10% (the reference image's navy)
     public static let wrapSwirlDeep = Color("wrapSwirlDeep", bundle: .module)
+    /// Weekly wrap, Where you spent the most time: the warm middle of the page's radial fill, 53.8% down, reaching 45.9% (page 5's geometry). Read from the screenshot under the pattern and map [VALUES NEEDED]
+    public static let wrapMostCentre = Color("wrapMostCentre", bundle: .module)
+    /// Weekly wrap, Where you spent the most time: the blue at the edge of the page's radial fill. Read from the screenshot under the pattern [VALUES NEEDED]
+    public static let wrapMostEdge = Color("wrapMostEdge", bundle: .module)
+    /// Weekly wrap, Where you spent the most time: the starburst's pink, drawn at 30% (the reference image's own)
+    public static let wrapBurstPink = Color("wrapBurstPink", bundle: .module)
+    /// Weekly wrap, Where you spent the most time: the starburst's purple, drawn at 30% (the reference image's own)
+    public static let wrapBurstPurple = Color("wrapBurstPurple", bundle: .module)
+    /// Weekly wrap, Where you spent the most time: the starburst's indigo, drawn at 30% (the reference image's own)
+    public static let wrapBurstIndigo = Color("wrapBurstIndigo", bundle: .module)
     /// The postcard stamp's paper, inside its white perforated edge (the stamp SVG)
     public static let stampPaper = Color("stampPaper", bundle: .module)
     /// The Dwell wordmark's navy (the stamp SVG)

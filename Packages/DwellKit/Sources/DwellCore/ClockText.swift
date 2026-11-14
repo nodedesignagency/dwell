@@ -33,6 +33,11 @@ public enum ClockText {
         day.start(in: calendar).formatted(style(calendar).month(.abbreviated).day())
     }
 
+    /// "March 12, 2026": a date in full (the weekly wrap's "Visiting since").
+    public static func fullDate(_ date: Date, calendar: Calendar) -> String {
+        date.formatted(style(calendar).month(.wide).day().year())
+    }
+
     /// "1:31": the time without AM or PM, for voiced lines like "Here since 1:31."
     public static func bareTime(_ date: Date, calendar: Calendar) -> String {
         var text = time(date, calendar: calendar)
