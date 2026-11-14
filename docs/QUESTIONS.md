@@ -10,6 +10,8 @@ The user asked to be reminded of these before the work is handed to the client. 
 
 - **How the weekly wrap's 3D art follows the week (13 Nov).** On the wrap's first page, art pops out around "This week." (an alarm clock, a briefcase, a flame and a trophy in the design), and the user says it will change with each week's data. Once all the art is uploaded, ask the user which data brings which piece, and write that into `WrapOpener` (DwellCore, `WeeklyWrap.swift`, marked [MAPPING NEEDED]) so the client's engine only has to supply the week. Until then the opener shows the design's four every week.
 
+- **The states built without a design (14 Nov).** Toasts, error and offline states, loading, empty states and stand-in screens that no design has drawn yet (no account found, Checking failed, Saved to Photos, …) are listed in `docs/SCREENS.md`, "Built without a design". The user wants to design them at the end: walk through that list with them.
+
 ## For the client
 
 1. **The tracking engine and app state are not in this repo.** The repo started empty. The brief says a TestFlight build and a working engine are "available on request". We need the engine's code or API to write the adapter behind `DwellRepository`. Until then screens run on the sample week.

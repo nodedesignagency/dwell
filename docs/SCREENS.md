@@ -24,6 +24,70 @@ Counts: 14 onboarding, 7 first-week moments, 16 Today, 10 Map, 14 Time, 13 You, 
 | Reduce Motion alternative for every animation | §11 |
 | Room for longer strings (Italian is the first localisation) | §11 |
 
+## Built without a design (to design at the end)
+
+States, notices and toasts the app already reaches that no design has drawn yet. Each is built from the nearest design so the app works end to end, with placeholder words marked [COPY NEEDED]. The user will design them once the main screens are done (14 Nov). **Every page adds its own here**: anything derived without a design goes on this list, and comes off when its design arrives. The tables below say more about each (the ID in brackets).
+
+### Toasts and one-line notices
+
+| Where | What shows now | ID |
+| --- | --- | --- |
+| Share this insight, the postcard | "Saved to Photos" and "Copied" over the share buttons for 1.6 s, with a light tap; "Couldn't save. Allow Dwell to add photos in Settings." | S-10, S-06 |
+| Save your world, Welcome back | Sign-in failed: "Couldn't sign in. Check your connection and try again." as a line above the legal line or the link | O-03, O-11 |
+| Welcome back | No account for the sign-in: "There's no Dwell account for that sign-in." | O-11 |
+| One last thing, Re-consent | Saving failed: "Couldn't save that. Check your connection and try again." above Continue | O-03, O-10 |
+| Today | Offline: "You're offline" with Retry sync; stale: "Updated at 2:10 PM. Dwell couldn't refresh." | T-10 |
+| Your places (onboarding), address search | "Finding the address…" while a spot on the map is named; "Pinned on the map" when it can't be | O-05 |
+
+### Errors and offline
+
+| Where | What shows now | ID |
+| --- | --- | --- |
+| Checking ("Getting your world ready") | Failed: the line becomes "Couldn't reach your account. Check your connection and try again.", the clusters stop, Try again at the foot | O-12 |
+| Today | "Today couldn't load" with Retry; offline | T-12, T-10 |
+| Time | "Time couldn't load" with Retry; offline; a stale banner over a usable page | TI-13 |
+| You | "Your profile couldn't load" (the dial still works); offline; stale | Y-01 |
+| Your places (You) | "Your places couldn't load" with Retry; stale | Y-06 |
+| Insights page | "This insight couldn't load"; offline; stale | S-03 |
+| Your places (onboarding), address search | Offline: "Can't search addresses right now. Select on map works offline." | O-05 |
+
+### Loading
+
+| Where | What shows now | ID |
+| --- | --- | --- |
+| Today | A skeleton of the page | T-14 |
+| Time, You, Your places, Insights | A skeleton or spinner in the page's layout | TI-13, Y-01, Y-06, S-03 |
+| Signing in | A spinner in Continue with Apple; in Continue on One last thing and Re-consent while saving | O-03, O-10, O-11 |
+
+### Empty and early states
+
+| Where | What shows now | ID |
+| --- | --- | --- |
+| Welcome back | No account for the sign-in (the line above) | O-11 |
+| Today | No stops yet today; the live card in transit, last seen (stale), mapping your first place, no permission | T-12, T-01 |
+| Time | Nothing recorded yet (waiting card); still learning your week; before Dwell was recording; rhythm locked (days to go); too soon for trends; calendar not connected (sells the feature), no meetings, patterns waiting, nothing to notice | TI-02, TI-03, TI-07, TI-08, TI-09, TI-13 |
+| You | No streaks yet; every badge locked on day 0 | Y-03, Y-04 |
+| Your places | No places yet (waiting card); a search that finds nothing; filters that leave nothing | Y-06 |
+| Your places (onboarding), address search | No matching addresses | O-05 |
+| Insights | An insight with no weeks behind it (a record, a new cell, a first) | S-03 |
+| Weekly wrap | A first week with fewer days; no office weekday (Earliest exit, the postcard); a weekend not recorded; no place outside home (Where you spent the most time); nothing new (Explorer week) | S-06 |
+
+### Screens and sheets that open a stand-in ("Waiting for the design")
+
+| Opened from | Stand-in | ID |
+| --- | --- | --- |
+| Save your world, Welcome back: Continue with phone number | Phone number and its code | O-03, O-11 |
+| Account setup stopped, Not in your region yet: View a no-data preview | The no-data preview | O-04, O-12 |
+| The legal line: Terms, Privacy Policy; Re-consent: Read what changed | The documents (the client's text) | O-03, O-10 |
+| Today, Time, Your places, Insights: a place | Place page | M-07 |
+| Today: Pick another, Review this place | Place picker | S-02 |
+| Time: a category row | Category detail | TI-05 |
+| Time: share; a record; Open your year; Connect a calendar | Share preview, record card, year in places, calendar connect | S-10, S-04, S-07, Y-09 |
+| You: settings; View all (streaks); 6 of 13 (badges); a badge; 3.2% mapped; the pencil by "Home by 6:30 PM" | Settings, streak detail, every badge, badge detail, scratch detail, work rules | Y-11, S-09, Y-04, S-05, M-08, Y-08 |
+| The Map tab | The whole tab | M-01 to M-10 |
+| Today's banners for When-In-Use only, precise off and motion off | Their sheets (location's is designed) | T-09 |
+| The flow overview: Confirm age, Your account is being erased | Not reached yet | O-12 |
+
 ## Onboarding and account (A.1, §7.6)
 
 | ID | Screen | States and contents | Brief | Design | Built |
