@@ -5,8 +5,8 @@ import SwiftUI
 /// share, a dashed line and what sharing never shows. On the page's grey (`background`),
 /// corners 32. Present it with `.promptSheet(isPresented:)`, like the other sheets.
 ///
-/// Measured at 393 × 852: the title (28 medium) centred on the close button (44 on glass,
-/// 16 in from the top and side); the preview 9 below that row, 20 from the sides; the buttons
+/// Measured at 393 × 852: the title (28 medium) centred on the close button (44, white with an
+/// ink-5% edge, 16 in from the top and side); the preview 9 below that row, 20 from the sides; the buttons
 /// 13 below it, in columns 10 in from the sides; 15 to a dashed line 20 in; 15 to the line
 /// (14, grey, centred); 18 below. The frame draws the sheet 9 above the screen's edge; it
 /// floats where every sheet does, 21 up (QUESTIONS.md).
@@ -78,7 +78,8 @@ public struct ShareSheetCard<Preview: View, Targets: View>: View {
             Button(action: onClose) {
                 CloseCross()
             }
-            .buttonStyle(.glassCircle)
+            // Solid, not glass: glass vanishes on the sheet's grey (the user, 14 Nov).
+            .buttonStyle(.raisedCircle)
             .accessibilityLabel(closeLabel)
             .padding(Space.l)
         }

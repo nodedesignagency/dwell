@@ -24,6 +24,31 @@ extension ButtonStyle where Self == GlassCircleButtonStyle {
     public static var glassCircle: GlassCircleButtonStyle { GlassCircleButtonStyle() }
 }
 
+/// A round button on the page's grey (Share this insight's close button). The glass's white
+/// 70% vanishes on #F9F9FB, so this one is solid: the card's white (`surface`) with a 1-pt edge
+/// of ink 5% (`outline`), the user's call (14 Nov); in dark, the dark card and the white-8%
+/// edge. 44 with 10 of padding; pressed, it sinks a touch.
+public struct RaisedCircleButtonStyle: ButtonStyle {
+    public init() {}
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(10)
+            .background {
+                Circle()
+                    .fill(Palette.surface)
+                    .overlay { Circle().strokeBorder(Palette.outline, lineWidth: 1) }
+            }
+            .contentShape(.circle)
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .motion(value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == RaisedCircleButtonStyle {
+    public static var raisedCircle: RaisedCircleButtonStyle { RaisedCircleButtonStyle() }
+}
+
 /// A square button on glass (Your places' back button: Figma "Glass", light −45° at 80%,
 /// refraction 80, depth 20, dispersion 50, frost 4, over white 80%; 40 with 10 of padding,
 /// corners 13). Tappable over 44.
