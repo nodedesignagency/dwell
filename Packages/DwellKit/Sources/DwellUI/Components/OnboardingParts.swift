@@ -407,10 +407,10 @@ public struct PhotoCard: View {
 // MARK: - The pages' colour
 
 /// The colour of an onboarding page, edge to edge: onboarding's blue at the top paling through
-/// the middle to pink (See where it all goes) or gold (Start my day) at the foot, deepest at
-/// the middle of the foot. Stops read from the screenshots down the screen's edge (60, 220,
-/// 380, 540, 700 and 852 of 852), the glow from its middle column. The same in dark: the
-/// page's colour is the design's.
+/// the middle to pink (See where it all goes) or gold (Start my day) at the foot, deepening
+/// across the full width of the foot. Stops read from the screenshots down the screen's edge
+/// (60, 220, 380, 540, 700 and 852 of 852), the deeper foot from its middle column. The same
+/// in dark: the page's colour is the design's.
 public struct OnboardingBackdrop: View {
     public enum Style: Sendable {
         /// Onboarding's blue alone: under My world's sky and around Your places' sheet.
@@ -455,16 +455,16 @@ public struct OnboardingBackdrop: View {
             startPoint: .top,
             endPoint: .bottom)
             .overlay {
-                GeometryReader { proxy in
-                    // Deeper at the middle of the foot: gone about a third of the way up the
-                    // screen, and almost gone by the sides, whose colour the stops already give.
-                    RadialGradient(
-                        colors: [glow.opacity(0.8), glow.opacity(0)],
-                        center: .bottom,
-                        startRadius: 0,
-                        endRadius: proxy.size.width * 0.75)
-                        .scaleEffect(x: 0.7, y: 1, anchor: .bottom)
-                }
+                // Deeper at the foot, edge to edge (the user, 14 Nov: blend across the full
+                // width, no paler sides): gone about a third of the way up the screen, as the
+                // glow from the middle used to be.
+                LinearGradient(
+                    stops: [
+                        .init(color: glow.opacity(0), location: 0.65),
+                        .init(color: glow.opacity(0.8), location: 1),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom)
             }
     }
 }
