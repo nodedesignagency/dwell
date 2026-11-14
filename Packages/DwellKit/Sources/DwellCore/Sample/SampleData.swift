@@ -20,6 +20,10 @@ public enum SampleData {
 
     /// Monday 26 October 2026, 2:47 PM in New York.
     public static let now = date(month: 10, day: 26, minutes: 14 * 60 + 47)
+
+    /// Where Maya's home is: a flat in Crown Heights, where onboarding's example pins its home
+    /// photo and "Is this home?" asks about.
+    public static let homeCoordinate = Coordinate(latitude: 40.6782, longitude: -73.9442)
     public static let today = DwellDay(containing: now, calendar: calendar)
     /// Monday 19 to Sunday 25 October, the last full week.
     public static let lastWeek: [DwellDay] = (19...25).map { DwellDay(year: 2026, month: 10, day: $0) }

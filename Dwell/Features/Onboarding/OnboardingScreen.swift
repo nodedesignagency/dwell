@@ -26,8 +26,6 @@ struct OnboardingScreen: View {
         case welcomeBack
         /// Save your world's Continue with phone number: the number and its code.
         case phoneNumber
-        /// After One last thing (flow overview: "Set your dial").
-        case setYourDial
         /// A stop's "View a no-data preview" (brief A.1 #2a: Today and Time on example data).
         case noDataPreview
 
@@ -37,7 +35,6 @@ struct OnboardingScreen: View {
             switch self {
             case .welcomeBack: "Welcome back"
             case .phoneNumber: "Phone number"
-            case .setYourDial: "Set your dial"
             case .noDataPreview: "No-data preview"
             }
         }
@@ -60,6 +57,8 @@ struct OnboardingScreen: View {
     @State private var location = LocationAsk()
     @State private var isAskingForLocation = false
     @State private var isInSettings = false
+    /// Today asks for the tone once onboarding is done (`ToneSheet`).
+    @AppStorage(ToneSheet.asksKey) private var asksTone = false
 
     /// - Parameters:
     ///   - page: the page to start on, for reviewing it (`DWELL_OPEN=onboarding3`).
@@ -106,7 +105,11 @@ struct OnboardingScreen: View {
                         setup: Binding(get: { account ?? AccountSetup() }, set: { account = $0 }),
                         insets: PageInsets(top: proxy.safeAreaInsets.top, bottom: proxy.safeAreaInsets.bottom),
                         onLeave: { setAccount(nil) },
-                        onPending: { show($0) })
+                        onPending: { show($0) },
+                        onComplete: {
+                            asksTone = true
+                            onFinish()
+                        })
                         .ignoresSafeArea()
                 }
                 .accessibilityHidden(next != nil)
@@ -261,7 +264,7 @@ struct OnboardingScreen: View {
 }
 
 /// Holds a step of the flow until its design arrives: Welcome back for a returning user, the
-/// phone number, Set your dial after One last thing, a stop's no-data preview. Back returns to
+/// phone number, a stop's no-data preview. Back returns to
 /// where it was opened from; Go to Today ends onboarding here, so the rest of the app can be
 /// reviewed.
 struct NextStepPending: View {

@@ -136,7 +136,7 @@ private struct SheetGlow: View {
 }
 
 /// The close button's cross (Figma): 14 across in a 24 box, a 1.5 stroke with round ends, ink.
-private struct CloseCross: View {
+struct CloseCross: View {
     @ScaledMetric(relativeTo: .title3) private var box: CGFloat = 24
 
     var body: some View {
@@ -170,15 +170,28 @@ extension View {
         isPresented: Binding<Bool>,
         @ViewBuilder card: @escaping () -> Card
     ) -> some View {
-        modifier(PromptSheetPresenter(isPresented: isPresented, card: card))
+        modifier(PromptSheetPresenter(isPresented: isPresented, card: card, top: { EmptyView() }))
+    }
+
+    /// A card from the bottom with something of its own at the top of the screen, over the
+    /// status bar ("Set your tone": the notification-style preview of today's insight). The top
+    /// piece drops in from above as the card slides up, and leaves the same way; it takes no
+    /// touches.
+    public func promptSheet<Card: View, Top: View>(
+        isPresented: Binding<Bool>,
+        @ViewBuilder card: @escaping () -> Card,
+        @ViewBuilder top: @escaping () -> Top
+    ) -> some View {
+        modifier(PromptSheetPresenter(isPresented: isPresented, card: card, top: top))
     }
 }
 
 /// Holds a clear full-screen cover, shown and hidden without the system's slide, so the card
 /// and the dimming can move on their own.
-private struct PromptSheetPresenter<Card: View>: ViewModifier {
+private struct PromptSheetPresenter<Card: View, Top: View>: ViewModifier {
     @Binding var isPresented: Bool
     let card: () -> Card
+    let top: () -> Top
     @State private var isCovering = false
 
     func body(content: Content) -> some View {
@@ -189,7 +202,7 @@ private struct PromptSheetPresenter<Card: View>: ViewModifier {
                 withoutAnimation { isCovering = true }
             }
             .fullScreenCover(isPresented: $isCovering) {
-                PromptSheetStage(isPresented: $isPresented, card: card) {
+                PromptSheetStage(isPresented: $isPresented, card: card, top: top) {
                     withoutAnimation { isCovering = false }
                 }
                 .presentationBackground(.clear)
@@ -203,9 +216,10 @@ private struct PromptSheetPresenter<Card: View>: ViewModifier {
     }
 }
 
-private struct PromptSheetStage<Card: View>: View {
+private struct PromptSheetStage<Card: View, Top: View>: View {
     @Binding var isPresented: Bool
     let card: () -> Card
+    let top: () -> Top
     let onGone: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -223,6 +237,16 @@ private struct PromptSheetStage<Card: View>: View {
                 .onTapGesture { close() }
                 .ignoresSafeArea()
                 .accessibilityHidden(true)
+
+            if shown {
+                top()
+                    .padding(.horizontal, 10)
+                    .padding(.top, 10)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .ignoresSafeArea(.container, edges: .top)
+                    .allowsHitTesting(false)
+                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+            }
 
             if shown {
                 // At the largest text sizes the card can outgrow the screen; then it scrolls.

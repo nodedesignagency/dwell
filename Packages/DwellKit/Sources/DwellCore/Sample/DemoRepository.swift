@@ -24,6 +24,8 @@ public struct DemoRepository: DwellRepository {
         case firstPlace
         /// Last week's wrap is ready and not opened yet: Today invites the user in.
         case weeklyWrap
+        /// Dwell asks whether the place of the night is home ("Is this home?").
+        case isThisHome
         /// "Today couldn't load".
         case failed
         /// "You're offline" with Retry sync.
@@ -204,6 +206,17 @@ public struct DemoRepository: DwellRepository {
     }
 
     public func stopSetup(_ reason: SetupStop) async {}
+
+    /// Asks about Maya's flat in Crown Heights, as the design's map shows it.
+    public func homeQuestion() async throws -> HomeQuestion? {
+        try await gate()
+        guard mode == .isThisHome else { return try await sample.homeQuestion() }
+        return HomeQuestion(id: "first-night", coordinate: SampleData.homeCoordinate, placeID: "home")
+    }
+
+    public func answerHomeQuestion(_ id: HomeQuestion.ID, isHome: Bool) async throws {
+        try await gate()
+    }
 
     /// Holds or fails every load, as the mode says.
     private func gate() async throws {

@@ -12,6 +12,11 @@ import UIKit
 /// With location off, "Turn on your location" slides up over Today once per launch, a moment
 /// after Today has settled, and the banner's button opens it again. A modal, against brief §8.3; the client approved
 /// it (QUESTIONS.md). "Yes, turn on" goes to Settings.
+///
+/// One card at a time slides up over Today (`TodayPrompt`), in this order: the location sheet;
+/// Set your tone, right after onboarding (`ToneSheet`); Is this home?, after the first night
+/// while no home is saved (`HomeQuestionSheet`). Each waits for Today to settle, and for the
+/// card before it to be gone.
 struct TodayScreen: View {
     var openProfile: () -> Void = {}
     /// Opens last week's wrap on this page once Today has loaded, for reviewing it
@@ -47,8 +52,17 @@ struct TodayScreen: View {
     @State private var openInsight: Insight?
     @State private var hasOpenedInsightAtLaunch = false
     @State private var pending: PendingSheet?
-    @State private var isAskingForLocation = false
+    /// The card over Today, if any.
+    @State private var prompt: TodayPrompt?
+    /// The card on screen: kept while it slides away, after `prompt` has gone.
+    @State private var shownPrompt: TodayPrompt = .location
     @State private var hasAskedForLocation = false
+    @State private var hasAskedHome = false
+    @State private var homeConfirmations = 0
+    /// Set your tone's dial while it's dragged; saved to the app's dial by "Set my tone".
+    @State private var toneDial = Dial.Stop.plain.position
+    @AppStorage("dial.position") private var storedDial = Dial.Stop.plain.position
+    @AppStorage(ToneSheet.asksKey) private var asksTone = false
 
     var body: some View {
         NavigationStack {
@@ -90,30 +104,95 @@ struct TodayScreen: View {
                 WeeklyWrapScreen(wrap: wrap, startsAt: wrapStart, onClose: closeWrap)
                     .wrapZoomTransition(id: wrap.id, in: reduceMotion ? nil : wrapZoom)
             }
-            .promptSheet(isPresented: $isAskingForLocation) {
-                PromptSheet(
-                    titleLines: LocationSheetCopy.titleLines,
-                    message: LocationSheetCopy.message,
-                    art: Art.Illustration.place,
-                    actionTitle: LocationSheetCopy.action,
-                    closeLabel: LocationSheetCopy.close,
-                    onAction: {
-                        isAskingForLocation = false
-                        openSettings()
-                    },
-                    onClose: { isAskingForLocation = false })
+            .promptSheet(isPresented: isPrompting) {
+                promptCard
+            } top: {
+                if shownPrompt == .tone {
+                    NotificationPreview(ToneSheetCopy.previewLine(for: state.value?.insights ?? []))
+                        .environment(\.dial, Dial(position: toneDial))
+                }
             }
         }
         .onChange(of: permissions.banner, initial: true) { _, banner in
             guard banner == .locationDenied, !hasAskedForLocation else { return }
             hasAskedForLocation = true
-            Task {
-                // Let Today settle on screen first, so the sheet arrives on its own.
-                try? await Task.sleep(for: .milliseconds(700))
-                isAskingForLocation = true
-            }
+            presentSoon(.location)
         }
-        .haptic(.confirm, trigger: confirmed.count)
+        .task {
+            // Right after onboarding; the location sheet goes first when location is off.
+            guard asksTone, permissions.banner != .locationDenied else { return }
+            presentSoon(.tone)
+        }
+        .onChange(of: prompt) { previous, current in
+            // However Set your tone goes (Set my tone, Later, a swipe), Today doesn't ask again.
+            if previous == .tone, current == nil { asksTone = false }
+        }
+        .haptic(.confirm, trigger: confirmed.count + homeConfirmations)
+    }
+
+    // MARK: Cards over Today
+
+    @ViewBuilder
+    private var promptCard: some View {
+        switch shownPrompt {
+        case .location:
+            PromptSheet(
+                titleLines: LocationSheetCopy.titleLines,
+                message: LocationSheetCopy.message,
+                art: Art.Illustration.place,
+                actionTitle: LocationSheetCopy.action,
+                closeLabel: LocationSheetCopy.close,
+                onAction: {
+                    prompt = nil
+                    openSettings()
+                },
+                onClose: { prompt = nil })
+        case .tone:
+            ToneSheet(
+                dial: $toneDial,
+                onSet: {
+                    storedDial = toneDial
+                    prompt = nil
+                },
+                onLater: { prompt = nil })
+        case .home(let question):
+            HomeQuestionSheet(
+                question: question,
+                onLooksRight: {
+                    homeConfirmations += 1
+                    prompt = nil
+                    Task { try? await repository.answerHomeQuestion(question.id, isHome: true) }
+                },
+                onPickAnother: {
+                    prompt = nil
+                    Task {
+                        // Once the card has slid away: one presentation at a time.
+                        try? await Task.sleep(for: .milliseconds(450))
+                        pending = .homePicker
+                    }
+                },
+                onClose: { prompt = nil })
+        }
+    }
+
+    private var isPrompting: Binding<Bool> {
+        Binding(get: { prompt != nil }, set: { if !$0 { prompt = nil } })
+    }
+
+    /// Slides a card up, unless one is already up.
+    private func present(_ next: TodayPrompt) {
+        guard prompt == nil else { return }
+        if next == .tone { toneDial = storedDial }
+        shownPrompt = next
+        prompt = next
+    }
+
+    /// A moment after Today has settled on screen, so the card arrives on its own.
+    private func presentSoon(_ next: TodayPrompt) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(700))
+            present(next)
+        }
     }
 
     // MARK: Weekly wrap
@@ -206,6 +285,12 @@ struct TodayScreen: View {
                 hasOpenedInsightAtLaunch = true
                 openInsight = insight
             }
+            // Is this home? once per launch, after the cards that go before it.
+            if isToday, !hasAskedHome, !asksTone, permissions.banner != .locationDenied,
+               let question = try? await repository.homeQuestion() {
+                hasAskedHome = true
+                presentSoon(.home(question))
+            }
         } catch is CancellationError {
             return
         } catch let error as LoadError {
@@ -243,7 +328,7 @@ struct TodayScreen: View {
             notUseful: dismissInsight,
             fixPermission: { banner in
                 if banner == .locationDenied {
-                    isAskingForLocation = true
+                    present(.location)
                 } else {
                     // "Fix" will open the Always upgrade (O-08) once it is designed.
                     openSettings()
@@ -252,28 +337,41 @@ struct TodayScreen: View {
     }
 }
 
+/// The cards that slide up over Today, one at a time.
+private enum TodayPrompt: Hashable {
+    /// "Turn on your location".
+    case location
+    /// "Set your tone", right after onboarding.
+    case tone
+    /// "Is this home?", after the first night.
+    case home(HomeQuestion)
+}
+
 /// Sheets whose designs haven't arrived. Each says so instead of guessing.
 private enum PendingSheet: Identifiable {
     case placePicker(VisitID)
+    /// Is this home?'s "Pick another": the place picker, to choose home.
+    case homePicker
     case share(Insight.ID)
 
     var id: String {
         switch self {
         case .placePicker(let id): "picker-\(id)"
+        case .homePicker: "home-picker"
         case .share(let id): "share-\(id)"
         }
     }
 
     var title: String {
         switch self {
-        case .placePicker: "Place picker"
+        case .placePicker, .homePicker: "Place picker"
         case .share: "Share preview"
         }
     }
 
     var systemImage: String {
         switch self {
-        case .placePicker: "mappin.and.ellipse"
+        case .placePicker, .homePicker: "mappin.and.ellipse"
         case .share: "square.and.arrow.up"
         }
     }

@@ -20,8 +20,8 @@ Or build and launch in the simulator without opening Xcode:
 ./scripts/run.sh                  # the booted iPhone simulator, or the newest one
 ./scripts/run.sh "iPhone 18 Pro"  # a simulator by name
 DWELL_SKY=night ./scripts/run.sh  # force Today's sky: sunrise, day, sunset or night
-DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPlace, weeklyWrap, failed, offline,
-                                    # transit, lastSeen, locationDenied, whenInUse, preciseOff,
+DWELL_STATE=empty ./scripts/run.sh  # a state: loading, empty, firstDay, firstPlace, weeklyWrap, isThisHome, failed,
+                                    # offline, transit, lastSeen, locationDenied, whenInUse, preciseOff,
                                     # motionDenied
 DWELL_OPEN=you ./scripts/run.sh     # open You
 DWELL_OPEN=places ./scripts/run.sh  # open Your places (You → Your places)
@@ -33,6 +33,7 @@ DWELL_OPEN=onboarding ./scripts/run.sh  # first run: My world, Your places, See 
 DWELL_OPEN=onboarding2 ./scripts/run.sh # onboarding on one of its pages, 1 to 4 (2 Your places, 4 Start my day)
 DWELL_OPEN=onboarding5 ./scripts/run.sh # account setup over Start my day: 5 Save your world, 6 the birthday, 7 One last thing
 DWELL_OPEN=under16 ./scripts/run.sh     # Account setup stopped (notInRegion: Not in your region yet)
+DWELL_OPEN=tone ./scripts/run.sh        # Today with Set your tone over it, as onboarding hands over
 DWELL_FRESH=1 ./scripts/run.sh     # forget what's been seen, so first-sight animations (View more's streaks sweeping away) play again
 ```
 
@@ -42,7 +43,9 @@ Time opens on the week being lived, which on the sample's Monday afternoon is on
 
 `DWELL_STATE=weeklyWrap` shows Today's invite; "Let's go" opens the wrap from it, growing out of the card (iOS 18 and later). `DWELL_OPEN=wrap` opens it at launch instead.
 
-Onboarding shows only when asked for: the sample account finished it long ago. Its pages swipe or move on with their buttons; Start my day's Allow location asks iOS for real, so to see the question again reset the simulator's location answers (Settings → General → Transfer or Reset iPhone → Reset → Reset Location & Privacy). After Start my day comes account setup: Save your world, the birthday, One last thing. Continue with Apple signs the sample account in without Apple's sheet (which needs the client's Apple team); a birthday under 16 stops setup, and the stop has no way back. `DWELL_STATE=offline DWELL_OPEN=onboarding5` shows a failed sign-in. Continue with phone number, Set your dial (after One last thing), the no-data preview and Welcome back (after I already have an account) wait for their designs; "Go to Today" ends onboarding there.
+Onboarding shows only when asked for: the sample account finished it long ago. Its pages swipe or move on with their buttons; Start my day's Allow location asks iOS for real, so to see the question again reset the simulator's location answers (Settings → General → Transfer or Reset iPhone → Reset → Reset Location & Privacy). `DWELL_STATE=isThisHome` slides "Is this home?" up over Today, as after the first night. `DWELL_OPEN=tone` opens Today with "Set your tone" over it, as when onboarding finishes; it shows once, then Today stops asking (run it again to see it again).
+
+After Start my day comes account setup: Save your world, the birthday, One last thing, then Today with Set your tone. Continue with Apple signs the sample account in without Apple's sheet (which needs the client's Apple team); a birthday under 16 stops setup, and the stop has no way back. `DWELL_STATE=offline DWELL_OPEN=onboarding5` shows a failed sign-in. Continue with phone number, the no-data preview and Welcome back (after I already have an account) wait for their designs; "Go to Today" ends onboarding there.
 
 `firstDay` is the install day before the first stop ("Getting started"); `firstPlace` is the install day a few minutes after the first place was mapped (at home for 28m, nothing else yet). `weeklyWrap` is the usual Monday with last week's wrap ready and not opened yet. Every state runs on the same clock.
 

@@ -63,6 +63,13 @@ public protocol DwellRepository: Sendable {
     /// Setup stopped: nothing entered is kept (brief A.1 #2a, "Nothing you entered was saved"),
     /// neither the places from Your places nor the sign-in.
     func stopSetup(_ reason: SetupStop) async
+
+    // MARK: First week
+
+    /// "Is this home?": the place of the first night, while no home is saved; `nil` otherwise.
+    func homeQuestion() async throws -> HomeQuestion?
+    /// The answer: "Looks right" (it's home) or not.
+    func answerHomeQuestion(_ id: HomeQuestion.ID, isHome: Bool) async throws
 }
 
 extension DwellRepository {
@@ -168,4 +175,11 @@ public struct SampleRepository: DwellRepository {
     public func completeSetup(_ consent: Consent) async throws {}
 
     public func stopSetup(_ reason: SetupStop) async {}
+
+    /// Maya's home is saved, so Dwell doesn't ask.
+    public func homeQuestion() async throws -> HomeQuestion? {
+        nil
+    }
+
+    public func answerHomeQuestion(_ id: HomeQuestion.ID, isHome: Bool) async throws {}
 }

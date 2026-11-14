@@ -170,3 +170,36 @@ struct AccountCopyTests {
         #expect(AccountCopy.legalLine == "By continuing you agree to the Terms and Privacy Policy, and let Dwell use your visits to run the app.")
     }
 }
+
+@Suite("Set your tone and Is this home?")
+struct PromptTests {
+    @Test func `the tone preview shows a record, else the lead insight, else the example`() {
+        #expect(ToneSheetCopy.previewLine(for: SampleData.insights).plain == "Office exit 5:52 PM. Earliest this week.")
+        let lead = SampleData.insights.filter { $0.family != .record }
+        #expect(ToneSheetCopy.previewLine(for: lead) == lead[0].line)
+        #expect(ToneSheetCopy.previewLine(for: []) == ToneSheetCopy.example)
+        // Calm takes Peace's line and Push Grind's: the preview moves through all three.
+        #expect(ToneSheetCopy.example.text(at: .calm) == ToneSheetCopy.example.peace)
+        #expect(ToneSheetCopy.example.text(at: .push) == ToneSheetCopy.example.grind)
+    }
+
+    @Test func `the words keep the brief's vocabulary`() {
+        let lines = HomeQuestionCopy.allFixedLines + HomeQuestionCopy.title.allVariants
+            + [ToneSheetCopy.title, ToneSheetCopy.message, ToneSheetCopy.action, ToneSheetCopy.later]
+        for line in lines {
+            #expect(!line.lowercased().contains("location"), "\(line)")
+            #expect(!line.lowercased().contains("track"), "\(line)")
+            #expect(!line.contains("!"), "\(line)")
+        }
+        #expect(HomeQuestionCopy.title.plain == "Is this home?")
+        #expect(HomeQuestionCopy.looksRight == "Looks right")
+        #expect(HomeQuestionCopy.pickAnother == "Pick another")
+    }
+
+    @Test func `only the demo state asks whether this is home`() async throws {
+        #expect(try await SampleRepository().homeQuestion() == nil)
+        let question = try await DemoRepository(.isThisHome).homeQuestion()
+        #expect(question?.coordinate == SampleData.homeCoordinate)
+        #expect(try await DemoRepository(.weeklyWrap).homeQuestion() == nil)
+    }
+}

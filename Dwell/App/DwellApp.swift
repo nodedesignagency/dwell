@@ -26,6 +26,10 @@ struct DwellApp: App {
         }
         let open = UserDefaults.standard.string(forKey: "DwellOpen").flatMap(LaunchPage.init(rawValue:))
         _onboarding = State(initialValue: open?.onboardingPage)
+        if open == .tone {
+            // As if onboarding had just finished: Today asks for the tone.
+            UserDefaults.standard.set(true, forKey: ToneSheet.asksKey)
+        }
     }
 
     var body: some Scene {

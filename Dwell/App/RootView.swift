@@ -126,6 +126,8 @@ nonisolated enum LaunchPage: Equatable {
     case onboarding(page: Int)
     /// Account setup stopped: `under16` (Account setup stopped) or `notInRegion`.
     case setupStopped(SetupStop)
+    /// Today with Set your tone over it, as onboarding hands over.
+    case tone
 
     init?(rawValue: String) {
         switch rawValue {
@@ -137,6 +139,7 @@ nonisolated enum LaunchPage: Equatable {
         case "onboarding": self = .onboarding(page: 1)
         case "under16": self = .setupStopped(.underSixteen)
         case "notInRegion": self = .setupStopped(.notInRegion)
+        case "tone": self = .tone
         default:
             if rawValue.hasPrefix("onboarding"), let page = Int(rawValue.dropFirst(10)) {
                 self = .onboarding(page: page)

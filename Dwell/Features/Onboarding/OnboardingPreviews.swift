@@ -214,7 +214,7 @@ import SwiftUI
 }
 
 #Preview("Next step, waiting for its design") {
-    NextStepPending(step: .setYourDial, onBack: {}, onFinish: {})
+    NextStepPending(step: .phoneNumber, onBack: {}, onFinish: {})
         .samplePreview()
 }
 
@@ -264,7 +264,7 @@ private struct SetupPreview: View {
 
     var body: some View {
         PagePreview { insets in
-            AccountSetupFlow(setup: $setup, insets: insets, birthday: birthday, onLeave: {}, onPending: { _ in })
+            AccountSetupFlow(setup: $setup, insets: insets, birthday: birthday, onLeave: {}, onPending: { _ in }, onComplete: {})
         }
     }
 }

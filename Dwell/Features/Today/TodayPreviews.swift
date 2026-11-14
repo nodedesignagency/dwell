@@ -301,3 +301,96 @@ private func locationSheet() -> some View {
         .promptSheet(isPresented: .constant(true)) { locationSheet() }
         .dynamicTypeSize(.accessibility3)
 }
+
+// MARK: Set your tone (over Today right after onboarding)
+
+/// Set your tone with the dial on `stop`, the preview over the top in its voice.
+private struct TonePreview: View {
+    @State private var dial: Double
+    private let insights: [Insight]
+
+    /// - Parameter insights: today's, which the preview picks from.
+    init(_ stop: Dial.Stop = .plain, insights: [Insight] = SampleData.insights) {
+        _dial = State(initialValue: stop.position)
+        self.insights = insights
+    }
+
+    var body: some View {
+        today(.loaded(.sample()))
+            .promptSheet(isPresented: .constant(true)) {
+                ToneSheet(dial: $dial, onSet: {}, onLater: {})
+            } top: {
+                NotificationPreview(ToneSheetCopy.previewLine(for: insights))
+                    .environment(\.dial, Dial(position: dial))
+            }
+    }
+}
+
+#Preview("Set your tone") {
+    TonePreview()
+        .samplePreview()
+}
+
+#Preview("Set your tone · Peace") {
+    TonePreview(.peace)
+        .samplePreview()
+}
+
+#Preview("Set your tone · Grind") {
+    TonePreview(.grind)
+        .samplePreview()
+}
+
+#Preview("Set your tone · no insights yet (the example)") {
+    TonePreview(insights: [])
+        .samplePreview()
+}
+
+#Preview("Set your tone · dark") {
+    TonePreview()
+        .samplePreview()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Set your tone · AX3") {
+    TonePreview()
+        .samplePreview()
+        .dynamicTypeSize(.accessibility3)
+}
+
+// MARK: Is this home? (over Today after the first night)
+
+private func homeSheet() -> some View {
+    HomeQuestionSheet(
+        question: HomeQuestion(id: "first-night", coordinate: SampleData.homeCoordinate, placeID: "home"),
+        onLooksRight: {}, onPickAnother: {}, onClose: {})
+}
+
+#Preview("Is this home?") {
+    today(.loaded(.sample())).samplePreview()
+        .promptSheet(isPresented: .constant(true)) { homeSheet() }
+}
+
+#Preview("Is this home? · Peace") {
+    today(.loaded(.sample())).samplePreview(.peace)
+        .promptSheet(isPresented: .constant(true)) { homeSheet() }
+        .environment(\.dial, Dial(.peace))
+}
+
+#Preview("Is this home? · Grind") {
+    today(.loaded(.sample())).samplePreview(.grind)
+        .promptSheet(isPresented: .constant(true)) { homeSheet() }
+        .environment(\.dial, Dial(.grind))
+}
+
+#Preview("Is this home? · dark") {
+    today(.loaded(.sample())).samplePreview()
+        .promptSheet(isPresented: .constant(true)) { homeSheet() }
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Is this home? · AX3") {
+    today(.loaded(.sample())).samplePreview()
+        .promptSheet(isPresented: .constant(true)) { homeSheet() }
+        .dynamicTypeSize(.accessibility3)
+}

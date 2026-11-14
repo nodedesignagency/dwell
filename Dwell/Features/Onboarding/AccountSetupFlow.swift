@@ -16,8 +16,10 @@ struct AccountSetupFlow: View {
     let insets: PageInsets
     /// Back on Save your world: back to Start my day.
     let onLeave: () -> Void
-    /// A step whose design hasn't arrived: phone number, Set your dial, the no-data preview.
+    /// A step whose design hasn't arrived: phone number, the no-data preview.
     let onPending: (OnboardingScreen.Next) -> Void
+    /// One last thing saved: onboarding is done, and Today asks for the tone.
+    let onComplete: () -> Void
 
     @Environment(\.repository) private var repository
     @Environment(\.appleSignIn) private var appleSignIn
@@ -40,13 +42,15 @@ struct AccountSetupFlow: View {
         insets: PageInsets,
         birthday: BirthDate? = nil,
         onLeave: @escaping () -> Void,
-        onPending: @escaping (OnboardingScreen.Next) -> Void
+        onPending: @escaping (OnboardingScreen.Next) -> Void,
+        onComplete: @escaping () -> Void
     ) {
         _setup = setup
         self.insets = insets
         _birthday = State(initialValue: birthday)
         self.onLeave = onLeave
         self.onPending = onPending
+        self.onComplete = onComplete
     }
 
     var body: some View {
@@ -155,7 +159,7 @@ struct AccountSetupFlow: View {
         }
     }
 
-    /// The two answers saved, then Set your dial (waiting for its design).
+    /// The two answers saved, then Today, with Set your tone over it.
     private func finish() {
         guard consent.canContinue, !isSaving else { return }
         isSaving = true
@@ -164,7 +168,7 @@ struct AccountSetupFlow: View {
             defer { isSaving = false }
             do {
                 try await repository.completeSetup(consent)
-                onPending(.setYourDial)
+                onComplete()
             } catch {
                 saveFailed = true
             }

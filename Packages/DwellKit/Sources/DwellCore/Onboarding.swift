@@ -228,7 +228,7 @@ public enum OnboardingExample {
         let (id, coordinate): (PlaceID, Coordinate) = switch photo {
         // Where the design pins each photo: by the waterfront in Williamsburg, and in Bushwick.
         case .friend: ("maras", Coordinate(latitude: 40.7114, longitude: -73.9659))
-        case .home: ("home", Coordinate(latitude: 40.6782, longitude: -73.9442))
+        case .home: ("home", SampleData.homeCoordinate)
         case .cafe: ("brambleline", Coordinate(latitude: 40.6934, longitude: -73.9026))
         }
         let place = SampleData.place(id)
