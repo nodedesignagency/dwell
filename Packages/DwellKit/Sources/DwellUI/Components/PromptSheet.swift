@@ -245,7 +245,7 @@ private struct PromptSheetStage<Card: View, Top: View>: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .ignoresSafeArea(.container, edges: .top)
                     .allowsHitTesting(false)
-                    .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                    .transition(reduceMotion ? AnyTransition.opacity : AnyTransition.move(edge: .top).combined(with: .opacity))
             }
 
             if shown {

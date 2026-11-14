@@ -94,13 +94,13 @@ private struct HomeQuestionMap: View {
         let perLatitude = Self.pointsPerDegree
         let perLongitude = perLatitude * cos(coordinate.latitude * .pi / 180)
         let center = CLLocationCoordinate2D(
-            latitude: coordinate.latitude + Self.drop / perLatitude,
+            latitude: coordinate.latitude + Double(Self.drop) / perLatitude,
             longitude: coordinate.longitude)
         return MKCoordinateRegion(
             center: center,
             span: MKCoordinateSpan(
-                latitudeDelta: max(size.height, 1) / perLatitude,
-                longitudeDelta: max(size.width, 1) / perLongitude))
+                latitudeDelta: Double(max(size.height, 1)) / perLatitude,
+                longitudeDelta: Double(max(size.width, 1)) / perLongitude))
     }
 }
 

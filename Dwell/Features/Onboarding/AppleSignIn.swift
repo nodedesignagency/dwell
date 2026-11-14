@@ -57,19 +57,23 @@ private final class AppleIDRequest: NSObject, ASAuthorizationControllerDelegate,
     }
 
     nonisolated func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        // Read Apple's answer here; only the Sendable credential goes on to the main actor.
+        let result: Result<SignInCredential, any Error>
+        if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            result = .success(.apple(userID: credential.user, identityToken: credential.identityToken))
+        } else {
+            result = .failure(ASAuthorizationError(.unknown))
+        }
         MainActor.assumeIsolated {
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                finish(.failure(ASAuthorizationError(.unknown)))
-                return
-            }
-            finish(.success(.apple(userID: credential.user, identityToken: credential.identityToken)))
+            finish(result)
         }
     }
 
     nonisolated func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: any Error) {
         let canceled = (error as? ASAuthorizationError)?.code == .canceled
+        let failure: any Error = canceled ? AppleSignIn.Canceled() : error
         MainActor.assumeIsolated {
-            finish(.failure(canceled ? AppleSignIn.Canceled() : error))
+            finish(.failure(failure))
         }
     }
 

@@ -338,7 +338,7 @@ struct TodayScreen: View {
 }
 
 /// The cards that slide up over Today, one at a time.
-private enum TodayPrompt: Hashable {
+private nonisolated enum TodayPrompt: Hashable {
     /// "Turn on your location".
     case location
     /// "Set your tone", right after onboarding.

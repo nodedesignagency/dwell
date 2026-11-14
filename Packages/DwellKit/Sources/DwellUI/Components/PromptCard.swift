@@ -149,23 +149,21 @@ public struct ToneSky: View {
         self.raysCentre = raysCentre
     }
 
+    /// The blue's strength at each depth below the card's top, in points.
+    private static let strength: [(depth: CGFloat, opacity: Double)] = [
+        (0, 1), (57, 1), (77, 0.82), (97, 0.70), (117, 0.58),
+        (137, 0.39), (157, 0.21), (177, 0.11), (197, 0.03), (217, 0),
+    ]
+
+    private static var stops: [Gradient.Stop] {
+        strength.map { step in
+            Gradient.Stop(color: Palette.dialSky.opacity(step.opacity), location: step.depth / 217)
+        }
+    }
+
     public var body: some View {
         ZStack(alignment: .top) {
-            LinearGradient(
-                stops: [
-                    .init(color: Palette.dialSky, location: 0),
-                    .init(color: Palette.dialSky, location: 57 / 217),
-                    .init(color: Palette.dialSky.opacity(0.82), location: 77 / 217),
-                    .init(color: Palette.dialSky.opacity(0.70), location: 97 / 217),
-                    .init(color: Palette.dialSky.opacity(0.58), location: 117 / 217),
-                    .init(color: Palette.dialSky.opacity(0.39), location: 137 / 217),
-                    .init(color: Palette.dialSky.opacity(0.21), location: 157 / 217),
-                    .init(color: Palette.dialSky.opacity(0.11), location: 177 / 217),
-                    .init(color: Palette.dialSky.opacity(0.03), location: 197 / 217),
-                    .init(color: Palette.dialSky.opacity(0), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom)
+            LinearGradient(stops: Self.stops, startPoint: .top, endPoint: .bottom)
                 .frame(height: 217)
             TurningRays(color: Palette.glowRays, size: 560, fadeRadius: 280)
                 .opacity(0.25)

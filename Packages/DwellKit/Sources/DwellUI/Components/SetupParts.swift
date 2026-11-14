@@ -29,28 +29,22 @@ public struct SetupBackdrop: View {
     }
 
     public var body: some View {
-        let (cream, light, middle, foot) = colors
-        LinearGradient(
-            stops: [
-                .init(color: Palette.background, location: 0.27),
-                .init(color: cream, location: 0.411),
-                .init(color: light, location: 0.587),
-                .init(color: middle, location: 0.763),
-                .init(color: foot, location: 1),
-            ],
-            startPoint: .top,
-            endPoint: .bottom)
+        LinearGradient(stops: stops, startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()
             .accessibilityHidden(true)
     }
 
-    private var colors: (Color, Color, Color, Color) {
-        switch style {
-        case .gold: (Palette.setupCream, Palette.setupGoldLight, Palette.setupGold, Palette.setupGoldFoot)
-        case .peach: (Palette.setupCream, Palette.setupPeachLight, Palette.setupPeach, Palette.setupPeachFoot)
-        case .lime: (Palette.setupCream, Palette.setupLimeLight, Palette.setupLime, Palette.setupLimeFoot)
-        case .red: (Palette.setupRose, Palette.setupRedLight, Palette.setupRed, Palette.setupRedFoot)
+    /// The page's grey, the cream (or the stops' rose), then the style's three colours.
+    private var stops: [Gradient.Stop] {
+        let colors: [Color] = switch style {
+        case .gold: [Palette.setupCream, Palette.setupGoldLight, Palette.setupGold, Palette.setupGoldFoot]
+        case .peach: [Palette.setupCream, Palette.setupPeachLight, Palette.setupPeach, Palette.setupPeachFoot]
+        case .lime: [Palette.setupCream, Palette.setupLimeLight, Palette.setupLime, Palette.setupLimeFoot]
+        case .red: [Palette.setupRose, Palette.setupRedLight, Palette.setupRed, Palette.setupRedFoot]
         }
+        let locations: [CGFloat] = [0.411, 0.587, 0.763, 1]
+        return [Gradient.Stop(color: Palette.background, location: 0.27)]
+            + zip(colors, locations).map { Gradient.Stop(color: $0.0, location: $0.1) }
     }
 }
 
@@ -128,7 +122,7 @@ extension ButtonStyle where Self == MutedCapsuleButtonStyle {
 /// offers the links in its rotor.
 public struct LinkedLine: View {
     /// A run of the line: words, or words that open a link.
-    public enum Part: Hashable, Sendable {
+    public nonisolated enum Part: Hashable, Sendable {
         case text(String)
         case link(String, URL)
     }
@@ -196,12 +190,25 @@ public struct DateWheel: View {
     static let height: CGFloat = 155
     static let rowHeight: CGFloat = 49
 
+    /// Ink in the middle row, fading toward the card's edges (read from the screenshot: the
+    /// rows above and below go from about 46% of ink next to the middle to 12%).
+    private static let fadeSteps: [(location: CGFloat, opacity: Double)] = [
+        (0, 0.08), (0.16, 0.15), (0.21, 0.27), (0.26, 0.46), (0.34, 1),
+        (0.66, 1), (0.74, 0.46), (0.79, 0.27), (0.84, 0.15), (1, 0.08),
+    ]
+
+    private static var fade: [Gradient.Stop] {
+        fadeSteps.map { step in
+            Gradient.Stop(color: Color.black.opacity(step.opacity), location: step.location)
+        }
+    }
+
     public init(date: Binding<BirthDate>, years: ClosedRange<Int>) {
         _date = date
         self.years = years
     }
 
-    private enum Part: Hashable {
+    private nonisolated enum Part: Hashable {
         case month, day, year
     }
 
@@ -213,23 +220,7 @@ public struct DateWheel: View {
         }
         .frame(height: Self.height)
         .mask {
-            // Ink in the middle row, fading toward the card's edges (read from the screenshot:
-            // the rows above and below go from about 46% of ink next to the middle to 12%).
-            LinearGradient(
-                stops: [
-                    .init(color: .black.opacity(0.08), location: 0),
-                    .init(color: .black.opacity(0.15), location: 0.16),
-                    .init(color: .black.opacity(0.27), location: 0.21),
-                    .init(color: .black.opacity(0.46), location: 0.26),
-                    .init(color: .black, location: 0.34),
-                    .init(color: .black, location: 0.66),
-                    .init(color: .black.opacity(0.46), location: 0.74),
-                    .init(color: .black.opacity(0.27), location: 0.79),
-                    .init(color: .black.opacity(0.15), location: 0.84),
-                    .init(color: .black.opacity(0.08), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom)
+            LinearGradient(stops: Self.fade, startPoint: .top, endPoint: .bottom)
         }
         .frame(maxWidth: .infinity)
         .background { RulerTicks() }
