@@ -12,10 +12,11 @@ import SwiftUI
 /// Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the
 /// progress bar filling as it runs, like an Instagram story), every page including the
 /// postcard, and cross-fade (`Motion.reduced`, the same with Reduce Motion: nothing moves).
-/// The clock pauses while a finger is held on the page, while the app is in the background,
-/// and on the opener until its numbers are in; it stops for the rest of a page once a share
+/// On the postcard, the last page, the bar fills and the page stays (the user, 14 Nov). The
+/// clock pauses while a finger is held on the page, while the app is in the background, and
+/// on the opener until its numbers are in; it stops for the rest of a page once a share
 /// button is touched. With VoiceOver or Switch Control on, pages never move by themselves:
-/// they wait for the user. Moving on from the last page closes the wrap.
+/// they wait for the user. A tap on from the last page closes the wrap.
 struct WeeklyWrapScreen: View {
     let wrap: WeeklyWrap
     var onClose: () -> Void
@@ -72,7 +73,7 @@ struct WeeklyWrapScreen: View {
                 guard clock.isRunning else { return }
                 try? await Task.sleep(for: .seconds(clock.remaining(at: .now)))
                 guard !Task.isCancelled else { return }
-                goForward()
+                timeUp()
             }
     }
 
@@ -89,6 +90,16 @@ struct WeeklyWrapScreen: View {
     private func goForward() {
         guard let next = page.next else { return onClose() }
         show(next)
+    }
+
+    /// A page's time ran out: the next page, or on the last one, its bar stays full and the
+    /// postcard stays (the user, 14 Nov); only a tap or the close button leaves it.
+    private func timeUp() {
+        guard page.next != nil else {
+            clock = clock.paused(at: .now)
+            return
+        }
+        goForward()
     }
 
     /// Shows a page from its start, its clock running if it can (going back starts the page

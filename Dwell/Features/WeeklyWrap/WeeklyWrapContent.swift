@@ -22,7 +22,7 @@ enum WrapPage: Int, CaseIterable, Identifiable {
     /// How long a page stays before moving on by itself, as an Instagram story does (the
     /// user, 13 Nov: 5–10 s; 7 s reads a title and a sentence without hurrying). Every page,
     /// the postcard too (the user, 14 Nov: the timer shows on all); when the postcard's runs
-    /// out the wrap closes, like the last story, unless a share button stopped it.
+    /// out its bar stays full and the page stays, so its share buttons don't go anywhere.
     var duration: TimeInterval? {
         7
     }

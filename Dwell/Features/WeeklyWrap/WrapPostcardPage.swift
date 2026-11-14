@@ -27,10 +27,10 @@ import UIKit
 /// only when it's shared (`PostcardShareItem`), so opening the page never waits on it.
 ///
 /// The stamp lands as the page opens (`Motion.landing`); under Reduce Motion it fades in. The
-/// page's clock runs as on every page (the user, 14 Nov) and closes the wrap when it's done,
-/// like the last story; touching a share button stops it for the rest of the page
-/// (`onShare`), so nothing closes under a share. A tap on the stamp side moves on as any page
-/// does, which closes the wrap; taps on the panel stay in it. At large text sizes the title
+/// page's clock runs as on every page and, when it's done, the bar stays full and the page
+/// stays (the user, 14 Nov); touching a share button stops it where it is (`onShare`). A tap
+/// on the stamp side moves on as any page does, which closes the wrap; taps on the panel
+/// stay in it. At large text sizes the title
 /// stops at the largest standard size and the panel grows; what doesn't fit above it scrolls.
 struct WrapPostcardPage: View {
     let state: Loadable<WrapPostcard>
