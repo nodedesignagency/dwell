@@ -11,7 +11,7 @@ import SwiftUI
 /// The page's colour, measured from the screenshot under the pattern [VALUES NEEDED: Figma's
 /// fill]: a radial fill, warm (#EADB5B) in the middle to blue (#007DF3) at the edge, centred
 /// 53.8% down and reaching 45.9% of the screen, as on page 5; over it the designer's starburst
-/// at 30% (Figma: 721 × 1080 at −164, −114), redrawn in code and flowing outward (`Starburst`).
+/// at 30% (Figma: 721 × 1080 at −164, −114), redrawn in code and turning (`Starburst`).
 /// Then the map, fading in under the title and out above the card.
 ///
 /// Measured from the screenshot at 393 × 852:
@@ -24,12 +24,17 @@ import SwiftUI
 ///   place ("Kestriva Labs | 31h"); a long name moves the place left so the tag stays on screen.
 /// - The card: 17 from the sides, 21 above the screen's bottom edge, corners 20: the name (20
 ///   medium), 6 below it the live dot and "Visiting since: March 12, 2026" (16, grey), a dashed
-///   line 10 below, then 16 below that three compact tiles 10 apart (Today's tiles cut to 54
-///   tall: the week's time with the alarm clock, the visits with the briefcase, last seen with
-///   the sunrise), 10 in from the card's edge.
+///   line 10 below, then 16 below that the tiles, 10 in from the card's edge and 10 apart.
 ///
-/// The tag pops in onto the place and the card rises in; under Reduce Motion they fade in and
-/// the starburst holds still. The live dot pulses while the user is there, or left in the last
+/// The tiles: the design's three side by side cut their labels short on the phone, so they're
+/// two to a row at Today's size (the user, 14 Nov), with a fourth the user asked for from the
+/// brief's place page ("total", §7.2): the place's time all told. On top the place's time, this
+/// week (the alarm clock) and all time (the chart), in its category's colour; below, the visits
+/// (the briefcase, yours' green) and last seen (the sunrise, home's blue).
+///
+/// The starburst turns a full circle every 40 s (the user, 14 Nov). The tag pops in onto the
+/// place and the card rises in; under Reduce Motion they fade in and the starburst holds
+/// still. The live dot pulses while the user is there, or left in the last
 /// quarter of an hour. A week with no place to show keeps the map of the city with no tag and
 /// no card. At accessibility sizes the title stops at the largest standard size, the tiles
 /// stack, and the page scrolls with a shorter map if it outgrows the screen. A tap anywhere
@@ -56,7 +61,11 @@ struct WrapMostTimePage: View {
     /// How far the map reaches up behind the title and down behind the card.
     private static let mapUnderTitle: CGFloat = 30
     private static let mapUnderCard: CGFloat = 13
-    /// The map's height when the page scrolls (accessibility sizes).
+    /// Between the tiles, either way.
+    private static let tileGap: CGFloat = 10
+    /// The least room the map gets between the title and the card before the page scrolls,
+    /// and its height when it does (accessibility sizes).
+    private static let leastMap: CGFloat = 150
     private static let shortMap: CGFloat = 220
     /// Left this long ago or less, the user is still there as far as the dot goes.
     private static let hereWindow: TimeInterval = 15 * 60
@@ -110,7 +119,10 @@ struct WrapMostTimePage: View {
             heading(most == nil ? WrapCopy.noMostTimeTitle : WrapCopy.mostTimeTitle)
                 .zIndex(1)
             Color.clear
-                .frame(maxWidth: .infinity, minHeight: Self.shortMap, maxHeight: spread ? .infinity : Self.shortMap)
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: spread ? Self.leastMap : Self.shortMap,
+                    maxHeight: spread ? .infinity : Self.shortMap)
                 .background {
                     map(most)
                         .padding(.top, -Self.mapUnderTitle)
@@ -195,33 +207,42 @@ struct WrapMostTimePage: View {
         .card()
     }
 
-    /// Three to a row, as drawn; stacked at accessibility sizes.
+    /// Two to a row, the place's time on top and the visits below; one to a row at
+    /// accessibility sizes.
     private func tiles(_ most: WrapMostTime) -> some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(spacing: 10))
-            : AnyLayout(HStackLayout(spacing: 10))
-        return layout {
-            StatTile(
-                value: DurationText.total(most.total),
-                label: WrapCopy.thisWeek,
-                spokenValue: DurationText.spokenTotal(most.total),
-                tint: most.place.category.color,
-                compact: true
-            ) { art(.alarmClock) }
-            StatTile(
-                value: "\(most.visits)",
-                label: WrapCopy.visitsLabel(most.visits),
-                tint: Palette.yours,
-                compact: true
-            ) { art(.briefcase) }
-            if let last = most.place.lastSeen {
+        let row = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: Self.tileGap))
+            : AnyLayout(HStackLayout(spacing: Self.tileGap))
+        // Never less all told than this week, whatever the engine's lifetime says.
+        let allTime = max(most.place.lifetimeTotal, most.total)
+        return VStack(spacing: Self.tileGap) {
+            row {
                 StatTile(
-                    value: WrapCopy.lastSeenValue(last, now: now, calendar: calendar),
-                    label: WrapCopy.lastSeen,
-                    spokenValue: WrapCopy.lastSeenValue(last, now: now, calendar: calendar, spoken: true),
-                    tint: PlaceCategory.home.color,
-                    compact: true
-                ) { art(.sunrise) }
+                    value: DurationText.total(most.total),
+                    label: WrapCopy.thisWeek,
+                    spokenValue: DurationText.spokenTotal(most.total),
+                    tint: most.place.category.color
+                ) { art(.alarmClock) }
+                StatTile(
+                    value: DurationText.total(allTime),
+                    label: WrapCopy.allTime,
+                    spokenValue: DurationText.spokenTotal(allTime),
+                    tint: most.place.category.color
+                ) { art(.chart) }
+            }
+            row {
+                StatTile(
+                    value: "\(most.visits)",
+                    label: WrapCopy.visitsLabel(most.visits),
+                    tint: Palette.yours
+                ) { art(.briefcase) }
+                if let last = most.place.lastSeen {
+                    StatTile(
+                        value: WrapCopy.lastSeenValue(last, now: now, calendar: calendar),
+                        label: WrapCopy.lastSeen,
+                        tint: PlaceCategory.home.color
+                    ) { art(.sunrise) }
+                }
             }
         }
     }
@@ -250,9 +271,13 @@ struct WrapMostTimePage: View {
             VStack(alignment: .leading, spacing: 10) {
                 RoundedRectangle(cornerRadius: 4).fill(Palette.gap).frame(width: 140, height: 20)
                 RoundedRectangle(cornerRadius: 4).fill(Palette.gap).frame(width: 220, height: 16)
-                HStack(spacing: 10) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: Radius.l).fill(Palette.gap).frame(height: 54)
+                VStack(spacing: Self.tileGap) {
+                    ForEach(0..<2, id: \.self) { _ in
+                        HStack(spacing: Self.tileGap) {
+                            ForEach(0..<2, id: \.self) { _ in
+                                RoundedRectangle(cornerRadius: Radius.l).fill(Palette.gap).frame(height: 66)
+                            }
+                        }
                     }
                 }
                 .padding(.top, 16)

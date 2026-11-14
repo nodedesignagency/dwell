@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Starburst
 
 /// The most-time page's pattern (Weekly wrap 4, 14 Nov): the designer's reference image of
-/// spiky rings, pink, purple and indigo, round a pink star, redrawn in code and set moving.
+/// spiky rings, pink, purple and indigo, round a pink star, redrawn in code and set turning.
 /// Placed as Figma places it (721 × 1080 at −164, −114 on the 393-wide frame, at 30%), so the
 /// star sits in the middle of the screen, scaled with the width.
 ///
@@ -11,17 +11,18 @@ import SwiftUI
 /// outline is a radius for every direction from the middle. Five of them, read from the
 /// image every 2° (the points between are a smooth curve through them), match the image to
 /// 98.5% of its pixels, the rest along the anti-aliased edges. Pink inside the first, then
-/// purple, indigo, pink and purple.
+/// purple, indigo, pink and purple; a sixth ring, spaced as the fifth, closes the purple, and
+/// past it is pink, as in the image's corners. Drawn on a square as wide as the screen's
+/// diagonal, so it covers the screen at every angle.
 ///
-/// Moving (the wrap's patterns all move, the user, 13 Nov): the rings flow outward, each
-/// growing into the place of the one outside it and taking on its shape as it goes, while a
-/// new star grows out of the middle, a ring every 5 s at a steady pace. The colours come round
-/// every three rings, so the loop never shows a seam. It starts where the design draws it, and
-/// under Reduce Motion, or `isMoving` off, it holds still there. Draw it at full strength and
-/// set its opacity where it's used (30% on the most-time page).
+/// Moving (the user, 14 Nov: "just do 360 degree rotate"): the whole pattern turns clockwise
+/// round the star's middle, a full turn every 40 s, steady, on a loop. It's drawn once and
+/// turned as a picture, so a frame costs next to nothing. It starts where the design draws
+/// it, and under Reduce Motion, or `isMoving` off, it holds still there. Draw it at full
+/// strength and set its opacity where it's used (30% on the most-time page).
 public struct Starburst: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var start = Date.now
+    @State private var isTurning = false
     private let colors: [Color]
     private let isMoving: Bool
 
@@ -35,23 +36,32 @@ public struct Starburst: View {
     }
 
     public var body: some View {
-        let still = reduceMotion || !isMoving
-        TimelineView(.animation(minimumInterval: nil, paused: still)) { context in
-            // The colours repeat every three rings: keep the count small.
-            let flow = still ? 0 : (context.date.timeIntervalSince(start) / Self.period).truncatingRemainder(dividingBy: 3)
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let height = proxy.size.height
+            let side = (width * width + height * height).squareRoot()
             let colors = colors
             Canvas { canvas, size in
-                Self.draw(in: &canvas, size: size, flow: flow, colors: colors)
+                Self.draw(in: &canvas, size: size, screenWidth: width, colors: colors)
             }
+            .frame(width: side, height: side)
+            // Rasterised once by Metal, then turned as a picture.
+            .drawingGroup()
+            .animation(isTurning ? .linear(duration: Self.period).repeatForever(autoreverses: false) : nil) { content in
+                content.rotationEffect(.degrees(isTurning ? 360 : 0))
+            }
+            .position(x: width / 2, y: height / 2)
         }
-        // Rasterised by Metal, not on the CPU each frame.
-        .drawingGroup()
+        .onAppear { isTurning = isMoving && !reduceMotion }
+        .onChange(of: reduceMotion) { _, reduce in
+            isTurning = isMoving && !reduce
+        }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
 
-    /// Seconds for a ring to take the place of the one outside it.
-    nonisolated public static let period: Double = 5
+    /// Seconds for a full turn.
+    nonisolated public static let period: Double = 40
 
     /// The image as placed on the 393-wide frame: 1335 pixels drawn 721 wide.
     nonisolated private static let pointsPerPixel = 721.0 / 1335.0
@@ -124,18 +134,15 @@ public struct Starburst: View {
         ],
     ]
 
-    /// The outlines every half degree, with one more at each end for the curve through them:
-    /// the middle's point (and its mirror below it), then the five, then one further out by
-    /// the last ring's spacing.
-    nonisolated private static let table: [[Double]] = {
+    /// The outlines every half degree, and a sixth further out by the fifth's spacing.
+    nonisolated private static let outlines: [[Double]] = {
         let fine = rings.map { ring in
             (0..<directions).map { index in
                 smooth(ring.map { Double($0) }, at: Double(index) * Double(ring.count) / Double(directions))
             }
         }
-        let zero = [Double](repeating: 0, count: directions)
         let outer = zip(fine[4], fine[3]).map { $0 + ($0 - $1) }
-        return [fine[0].map { -$0 }, zero] + fine + [outer]
+        return fine + [outer]
     }()
 
     nonisolated private static let unitCircle: [CGPoint] = (0..<directions).map { index in
@@ -144,47 +151,28 @@ public struct Starburst: View {
         return CGPoint(x: cos(angle), y: -sin(angle))
     }
 
-    nonisolated private static func draw(in context: inout GraphicsContext, size: CGSize, flow: Double, colors: [Color]) {
+    /// The rings round the middle of `size`, at the scale of a screen `screenWidth` wide.
+    nonisolated private static func draw(in context: inout GraphicsContext, size: CGSize, screenWidth: CGFloat, colors: [Color]) {
         guard colors.count == 3 else { return }
-        let scale: Double = pointsPerPixel * Double(size.width) / 393
+        let scale: Double = pointsPerPixel * Double(screenWidth) / 393
         let middle = CGPoint(x: size.width / 2, y: size.height / 2)
-        let step = Int(flow.rounded(.down))
-        let along = flow - Double(step)
-        func color(_ band: Int) -> Color {
-            colors[((band - step) % 3 + 3) % 3]
-        }
 
-        // Past the last outline drawn, the colour of the band inside it; then each outline
-        // filled with the band inside it, from the outside in.
-        context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(color(4)))
-        for outline in stride(from: 4, through: 0, by: -1) {
-            let position = Double(outline) + along
-            guard position > 0 else { continue }
+        // Past the last ring, the image's corners' pink; then each outline filled with the
+        // band inside it, from the outside in.
+        context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(colors[0]))
+        for ring in stride(from: outlines.count - 1, through: 0, by: -1) {
+            let outline = outlines[ring]
             var path = Path()
             for index in 0..<directions {
-                let distance = CGFloat(Self.radius(at: position, direction: index) * scale)
+                let distance = CGFloat(outline[index] * scale)
                 let point = CGPoint(
                     x: middle.x + unitCircle[index].x * distance,
                     y: middle.y + unitCircle[index].y * distance)
                 if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
             }
             path.closeSubpath()
-            context.fill(path, with: .color(color(outline - 1)))
+            context.fill(path, with: .color(colors[ring % 3]))
         }
-    }
-
-    /// The outline at `position` (0 is the middle's point, 1 the star, 5 the last ring), a
-    /// smooth curve through the outlines either side, so rings grow at a steady pace and land
-    /// exactly on the image's at each whole step. Never shrinks as `position` grows.
-    nonisolated private static func radius(at position: Double, direction: Int) -> Double {
-        let index = min(max(Int(position.rounded(.down)), 0), 4)
-        let t = position - Double(index)
-        // `table` starts one outline before the middle's point.
-        let p0 = table[index][direction]
-        let p1 = table[index + 1][direction]
-        let p2 = table[index + 2][direction]
-        let p3 = table[index + 3][direction]
-        return catmullRom(p0, p1, p2, p3, t)
     }
 
     /// A ring's radius between its samples, a smooth curve through them, round the circle.
@@ -192,10 +180,11 @@ public struct Starburst: View {
         let count = samples.count
         let index = Int(position.rounded(.down))
         func at(_ i: Int) -> Double { samples[((i % count) + count) % count] }
-        return catmullRom(at(index - 1), at(index), at(index + 1), at(index + 2), position - Double(index))
-    }
-
-    nonisolated private static func catmullRom(_ p0: Double, _ p1: Double, _ p2: Double, _ p3: Double, _ t: Double) -> Double {
+        let t = position - Double(index)
+        let p0 = at(index - 1)
+        let p1 = at(index)
+        let p2 = at(index + 1)
+        let p3 = at(index + 2)
         let t2 = t * t
         let t3 = t2 * t
         return 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (3 * p1 - p0 - 3 * p2 + p3) * t3)

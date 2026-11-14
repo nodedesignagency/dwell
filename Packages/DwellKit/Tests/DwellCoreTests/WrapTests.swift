@@ -460,11 +460,15 @@ struct WrapMostTimeTests {
         // 3:30 AM on Monday is still Sunday's.
         #expect(seen(-30 * 60) == "Yesterday")
         #expect(seen(-20 * 3600) == "Yesterday")
-        #expect(seen(-2 * 86_400) == "Sat")
-        #expect(seen(-6 * 86_400) == "Tue")
-        let tuesday = monday.addingTimeInterval(-6 * 86_400)
-        #expect(WrapCopy.lastSeenValue(tuesday, now: now, calendar: calendar, spoken: true) == "Tuesday")
+        #expect(seen(-2 * 86_400) == "Saturday")
+        #expect(seen(-6 * 86_400) == "Tuesday")
         #expect(seen(-7 * 86_400) == "Oct 19")
+    }
+
+    @Test func `all time is the place's lifetime, never less than the week`() throws {
+        let most = try #require(WrapMostTime(week: week, places: SampleData.places, now: now))
+        #expect(most.place.lifetimeTotal >= most.total)
+        #expect(WrapCopy.allTime == "All time")
     }
 
     @Test func `one visit, or many`() {

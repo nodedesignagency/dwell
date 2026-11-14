@@ -158,22 +158,22 @@ public enum WrapCopy {
     /// Seen" in sentence case (brief §8.6).
     public static let thisWeek = "this week"
     public static let lastSeen = "Last seen"
+    /// The fourth tile, the place's time all told (the brief's place page, "total"; the user
+    /// asked for a fourth tile, 14 Nov). [COPY NEEDED]
+    public static let allTime = "All time"
 
     public static func visitsLabel(_ count: Int) -> String {
         count == 1 ? "Visit" : "Visits"
     }
 
-    /// "Today", "Yesterday", a weekday within the week ("Tue", so it fits its tile), then the
-    /// date ("Oct 12"), by Dwell days (4 AM to 4 AM).
-    /// - Parameter spoken: the weekday in full, for VoiceOver ("Tuesday").
-    public static func lastSeenValue(_ date: Date, now: Date, calendar: Calendar, spoken: Bool = false) -> String {
+    /// "Today", "Yesterday", a weekday within the week ("Tuesday"), then the date ("Oct 12"),
+    /// by Dwell days (4 AM to 4 AM).
+    public static func lastSeenValue(_ date: Date, now: Date, calendar: Calendar) -> String {
         let today = DwellDay(containing: now, calendar: calendar)
         let day = DwellDay(containing: date, calendar: calendar)
         if day >= today { return "Today" }
         if day == today.adding(days: -1, in: calendar) { return "Yesterday" }
-        if day > today.adding(days: -7, in: calendar) {
-            return spoken ? ClockText.weekdayName(day, calendar: calendar) : ClockText.weekday(day, calendar: calendar)
-        }
+        if day > today.adding(days: -7, in: calendar) { return ClockText.weekdayName(day, calendar: calendar) }
         return ClockText.monthDay(day, calendar: calendar)
     }
 

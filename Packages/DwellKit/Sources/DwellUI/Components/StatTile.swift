@@ -2,33 +2,25 @@ import SwiftUI
 
 /// A hero stat: one number, its label, and an icon with a glow behind it (Today design:
 /// "4h 29m · At work", "57m · Yours"). The label is a plain label, never voiced.
-///
-/// `compact` is the weekly wrap's three-up cut (Weekly wrap 4, "Kestriva Labs"): 11 in from
-/// the sides and 8 from the top and bottom, the art 24, 54 tall, so three sit side by side in
-/// a card; a value too long for it shrinks to fit.
 public struct StatTile<Icon: View>: View {
-    @ScaledMetric(relativeTo: .callout) private var regularIcon: CGFloat = 33
-    @ScaledMetric(relativeTo: .callout) private var compactIcon: CGFloat = 24
+    @ScaledMetric(relativeTo: .callout) private var iconSize: CGFloat = 33
     private let value: String
     private let label: String
     private let spokenValue: String
     private let tint: Color
     private let labelFirst: Bool
-    private let compact: Bool
     private let icon: Icon
 
     /// - Parameters:
     ///   - spokenValue: what VoiceOver reads for `value`, e.g. "4 hours, 40 minutes".
     ///   - labelFirst: the label over the number (Time's "At work · 42h 29m"); Today's tiles
     ///     put the number first.
-    ///   - compact: the weekly wrap's smaller tile, three to a row.
     public init(
         value: String,
         label: String,
         spokenValue: String? = nil,
         tint: Color,
         labelFirst: Bool = false,
-        compact: Bool = false,
         @ViewBuilder icon: () -> Icon
     ) {
         self.value = value
@@ -36,16 +28,12 @@ public struct StatTile<Icon: View>: View {
         self.spokenValue = spokenValue ?? value
         self.tint = tint
         self.labelFirst = labelFirst
-        self.compact = compact
         self.icon = icon()
     }
 
-    private var iconSize: CGFloat { compact ? compactIcon : regularIcon }
-    private var inset: CGFloat { compact ? 11 : 13 }
-
     public var body: some View {
         HStack(spacing: Space.s) {
-            VStack(alignment: .leading, spacing: compact ? Space.xxs : Space.xs) {
+            VStack(alignment: .leading, spacing: Space.xs) {
                 if labelFirst {
                     labelText
                     valueText
@@ -59,8 +47,7 @@ public struct StatTile<Icon: View>: View {
                 .frame(width: iconSize, height: iconSize)
                 .accessibilityHidden(true)
         }
-        .padding(.horizontal, inset)
-        .padding(.vertical, compact ? 8 : 13)
+        .padding(13)
         .frame(maxWidth: .infinity)
         .background {
             GeometryReader { proxy in
@@ -69,7 +56,7 @@ public struct StatTile<Icon: View>: View {
                     TileGlow(tint: tint)
                         .frame(width: TileGlow.size, height: TileGlow.size)
                         // Centred on the icon, as in the design.
-                        .position(x: proxy.size.width - inset - iconSize / 2, y: proxy.size.height / 2)
+                        .position(x: proxy.size.width - 13 - iconSize / 2, y: proxy.size.height / 2)
                 }
             }
             .clipShape(.rect(cornerRadius: Radius.l))
@@ -87,8 +74,6 @@ public struct StatTile<Icon: View>: View {
         Text(verbatim: value)
             .textRole(.dataStat)
             .foregroundStyle(Palette.textPrimary)
-            .lineLimit(compact ? 1 : nil)
-            .minimumScaleFactor(compact ? 0.7 : 1)
     }
 
     private var labelText: some View {

@@ -421,8 +421,8 @@ private func postcardWeek(_ change: (inout WrapWeek) -> Void) -> Loadable<WrapWe
         .ignoresSafeArea()
 }
 
-// MARK: Where you spent the most time, across the dial (Kestriva Labs, 36h, 6 visits, since
-// August 31, seen today)
+// MARK: Where you spent the most time, across the dial (Kestriva Labs, 36h this week, 344h all
+// time, 6 visits, since August 31, seen today)
 
 #Preview("Most time · Peace") {
     WrapPreview(lastWeek, page: .mostTime).samplePreview(.peace)
