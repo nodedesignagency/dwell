@@ -2,6 +2,7 @@ import DwellCore
 import DwellUI
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 /// "Share this insight" (Insights design, 14 Nov): a sheet that slides up over the page, with
 /// the card as it will be shared, the five ways to share it, and what sharing never shows.

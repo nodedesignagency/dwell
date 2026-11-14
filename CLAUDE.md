@@ -70,7 +70,8 @@ The project uses synchronized folders: any file added under `Dwell/` or the pack
 4. VoiceOver labels and, on charts, audio graphs.
 5. Every animation has a Reduce Motion alternative; haptics only through `Haptic` (confirm, dial stop, milestone).
 6. `docs/SCREENS.md` and `docs/DESIGN.md` updated.
-7. One commit for the page, then a short summary: what was built, what was derived, anything you weren't sure about.
+7. `python3 scripts/check-swift.py` passes, and the code was read against "SwiftUI has to build the first time" below.
+8. One commit for the page, then a short summary: what was built, what was derived, anything you weren't sure about.
 
 ## Data: no tracking engine in this repo yet
 
@@ -119,6 +120,22 @@ curl -sSLO https://download.swift.org/swift-6.2.1-release/ubuntu2404/swift-6.2.1
 ```
 
 Everything in `DwellUI` and `Dwell/` is only compiled when the user builds in Xcode on their Mac. Say plainly which files were not compiled, and keep SwiftUI code to APIs available on iOS 17.
+
+Before every push that touches `Dwell/` or `DwellUI`, run the checker. It finds, by reading, the mistakes that have broken the Mac build. Errors must be fixed; read every warning:
+
+```bash
+python3 scripts/check-swift.py
+```
+
+### SwiftUI has to build the first time
+
+The user builds every push on their Mac, and a failed build costs them a round trip (it happened on 12, 13 and twice on 14 Nov). The project's settings make some ordinary-looking Swift fail, so read new code against this list:
+
+- **Import every framework a file uses.** The app target sets `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES`: a member from a module the file doesn't import itself fails, even when another import brings the module along. `.png` or `UTType` needs `import UniformTypeIdentifiers` (the 14 Nov failure: the insight share sheet and the postcard's `exportedContentType: .png`); `PHPhotoLibrary` needs `Photos`; `MFMessageComposeViewController` `MessageUI`; `UIImage.pngData()` and `UIPasteboard` `UIKit`; the same for MapKit, Charts, AuthenticationServices. The checker reports these as errors.
+- **Main actor by default.** The app target (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`) and DwellUI (`.defaultIsolation(MainActor.self)`) make their types and members main-actor; DwellCore stays nonisolated. Don't hand their functions over as values: `compactMap(Art.illustration)` failed (12 Nov); write a closure or a loop. Don't call their initializers where nothing is isolated, such as a stored property's default value: `LaunchPage(rawValue:)` failed there (13 Nov), and small value types used that way, as ids or as `Hashable` keys in nonisolated code (a `Transferable`, a completion handler, a `nonisolated` static) are marked `nonisolated`. Hand only `Sendable` values to the main actor from a callback (Sign in with Apple's credential, not its authorization).
+- **Shapes the compiler struggles with**, fixed by reading before they failed (f817af7): long literal gradients (build a `[Gradient.Stop]` first), tuple destructuring inside a view builder (two lets), a ternary between transitions with `.combined(with:)` (name `AnyTransition`), `CGFloat` and `Double` mixed in one expression where an API wants `Double`.
+- **Metal.** A `.metal` file needs Xcode's Metal Toolchain (README, "Open it").
+- **When the user reports a failed build:** fix every error in the log, not only the first, run the checker over the whole app, and add the pattern to this list and to `scripts/check-swift.py` so it can't come back.
 
 ## Git
 

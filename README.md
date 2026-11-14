@@ -59,6 +59,14 @@ Today's sky follows the clock. Running again with a different `DWELL_SKY` plays 
 
 Until the client's tracking engine is connected, the app runs on the sample week: its clock starts at Monday 26 October 2026, 2:47 PM in New York, and ticks on from there.
 
+## Check before pushing
+
+Cloud chats can't compile SwiftUI, so they read for the mistakes that have broken the build (missing imports, main-actor functions passed as values; CLAUDE.md lists them) before every push:
+
+```bash
+python3 scripts/check-swift.py
+```
+
 ## Test the core rules
 
 ```bash

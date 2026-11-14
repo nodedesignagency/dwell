@@ -4,6 +4,7 @@ import MessageUI
 import Photos
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 /// The wrap's last page (Weekly wrap design, "Weekly Wrap 7", 13 Nov): the week as a postcard
 /// stamp, and the ways to share it.
