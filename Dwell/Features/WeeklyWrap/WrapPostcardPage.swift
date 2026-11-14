@@ -10,7 +10,7 @@ import UIKit
 ///
 /// The page's colour: a radial pink, #F6ABBE in the middle (55% down) to #FF567E at the edges,
 /// all edge colour 46.5% of the way out, and the designer's swirl stripes over it at 10%,
-/// flowing (`SwirlStripes`). Both read from the screenshot [VALUES NEEDED].
+/// flowing, drawn on the GPU (`SwirlStripesLive`). Both read from the screenshot [VALUES NEEDED].
 ///
 /// Measured from the screenshot at 393 × 852: the title as on the weekend page (48 medium,
 /// white, lines 48 apart, its box 29 below the progress bar, breaking after "from"); 16 below
@@ -24,27 +24,31 @@ import UIKit
 /// message with the postcard (the share sheet where Messages can't send it), Save adds it to
 /// Photos and Copy puts it on the clipboard, each saying so with a light tap. What's shared is
 /// a 1080 × 1920 image: the stamp on the page's pink and stripes (`PostcardShareCard`), drawn
-/// once the city map is in.
+/// only when it's shared (`PostcardShareItem`), so opening the page never waits on it.
 ///
 /// The stamp lands as the page opens (`Motion.landing`); under Reduce Motion it fades in. The
-/// last page waits for a tap: a tap on the stamp side moves on as any page does, which closes
-/// the wrap; taps on the panel stay in it. At large text sizes the title stops at the largest
-/// standard size and the panel grows; what doesn't fit above it scrolls.
+/// page's clock runs as on every page (the user, 14 Nov) and closes the wrap when it's done,
+/// like the last story; touching a share button stops it for the rest of the page
+/// (`onShare`), so nothing closes under a share. A tap on the stamp side moves on as any page
+/// does, which closes the wrap; taps on the panel stay in it. At large text sizes the title
+/// stops at the largest standard size and the panel grows; what doesn't fit above it scrolls.
 struct WrapPostcardPage: View {
     let state: Loadable<WrapPostcard>
     /// Where the header ends, down from the top of the screen.
     let headerBottom: CGFloat
     var onNext: () -> Void = {}
     var onRetry: () -> Void = {}
+    /// A share button was touched: the page's clock stops.
+    var onShare: () -> Void = {}
 
     @Environment(\.dial) private var dial
     @Environment(\.calendar) private var calendar
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .largeTitle) private var titleWidth: CGFloat = 300
     @State private var map: UIImage?
-    @State private var shareImage: UIImage?
     @State private var landed = false
-    @State private var isComposingMessage = false
+    /// The postcard drawn for Messages, while its message is open.
+    @State private var messageImage: UIImage?
     @State private var notice: String?
     @State private var confirmations = 0
 
@@ -60,7 +64,7 @@ struct WrapPostcardPage: View {
                 middle: UnitPoint(x: 0.5, y: 0.55),
                 reach: 0.465,
                 glows: false)
-            SwirlStripes()
+            SwirlStripesLive()
                 .opacity(0.1)
                 .ignoresSafeArea()
 
@@ -86,11 +90,10 @@ struct WrapPostcardPage: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
         .task(id: state.value?.city) { await loadMap() }
-        .task(id: RenderKey(postcard: state.value, hasMap: map != nil, stop: dial.stop)) { renderShareImage() }
         .onAppear { landed = true }
-        .sheet(isPresented: $isComposingMessage) {
-            if let shareImage {
-                MessageComposer(image: shareImage, body: WrapCopy.shareTitle) { isComposingMessage = false }
+        .sheet(isPresented: Binding(get: { messageImage != nil }, set: { if !$0 { messageImage = nil } })) {
+            if let messageImage {
+                MessageComposer(image: messageImage, body: WrapCopy.shareTitle) { self.messageImage = nil }
                     .ignoresSafeArea()
             }
         }
@@ -164,8 +167,8 @@ struct WrapPostcardPage: View {
             }
             .padding(.horizontal, 10)
             .padding(.top, Space.screen)
-            .disabled(shareImage == nil)
-            .opacity(shareImage == nil ? 0.4 : 1)
+            .disabled(shareItem == nil)
+            .opacity(shareItem == nil ? 0.4 : 1)
             DashedDivider()
                 .padding(.horizontal, Space.screen)
                 .padding(.top, 15)
@@ -199,38 +202,61 @@ struct WrapPostcardPage: View {
         .onTapGesture {}
     }
 
+    /// What the share sheet hands on: the postcard, drawn when a target asks for it.
+    private var shareItem: PostcardShareItem? {
+        state.value.map { PostcardShareItem(postcard: $0, map: map, dial: dial, calendar: calendar) }
+    }
+
     @ViewBuilder
     private var targets: some View {
-        let image = shareImage.map(Image.init(uiImage:)) ?? Image(systemName: "photo")
-        let preview = SharePreview(WrapCopy.shareTitle, image: image)
-        ShareLink(item: image, preview: preview) {
-            ShareTargetLabel(WrapCopy.shareInstagram, systemImage: "arrowshape.turn.up.right.fill")
-        }
-        .accessibilityHint(WrapCopy.shareInstagramHint)
-        if MFMessageComposeViewController.canSendText() && MFMessageComposeViewController.canSendAttachments() {
-            Button { isComposingMessage = true } label: {
-                ShareTargetLabel(WrapCopy.shareMessages, systemImage: "message.fill")
+        let preview = SharePreview(WrapCopy.shareTitle)
+        let canMessage = MFMessageComposeViewController.canSendText() && MFMessageComposeViewController.canSendAttachments()
+        if let shareItem {
+            ShareLink(item: shareItem, preview: preview) {
+                ShareTargetLabel(WrapCopy.shareInstagram, systemImage: "arrowshape.turn.up.right.fill")
             }
+            .simultaneousGesture(TapGesture().onEnded(onShare))
+            .accessibilityHint(WrapCopy.shareInstagramHint)
+            if canMessage {
+                Button(action: message) {
+                    ShareTargetLabel(WrapCopy.shareMessages, systemImage: "message.fill")
+                }
+            } else {
+                ShareLink(item: shareItem, preview: preview) {
+                    ShareTargetLabel(WrapCopy.shareMessages, systemImage: "message.fill")
+                }
+                .simultaneousGesture(TapGesture().onEnded(onShare))
+            }
+            Button { Task { await save() } } label: {
+                ShareTargetLabel(WrapCopy.shareSave, systemImage: "square.and.arrow.down.fill")
+            }
+            Button(action: copy) {
+                ShareTargetLabel(WrapCopy.shareCopy, systemImage: "doc.on.doc.fill")
+            }
+            ShareLink(item: shareItem, preview: preview) {
+                ShareTargetLabel(WrapCopy.shareMore, systemImage: "ellipsis")
+            }
+            .simultaneousGesture(TapGesture().onEnded(onShare))
         } else {
-            ShareLink(item: image, preview: preview) {
-                ShareTargetLabel(WrapCopy.shareMessages, systemImage: "message.fill")
-            }
-        }
-        Button { Task { await save() } } label: {
+            // Loading: the five, waiting.
+            ShareTargetLabel(WrapCopy.shareInstagram, systemImage: "arrowshape.turn.up.right.fill")
+            ShareTargetLabel(WrapCopy.shareMessages, systemImage: "message.fill")
             ShareTargetLabel(WrapCopy.shareSave, systemImage: "square.and.arrow.down.fill")
-        }
-        Button(action: copy) {
             ShareTargetLabel(WrapCopy.shareCopy, systemImage: "doc.on.doc.fill")
-        }
-        ShareLink(item: image, preview: preview) {
             ShareTargetLabel(WrapCopy.shareMore, systemImage: "ellipsis")
         }
     }
 
     // MARK: Actions
 
+    private func message() {
+        onShare()
+        messageImage = shareItem?.image()
+    }
+
     private func save() async {
-        guard let shareImage else { return }
+        onShare()
+        guard let shareImage = shareItem?.image() else { return }
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
         guard status == .authorized || status == .limited else {
             show(WrapCopy.saveFailed)
@@ -248,7 +274,8 @@ struct WrapPostcardPage: View {
     }
 
     private func copy() {
-        guard let shareImage else { return }
+        onShare()
+        guard let shareImage = shareItem?.image() else { return }
         UIPasteboard.general.image = shareImage
         confirmations += 1
         show(WrapCopy.copied)
@@ -271,16 +298,30 @@ struct WrapPostcardPage: View {
         map = await PostcardMap.snapshot(of: city)
     }
 
-    /// What decides the shared image: the numbers, whether the map is in, the dial (Grind says
-    /// "Off").
-    private struct RenderKey: Equatable {
-        var postcard: WrapPostcard?
-        var hasMap: Bool
-        var stop: Dial.Stop
+}
+
+/// The postcard as the share sheet hands it on: a PNG of `PostcardShareCard`, drawn only when
+/// a target asks for it (drawing it as the page opened froze the page for a moment, the
+/// user's recording, 14 Nov). Save, Copy and Messages draw it when they're touched.
+nonisolated struct PostcardShareItem: Transferable {
+    let postcard: WrapPostcard
+    let map: UIImage?
+    let dial: Dial
+    let calendar: Calendar
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .png) { item in
+            guard let data = await MainActor.run(body: { item.image()?.pngData() }) else {
+                throw CocoaError(.fileWriteUnknown)
+            }
+            return data
+        }
+        .suggestedFileName("Postcard.png")
     }
 
-    private func renderShareImage() {
-        guard let postcard = state.value else { return }
+    /// The 1080 × 1920 image.
+    @MainActor
+    func image() -> UIImage? {
         let card = PostcardShareCard(postcard: postcard, map: map)
             .environment(\.dial, dial)
             .environment(\.calendar, calendar)
@@ -288,7 +329,7 @@ struct WrapPostcardPage: View {
         let renderer = ImageRenderer(content: card)
         renderer.proposedSize = ProposedViewSize(PostcardShareCard.size)
         renderer.scale = 1080 / PostcardShareCard.size.width
-        shareImage = renderer.uiImage
+        return renderer.uiImage
     }
 }
 

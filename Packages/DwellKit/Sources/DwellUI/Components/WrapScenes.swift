@@ -254,6 +254,11 @@ public struct SlantTiles: View {
 /// light and a dark stripe every 5 s, steady, so the loop never shows a seam. Under Reduce
 /// Motion, or `isMoving` off (the shared image), it holds still where the design draws it.
 /// Draw it at full strength and set its opacity where it's used (10% on the postcard).
+///
+/// This draws on the CPU, a few thousand pieces a frame: fine for a still image, too heavy to
+/// redraw every frame (the user's recording, 14 Nov: about 30 fps). On screen the postcard
+/// draws the same field on the GPU (`SwirlStripesLive` and its Metal shader, in the app),
+/// reading `weights` from here.
 public struct SwirlStripes: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start = Date.now
@@ -282,7 +287,7 @@ public struct SwirlStripes: View {
     }
 
     /// Seconds for a light and a dark stripe to pass.
-    nonisolated static let period: Double = 5
+    nonisolated public static let period: Double = 5
 
     /// The image as placed on the 393-wide frame, in its own pixels.
     nonisolated private static let imageSize = CGSize(width: 1716, height: 2000)
@@ -293,7 +298,7 @@ public struct SwirlStripes: View {
 
     /// The field's B-spline weights, 9 rows (top to bottom) of 8 (left to right), over the
     /// image. Fitted to the reference image's stripes.
-    nonisolated private static let weights: [[Double]] = [
+    nonisolated public static let weights: [[Double]] = [
         [17.50, 1.78, 2.23, 3.29, 4.69, 4.94, -8.38, 19.02],
         [11.98, 14.21, 14.83, 14.00, 12.18, 7.41, 2.29, -15.60],
         [26.78, 26.63, 24.58, 22.14, 17.38, 10.51, -1.57, -10.61],

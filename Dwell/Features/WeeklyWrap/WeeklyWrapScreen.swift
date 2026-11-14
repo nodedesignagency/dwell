@@ -7,12 +7,15 @@ import SwiftUI
 ///
 /// Loads the week's days from the repository once, for every page's numbers (`WrapWeek`), with
 /// the four weeks before it: what's usual for the earliest exit, and the weekend before for
-/// the weekend page's change; and the places and the user's city, for the postcard. Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the progress bar filling
-/// as it runs, like an Instagram story), and cross-fade (`Motion.reduced`, the same with
-/// Reduce Motion: nothing moves). The clock pauses while a finger is held on the page, while
-/// the app is in the background, and on the opener until its numbers are in. With VoiceOver
-/// or Switch Control on, pages never move by themselves: they wait for the user. Moving on
-/// from the last page closes the wrap.
+/// the weekend page's change; and the places and the user's city, for the postcard.
+///
+/// Pages move on with a tap, or by themselves once their time is up (`WrapPage.duration`, the
+/// progress bar filling as it runs, like an Instagram story), every page including the
+/// postcard, and cross-fade (`Motion.reduced`, the same with Reduce Motion: nothing moves).
+/// The clock pauses while a finger is held on the page, while the app is in the background,
+/// and on the opener until its numbers are in; it stops for the rest of a page once a share
+/// button is touched. With VoiceOver or Switch Control on, pages never move by themselves:
+/// they wait for the user. Moving on from the last page closes the wrap.
 struct WeeklyWrapScreen: View {
     let wrap: WeeklyWrap
     var onClose: () -> Void
@@ -29,6 +32,8 @@ struct WeeklyWrapScreen: View {
     @State private var attempt = 0
     @State private var clock = StoryClock(duration: WrapPage.opener.duration ?? 0)
     @State private var isHolding = false
+    /// A share button was touched on this page: its clock stays stopped until the page changes.
+    @State private var isSharing = false
 
     /// - Parameter start: the page to open on; the opener, but for reviewing another
     ///   (`DWELL_OPEN=wrap7`).
@@ -56,7 +61,8 @@ struct WeeklyWrapScreen: View {
                     state = .loading
                     attempt += 1
                 },
-                hold: { isHolding = $0 }))
+                hold: { isHolding = $0 },
+                stopClock: { isSharing = true }))
             .task(id: attempt) { await load() }
             .onChange(of: shouldRun, initial: true) { _, run in
                 clock = run ? clock.resumed(at: .now) : clock.paused(at: .now)
@@ -77,7 +83,7 @@ struct WeeklyWrapScreen: View {
     }
 
     private var shouldRun: Bool {
-        movesOnByItself && !isHolding && scenePhase == .active && (page != .opener || state.value != nil)
+        movesOnByItself && !isHolding && !isSharing && scenePhase == .active && (page != .opener || state.value != nil)
     }
 
     private func goForward() {
@@ -88,6 +94,7 @@ struct WeeklyWrapScreen: View {
     /// Shows a page from its start, its clock running if it can (going back starts the page
     /// over, as on Instagram).
     private func show(_ next: WrapPage) {
+        isSharing = false
         withAnimation(Motion.reduced) { page = next }
         let fresh = StoryClock(duration: next.duration ?? 0)
         clock = shouldRun ? fresh.resumed(at: .now) : fresh

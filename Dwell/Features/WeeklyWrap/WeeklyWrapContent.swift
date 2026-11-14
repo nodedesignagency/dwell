@@ -20,10 +20,11 @@ enum WrapPage: Int, CaseIterable, Identifiable {
 
     /// What the flow shows on each page still to be designed: a name for the placeholder.
     /// How long a page stays before moving on by itself, as an Instagram story does (the
-    /// user, 13 Nov: 5–10 s; 7 s reads a title and a sentence without hurrying). `nil` waits for
-    /// a tap: the postcard, whose share buttons shouldn't move on from under a thumb.
+    /// user, 13 Nov: 5–10 s; 7 s reads a title and a sentence without hurrying). Every page,
+    /// the postcard too (the user, 14 Nov: the timer shows on all); when the postcard's runs
+    /// out the wrap closes, like the last story, unless a share button stopped it.
     var duration: TimeInterval? {
-        self == .postcard ? nil : 7
+        7
     }
 
     var pendingTitle: String {
@@ -46,6 +47,8 @@ struct WeeklyWrapActions {
     var retry: () -> Void = {}
     /// A finger is down (true) or lifted (false): the page's clock pauses while it's held.
     var hold: (Bool) -> Void = { _ in }
+    /// The page's clock stops for as long as the page shows: someone started sharing it.
+    var stopClock: () -> Void = {}
 }
 
 /// The weekly wrap as the designer draws it: a full-screen story, a page at a time. Each page
@@ -170,7 +173,8 @@ struct WeeklyWrapContent: View {
                 state: state.map(\.postcard),
                 headerBottom: headerBottom,
                 onNext: actions.next,
-                onRetry: actions.retry)
+                onRetry: actions.retry,
+                onShare: actions.stopClock)
         default:
             WrapPendingPage(page: page, reserve: reserve, onNext: actions.next, onPrevious: actions.previous)
         }
