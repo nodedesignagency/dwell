@@ -11,6 +11,18 @@ public enum InsightCopy {
     public static let share = "Share"
     public static let notUseful = "Not useful"
 
+    // MARK: Sharing
+
+    /// The share sheet's title (the design's).
+    public static let shareTitle = "Share this insight"
+    /// The shared card's foot, set in capitals beside the Dwell logo (the design's "POWERED BY").
+    public static let poweredBy = "Powered by"
+    /// The shared image's title in the share sheet. [COPY NEEDED]
+    public static let shareImageTitle = "An insight from Dwell"
+    /// What VoiceOver adds to "IG Story": it opens the share sheet until Instagram's own story
+    /// sharing is connected. [COPY NEEDED]
+    public static let shareInstagramHint = "Shares this insight"
+
     // MARK: The chart
 
     /// The window over the bars: "Sep 2026 – Oct 2026", or "Oct 2026" inside one month. The

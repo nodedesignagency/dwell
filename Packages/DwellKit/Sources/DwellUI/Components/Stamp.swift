@@ -72,18 +72,23 @@ nonisolated public struct StampShape: Shape {
 // MARK: - Logo
 
 /// The Dwell logo as the stamp prints it: the sun mark (23.33), 3.85, the wordmark (17.53
-/// tall). VoiceOver reads "Dwell". Fixed size: it's print on a stamp, not text.
+/// tall). VoiceOver reads "Dwell". Fixed size: it's print on a stamp, not text. `scale` sizes
+/// it for elsewhere (the shared insight's foot: 0.83, its wordmark 14.5 tall).
 public struct DwellLogo: View {
-    public init() {}
+    private let scale: CGFloat
+
+    public init(scale: CGFloat = 1) {
+        self.scale = scale
+    }
 
     public var body: some View {
-        HStack(spacing: 3.85) {
+        HStack(spacing: 3.85 * scale) {
             DwellMark()
-                .frame(width: 23.33, height: 23.33)
+                .frame(width: 23.33 * scale, height: 23.33 * scale)
             Art.Brand.wordmark
                 .resizable()
                 .scaledToFit()
-                .frame(height: 17.53)
+                .frame(height: 17.53 * scale)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "Dwell"))

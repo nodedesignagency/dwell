@@ -52,11 +52,14 @@ public struct InsightTrendChart: View {
     ///   - measure: what the bars measure, for VoiceOver: "Time at the office".
     ///   - tint: the bars' colour, usually the insight's category's.
     ///   - glint: the light along their top edge (`PlaceCategory.glint`).
-    public init(_ bars: [Bar], measure: String, tint: Color, glint: Color) {
+    ///   - growsIn: whether the bars grow in when it appears; off for an image (a shared
+    ///     card), which is drawn before anything appears.
+    public init(_ bars: [Bar], measure: String, tint: Color, glint: Color, growsIn: Bool = true) {
         self.bars = bars
         self.measure = measure
         self.tint = tint
         self.glint = glint
+        _hasGrown = State(initialValue: !growsIn)
     }
 
     public var body: some View {

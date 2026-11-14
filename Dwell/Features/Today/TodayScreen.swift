@@ -91,10 +91,7 @@ struct TodayScreen: View {
                     .clearsTabBar()
             }
             .navigationDestination(item: $openInsight) { insight in
-                InsightScreen(
-                    insight: insight,
-                    onShare: { pending = .share($0.id) },
-                    onNotUseful: dismissInsight)
+                InsightScreen(insight: insight, onNotUseful: dismissInsight)
             }
             .sheet(item: $pending) { sheet in
                 PendingView(title: sheet.title, systemImage: sheet.systemImage)
@@ -172,6 +169,11 @@ struct TodayScreen: View {
                     }
                 },
                 onClose: { prompt = nil })
+        case .share(let detail):
+            InsightShareSheet(
+                detail: detail,
+                now: fixedNow ?? Date().addingTimeInterval(clockOffset),
+                onClose: { prompt = nil })
         }
     }
 
@@ -223,6 +225,15 @@ struct TodayScreen: View {
         var still = Transaction()
         still.disablesAnimations = true
         withTransaction(still, change)
+    }
+
+    /// Share on a deck card: "Share this insight" with the insight's own four weeks. Its weeks
+    /// load first; if they don't, its sentence and number are shared.
+    private func share(_ insight: Insight) {
+        Task {
+            let detail = (try? await repository.insightDetail(for: insight)) ?? InsightDetail(insight: insight)
+            present(.share(detail))
+        }
     }
 
     /// "Not useful", from the deck or the insight's page: it leaves the deck.
@@ -324,7 +335,7 @@ struct TodayScreen: View {
             pickAnother: { pending = .placePicker($0.id) },
             openWeeklyWrap: showWrap,
             openInsight: { openInsight = $0 },
-            share: { pending = .share($0.id) },
+            share: share,
             notUseful: dismissInsight,
             fixPermission: { banner in
                 if banner == .locationDenied {
@@ -345,6 +356,8 @@ private nonisolated enum TodayPrompt: Hashable {
     case tone
     /// "Is this home?", after the first night.
     case home(HomeQuestion)
+    /// "Share this insight", from Share on a deck card.
+    case share(InsightDetail)
 }
 
 /// Sheets whose designs haven't arrived. Each says so instead of guessing.
@@ -352,27 +365,23 @@ private enum PendingSheet: Identifiable {
     case placePicker(VisitID)
     /// Is this home?'s "Pick another": the place picker, to choose home.
     case homePicker
-    case share(Insight.ID)
 
     var id: String {
         switch self {
         case .placePicker(let id): "picker-\(id)"
         case .homePicker: "home-picker"
-        case .share(let id): "share-\(id)"
         }
     }
 
     var title: String {
         switch self {
         case .placePicker, .homePicker: "Place picker"
-        case .share: "Share preview"
         }
     }
 
     var systemImage: String {
         switch self {
         case .placePicker, .homePicker: "mappin.and.ellipse"
-        case .share: "square.and.arrow.up"
         }
     }
 }

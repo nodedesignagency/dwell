@@ -27,6 +27,8 @@ struct InsightContent: View {
     @State private var page = 0
     /// The home indicator's strip; the buttons reach into it, as drawn.
     @State private var homeIndicator: CGFloat = 0
+    /// "Share this insight" is up.
+    @State private var isSharing: Bool
 
     /// Figma: the buttons stand 20 above the screen's bottom edge (measured).
     private static let buttonsAboveEdge: CGFloat = 20
@@ -36,13 +38,15 @@ struct InsightContent: View {
     /// - Parameters:
     ///   - span: the chart's range to start on (4W, as drawn); previews pick 3M.
     ///   - page: windows back to start on; previews show an earlier one.
+    ///   - isSharing: whether "Share this insight" starts up; previews show it.
     init(
         insight: Insight,
         state: Loadable<InsightDetail>,
         now: Date,
         actions: InsightActions = InsightActions(),
         span: InsightSpan = .fourWeeks,
-        page: Int = 0
+        page: Int = 0,
+        isSharing: Bool = false
     ) {
         self.insight = insight
         self.state = state
@@ -50,6 +54,7 @@ struct InsightContent: View {
         self.actions = actions
         _span = State(initialValue: span)
         _page = State(initialValue: page)
+        _isSharing = State(initialValue: isSharing)
     }
 
     private var isLarge: Bool { dynamicTypeSize.isAccessibilitySize }
@@ -72,6 +77,15 @@ struct InsightContent: View {
             var still = Transaction()
             still.disablesAnimations = true
             withTransaction(still) { homeIndicator = inset }
+        }
+        .promptSheet(isPresented: $isSharing) {
+            // The weeks on screen go with it; before the page has loaded, the deck's insight.
+            InsightShareSheet(
+                detail: state.value ?? InsightDetail(insight: insight),
+                span: span,
+                page: page,
+                now: now,
+                onClose: { isSharing = false })
         }
     }
 
@@ -125,7 +139,7 @@ struct InsightContent: View {
 
     @ViewBuilder
     private func loaded(_ detail: InsightDetail) -> some View {
-        headline(detail.headline)
+        InsightHeadline(headline: detail.headline)
             .padding(.top, Space.l)
         if let trend = detail.trend {
             trendCard(trend)
@@ -143,20 +157,6 @@ struct InsightContent: View {
         }
     }
 
-    @ViewBuilder
-    private func headline(_ headline: InsightDetail.Headline) -> some View {
-        switch headline {
-        case .sentence(let sentence):
-            VoicedSentenceView(sentence, role: .voiceHero, ink: Palette.textOnHero, dataInk: Palette.textPrimary)
-        case .line(let line):
-            VoiceText(line)
-                .textRole(.voiceHero)
-                .foregroundStyle(Palette.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
     // MARK: The chart
 
     private func trendCard(_ trend: InsightTrend) -> some View {
@@ -167,7 +167,7 @@ struct InsightContent: View {
             DashedDivider()
                 .padding(.top, Space.m)
             InsightTrendChart(
-                bars(weeks, trend: trend),
+                trend.bars(span: span, page: page, now: now, calendar: calendar),
                 measure: trend.measure,
                 tint: trend.category?.color ?? Palette.accent,
                 glint: trend.category?.glint ?? Palette.accent)
@@ -216,23 +216,6 @@ struct InsightContent: View {
                 Spacer(minLength: 0)
                 picker
             }
-        }
-    }
-
-    /// 4W labels every bar ("Oct 5", "Last week"); 3M only the first week of each month ("Sep").
-    /// Weeks before Dwell was recording keep their slot, with no bar and no label.
-    private func bars(_ weeks: [InsightTrend.Week], trend: InsightTrend) -> [InsightTrendChart.Bar] {
-        weeks.map { week in
-            let label: String? = switch span {
-            case .fourWeeks: InsightCopy.barLabel(week.period, focus: trend.focus, now: now, calendar: calendar)
-            case .threeMonths: week.period.first.day <= 7 ? InsightCopy.monthLabel(week.period, calendar: calendar) : nil
-            }
-            return InsightTrendChart.Bar(
-                id: week.id,
-                label: week.value == nil ? nil : label,
-                name: InsightCopy.weekName(week.period, calendar: calendar),
-                value: week.value,
-                isFocus: week.period == trend.focus)
         }
     }
 
@@ -307,7 +290,7 @@ struct InsightContent: View {
     @ViewBuilder
     private var buttons: some View {
         if insight.isShareable {
-            Button(InsightCopy.share, action: actions.share)
+            Button(InsightCopy.share) { isSharing = true }
                 .buttonStyle(.primary(role: .action))
         }
         Button(InsightCopy.notUseful, action: actions.notUseful)

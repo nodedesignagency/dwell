@@ -8,10 +8,9 @@ import SwiftUI
 ///
 /// An inside page: pushed over Today with no tab bar (the user's call, 13 Nov), Share and
 /// Not useful where the bar would be. Not useful takes the insight off the deck and goes back.
-/// Share opens the share preview, still a placeholder until share cards are designed (S-10).
+/// Share slides up "Share this insight" (`InsightShareSheet`).
 struct InsightScreen: View {
     let insight: Insight
-    var onShare: (Insight) -> Void = { _ in }
     var onNotUseful: (Insight) -> Void = { _ in }
 
     @Environment(\.repository) private var repository
@@ -29,7 +28,6 @@ struct InsightScreen: View {
             now: fixedNow ?? Date().addingTimeInterval(clockOffset),
             actions: InsightActions(
                 retry: { reloads += 1 },
-                share: { onShare(insight) },
                 notUseful: {
                     onNotUseful(insight)
                     dismiss()
@@ -56,7 +54,6 @@ struct InsightScreen: View {
 /// What the Insights page's controls do. Screens wire these; previews leave them empty.
 struct InsightActions {
     var retry: () -> Void = {}
-    var share: () -> Void = {}
     var notUseful: () -> Void = {}
 }
 

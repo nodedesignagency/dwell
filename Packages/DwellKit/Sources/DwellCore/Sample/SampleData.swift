@@ -135,7 +135,9 @@ public enum SampleData {
                 peace: "Somewhere new: Red Hook.",
                 plain: "New neighborhood: Red Hook. First time.",
                 grind: "Red Hook, uncovered. 3.2% of Brooklyn."),
-            value: "3.2%"),
+            value: "3.2%",
+            // It names a neighborhood, and shares stay at city level or above (brief §8.2).
+            isShareable: false),
         Insight(
             id: "early-exit", family: .record,
             topic: "Office hours", // [COPY NEEDED]

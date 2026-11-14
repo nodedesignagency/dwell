@@ -159,6 +159,33 @@ struct InsightTrendTests {
     }
 }
 
+@Suite("Sharing an insight")
+struct InsightShareTests {
+    @Test func `an insight naming a neighborhood isn't shared`() throws {
+        let cell = try #require(SampleData.insights.first { $0.id == "new-cell-red-hook" })
+        #expect(!cell.isShareable)
+        #expect(!SampleData.insightDetail(for: cell).isShareable)
+    }
+
+    @Test func `the office insight is shared, and names no place`() throws {
+        let card = try #require(SampleData.insights.first { $0.id == SampleData.officeInsightID })
+        #expect(card.isShareable)
+        for stop in Dial.Stop.allCases {
+            let text = card.line.text(at: stop)
+            for place in SampleData.places {
+                #expect(!text.contains(place.name))
+            }
+        }
+    }
+
+    @Test func `the share sheet's words`() {
+        #expect(InsightCopy.shareTitle == "Share this insight")
+        #expect(ShareCopy.privacy == WrapCopy.sharePrivacy)
+        #expect([ShareCopy.instagram, ShareCopy.messages, ShareCopy.save, ShareCopy.copy, ShareCopy.more]
+            == [WrapCopy.shareInstagram, WrapCopy.shareMessages, WrapCopy.shareSave, WrapCopy.shareCopy, WrapCopy.shareMore])
+    }
+}
+
 @Suite("Insights with no detail of their own")
 struct InsightFallbackTests {
     @Test func `they open onto their sentence and their number`() throws {
