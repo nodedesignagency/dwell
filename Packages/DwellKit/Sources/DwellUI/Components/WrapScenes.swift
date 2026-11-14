@@ -40,6 +40,8 @@ public struct WavyStripes: View {
                 Self.draw(in: &canvas, size: size, time: time, light: light, deep: deep)
             }
         }
+        // Rasterised by Metal, not on the CPU each frame.
+        .drawingGroup()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
@@ -158,6 +160,8 @@ public struct SlantTiles: View {
                 Self.draw(in: &canvas, size: size, step: time / Self.period, light: light, deep: deep)
             }
         }
+        // Rasterised by Metal, not on the CPU each frame.
+        .drawingGroup()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
@@ -527,6 +531,32 @@ extension View {
     /// Under Reduce Motion it fades in.
     public func popIn(delay: Double = 0) -> some View {
         modifier(PopIn(delay: delay))
+    }
+}
+
+extension View {
+    /// Rises into place once it appears: from 8 below and clear, on a soft spring with no
+    /// bounce (`Motion.arrive`), after `delay`. Only its position and opacity move, never its
+    /// size or angle, so a shadow under it isn't redrawn on every frame: light enough for a
+    /// row of chips coming in one after another (the weekend page's pills, the user's
+    /// recording, 14 Nov: the pop-in "felt heaviest"). Under Reduce Motion it fades in.
+    public func riseIn(delay: Double = 0) -> some View {
+        modifier(RiseIn(delay: delay))
+    }
+}
+
+private struct RiseIn: ViewModifier {
+    let delay: Double
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isShown = false
+
+    func body(content: Content) -> some View {
+        content
+            .offset(y: isShown || reduceMotion ? 0 : 8)
+            .opacity(isShown ? 1 : 0)
+            .animation((reduceMotion ? Motion.reduced : Motion.arrive).delay(delay), value: isShown)
+            .onAppear { isShown = true }
+            .onDisappear { isShown = false }
     }
 }
 

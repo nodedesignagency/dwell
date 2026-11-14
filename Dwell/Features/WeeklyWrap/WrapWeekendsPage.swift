@@ -20,8 +20,9 @@ import SwiftUI
 ///   line (white 50%), 20 to the category pills (8 apart each way), 8 to the change since
 ///   last weekend (16, white 80%), its box 38 above the screen's bottom edge.
 ///
-/// The grid's rows sweep in from 4 AM, then the pills pop in one after another; under Reduce
-/// Motion the rows fade in and the pills with them, and the tiles hold still. The page is a
+/// The grid's rows sweep in from 4 AM, then the pills rise in one after another, 8 pt and a
+/// fade, no bounce (`.riseIn`); under Reduce Motion the rows fade in and the pills with them,
+/// and the tiles hold still. The page is a
 /// story page: a tap anywhere moves on, so the grid doesn't take taps. VoiceOver reads the
 /// rows and their audio graph, and each pill. At accessibility sizes the title stops at the
 /// largest standard size, as on the opener; if the rest outgrows the screen it scrolls.
@@ -126,7 +127,7 @@ struct WrapWeekendsPage: View {
             FlowLayout(alignment: .leading, spacing: Space.s, lineSpacing: Space.s) {
                 ForEach(Array(weekends.breakdown.enumerated()), id: \.element.id) { index, slice in
                     CategoryPill(slice.bucket, duration: slice.total)
-                        .popIn(delay: 0.5 + Double(index) * 0.06)
+                        .riseIn(delay: 0.45 + Double(index) * 0.04)
                 }
             }
             .padding(.top, 20)
