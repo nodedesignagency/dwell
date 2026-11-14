@@ -28,17 +28,21 @@ struct TodayModel: Hashable {
         TodayModel(snapshot: .empty(day, calendar: calendar), liveStatus: isToday ? .unknown : nil, insights: [])
     }
 
-    /// The model after the user's answers this session, before the engine reflects them.
+    /// The model after the user's answers this session, before the engine reflects them:
+    /// visits confirmed, insights dismissed, wraps opened, and visits saved or deleted from
+    /// the visit edit sheet, in the order they were.
     func applying(
         confirmed: Set<VisitID>,
         dismissed: Set<Insight.ID>,
-        openedWraps: Set<WeeklyWrap.ID> = []
+        openedWraps: Set<WeeklyWrap.ID> = [],
+        visitChanges: [VisitChange] = []
     ) -> TodayModel {
         var model = self
         if let id = weeklyWrap?.id, openedWraps.contains(id) {
             model.weeklyWrap?.isOpened = true
         }
-        model.snapshot.entries = snapshot.entries.map { entry in
+        let edited = self.snapshot.applying(visitChanges)
+        model.snapshot.entries = edited.entries.map { entry in
             guard case .visit(var visit) = entry, confirmed.contains(visit.id) else { return entry }
             visit.needsReview = false
             return .visit(visit)
@@ -56,6 +60,8 @@ struct TodayActions {
     var openPlace: (PlaceID) -> Void = { _ in }
     var confirm: (Visit) -> Void = { _ in }
     var pickAnother: (Visit) -> Void = { _ in }
+    /// A visit in "Your day" held: the visit edit sheet.
+    var editVisit: (Visit) -> Void = { _ in }
     var openWeeklyWrap: (WeeklyWrap) -> Void = { _ in }
     var openInsight: (Insight) -> Void = { _ in }
     var share: (Insight) -> Void = { _ in }

@@ -5,12 +5,14 @@ import SwiftUI
 /// The day as a list, newest first (Today design, "Your day"). Shows the last three visits
 /// with what came between them; "View more" opens the whole day. Transit and gaps are shaped
 /// like visits, and a gap always reads as a gap ("Dwell was asleep", its span and duration).
+/// Holding a visit opens the visit edit sheet (brief §7.1, "Long-press to edit").
 struct DayTimelineCard: View {
     let snapshot: DaySnapshot
     let now: Date
     let isToday: Bool
     var onOpenPlace: (PlaceID) -> Void = { _ in }
     var onReview: (Visit) -> Void = { _ in }
+    var onEdit: (Visit) -> Void = { _ in }
 
     static let collapsedVisits = 3
 
@@ -65,9 +67,15 @@ struct DayTimelineCard: View {
                 .onTapGesture {
                     if let id = visit.placeID { onOpenPlace(id) }
                 }
+                .onLongPressGesture(minimumDuration: 0.4) {
+                    onEdit(visit)
+                }
                 .accessibilityAddTraits(visit.placeID == nil ? [] : .isButton)
                 .accessibilityAction {
                     if let id = visit.placeID { onOpenPlace(id) }
+                }
+                .accessibilityAction(named: Text(verbatim: VisitEditCopy.editAction)) {
+                    onEdit(visit)
                 }
         case .transit(let interval):
             TimelineNote(

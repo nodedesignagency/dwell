@@ -82,6 +82,14 @@ public protocol DwellRepository: Sendable {
     func homeQuestion() async throws -> HomeQuestion?
     /// The answer: "Looks right" (it's home) or not.
     func answerHomeQuestion(_ id: HomeQuestion.ID, isHome: Bool) async throws
+
+    // MARK: Visit edit
+
+    /// The visit edit sheet's Save: the visit's times, work from home and private, split in
+    /// two or merged with the next (`VisitDraft.visits(in:)` says what the day becomes).
+    func saveVisit(_ draft: VisitDraft) async throws
+    /// The visit edit sheet's Delete: the visit goes and its time counts toward nothing.
+    func deleteVisit(_ id: VisitID) async throws
 }
 
 extension DwellRepository {
@@ -206,4 +214,9 @@ public struct SampleRepository: DwellRepository {
     }
 
     public func answerHomeQuestion(_ id: HomeQuestion.ID, isHome: Bool) async throws {}
+
+    /// The sample week is fixed, so edits are not kept; Today shows them for the session.
+    public func saveVisit(_ draft: VisitDraft) async throws {}
+
+    public func deleteVisit(_ id: VisitID) async throws {}
 }

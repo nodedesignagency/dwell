@@ -16,7 +16,8 @@ import UIKit
 /// One card at a time slides up over Today (`TodayPrompt`), in this order: the location sheet;
 /// Set your tone, right after onboarding (`ToneSheet`); Is this home?, after the first night
 /// while no home is saved (`HomeQuestionSheet`). Each waits for Today to settle, and for the
-/// card before it to be gone.
+/// card before it to be gone. Holding a visit in "Your day" slides up Visit edit
+/// (`VisitEditSheet`); what it saves or deletes shows on Today at once.
 struct TodayScreen: View {
     var openProfile: () -> Void = {}
     /// Opens last week's wrap on this page once Today has loaded, for reviewing it
@@ -24,6 +25,9 @@ struct TodayScreen: View {
     var opensWrapAt: WrapPage?
     /// Opens this insight's page once Today has loaded, for reviewing it (`DWELL_OPEN=insight`).
     var opensInsight: Insight.ID?
+    /// Opens Visit edit on this visit once Today has loaded, for reviewing it
+    /// (`DWELL_OPEN=visitEdit`).
+    var opensVisitEdit: VisitID?
 
     @Environment(\.repository) private var repository
     @Environment(\.fixedNow) private var fixedNow
@@ -59,6 +63,10 @@ struct TodayScreen: View {
     @State private var hasAskedForLocation = false
     @State private var hasAskedHome = false
     @State private var homeConfirmations = 0
+    /// Visits saved or deleted from Visit edit this session, in order, until the engine says.
+    @State private var visitChanges: [VisitChange] = []
+    @State private var visitEdits = 0
+    @State private var hasOpenedVisitEditAtLaunch = false
     /// Set your tone's dial while it's dragged; saved to the app's dial by "Set my tone".
     @State private var toneDial = Dial.Stop.plain.position
     @AppStorage("dial.position") private var storedDial = Dial.Stop.plain.position
@@ -124,7 +132,7 @@ struct TodayScreen: View {
             // However Set your tone goes (Set my tone, Later, a swipe), Today doesn't ask again.
             if previous == .tone, current == nil { asksTone = false }
         }
-        .haptic(.confirm, trigger: confirmed.count + homeConfirmations)
+        .haptic(.confirm, trigger: confirmed.count + homeConfirmations + visitEdits)
     }
 
     // MARK: Cards over Today
@@ -174,6 +182,27 @@ struct TodayScreen: View {
                 detail: detail,
                 now: fixedNow ?? Date().addingTimeInterval(clockOffset),
                 onClose: { prompt = nil })
+        case .visitEdit(let request):
+            VisitEditSheet(
+                request: request,
+                onSave: { draft in
+                    if draft.hasChanges {
+                        try await repository.saveVisit(draft)
+                        withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
+                            visitChanges.append(.saved(draft))
+                        }
+                    }
+                    visitEdits += 1
+                    prompt = nil
+                },
+                onDelete: { id in
+                    try await repository.deleteVisit(id)
+                    withAnimation(reduceMotion ? Motion.reduced : Motion.standard) {
+                        visitChanges.append(.deleted(id))
+                    }
+                    visitEdits += 1
+                    prompt = nil
+                })
         }
     }
 
@@ -236,6 +265,19 @@ struct TodayScreen: View {
         }
     }
 
+    /// Visit edit on a held visit, with its place (for its category, home and the map) and the
+    /// day as Today shows it, this session's changes included.
+    private func editVisit(_ visit: Visit, on day: DwellDay) {
+        guard let snapshot = displayed(for: day).value?.snapshot else { return }
+        let now = fixedNow ?? Date().addingTimeInterval(clockOffset)
+        Task {
+            let places = (try? await repository.places()) ?? []
+            let place = visit.placeID.flatMap { id in places.first { $0.id == id } }
+            present(.visitEdit(VisitEditRequest(
+                draft: VisitDraft(visit: visit, place: place), snapshot: snapshot, now: now)))
+        }
+    }
+
     /// "Not useful", from the deck or the insight's page: it leaves the deck.
     private func dismissInsight(_ insight: Insight) {
         dismissed.insert(insight.id)
@@ -261,7 +303,9 @@ struct TodayScreen: View {
         case .loaded(let model, let staleSince):
             guard model.day == day else { return .loading }
             return .loaded(
-                model.applying(confirmed: confirmed, dismissed: dismissed, openedWraps: openedWraps),
+                model.applying(
+                    confirmed: confirmed, dismissed: dismissed, openedWraps: openedWraps,
+                    visitChanges: visitChanges),
                 staleSince: staleSince)
         default:
             return state
@@ -295,6 +339,11 @@ struct TodayScreen: View {
             if let opensInsight, !hasOpenedInsightAtLaunch, let insight = insights.first(where: { $0.id == opensInsight }) {
                 hasOpenedInsightAtLaunch = true
                 openInsight = insight
+            }
+            if let opensVisitEdit, !hasOpenedVisitEditAtLaunch,
+               let visit = snapshot.entries.compactMap(\.visit).first(where: { $0.id == opensVisitEdit }) {
+                hasOpenedVisitEditAtLaunch = true
+                editVisit(visit, on: day)
             }
             // Is this home? once per launch, after the cards that go before it.
             if isToday, !hasAskedHome, !asksTone, permissions.banner != .locationDenied,
@@ -333,6 +382,7 @@ struct TodayScreen: View {
                 Task { try? await repository.confirmVisit(visit.id) }
             },
             pickAnother: { pending = .placePicker($0.id) },
+            editVisit: { editVisit($0, on: day) },
             openWeeklyWrap: showWrap,
             openInsight: { openInsight = $0 },
             share: share,
@@ -358,6 +408,8 @@ private nonisolated enum TodayPrompt: Hashable {
     case home(HomeQuestion)
     /// "Share this insight", from Share on a deck card.
     case share(InsightDetail)
+    /// Visit edit, from holding a visit in "Your day".
+    case visitEdit(VisitEditRequest)
 }
 
 /// Sheets whose designs haven't arrived. Each says so instead of guessing.

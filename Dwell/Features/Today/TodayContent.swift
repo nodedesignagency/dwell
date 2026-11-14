@@ -138,7 +138,8 @@ struct TodayContent: View {
             now: now,
             isToday: isToday,
             onOpenPlace: actions.openPlace,
-            onReview: actions.pickAnother)
+            onReview: actions.pickAnother,
+            onEdit: actions.editVisit)
     }
 
     /// Day 0, before the first stop (Today design, "Getting Started"; brief §3.1): icons

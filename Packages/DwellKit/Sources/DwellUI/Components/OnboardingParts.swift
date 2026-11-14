@@ -211,6 +211,8 @@ public struct PlaceTag: View {
     private nonisolated enum Look: Hashable {
         case example
         case map
+        /// On a map with its time: "Kestriva Labs | 9h" (Visit edit).
+        case mapTimed(truncates: Bool)
     }
 
     private let name: String
@@ -237,6 +239,19 @@ public struct PlaceTag: View {
         self.look = .map
     }
 
+    /// A place on a map with its time (Visit edit, 14 Nov: "Kestriva Labs | 9h"): the map
+    /// tag's rim, tail and spacing with the example tag's type, the name at 16 medium and the
+    /// time at 16 regular in grey; 34 tall. Without a time, the name alone.
+    /// - Parameter truncates: lets a long name end in an ellipsis to fit the room it's given,
+    ///   rather than run off the map.
+    public init(mapName name: String, time: String?, icon: Image, tail: Tail = .none, truncates: Bool = false) {
+        self.name = name
+        self.time = time
+        self.icon = icon
+        self.tail = tail
+        self.look = .mapTimed(truncates: truncates)
+    }
+
     /// How far the tail reaches past the pill: pad by this on its side to take it in.
     public static func tailDepth(onMap: Bool) -> CGFloat {
         onMap ? 8 : 5
@@ -246,6 +261,7 @@ public struct PlaceTag: View {
         switch look {
         case .example: example
         case .map: onMap
+        case .mapTimed(let truncates): onMapTimed(truncates: truncates)
         }
     }
 
@@ -277,6 +293,49 @@ public struct PlaceTag: View {
             TagShape(tail: tail)
                 .fill(Palette.tag)
                 .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        }
+        .environment(\.colorScheme, .light)
+        .dynamicTypeSize(.large)
+        .accessibilityHidden(true)
+    }
+
+    private func onMapTimed(truncates: Bool) -> some View {
+        HStack(spacing: 0) {
+            icon
+                .resizable()
+                .scaledToFit()
+                .frame(width: 16, height: 16)
+            Text(verbatim: name)
+                .textRole(.body)
+                .truncationMode(.tail)
+                .padding(.leading, 6)
+                .layoutPriority(-1)
+            if let time {
+                Rectangle()
+                    .fill(Palette.separator)
+                    .frame(width: 1, height: 16)
+                    .padding(.leading, 4)
+                    .padding(.trailing, 6)
+                Text(verbatim: time)
+                    .textRole(.body, weight: .regular)
+                    .foregroundStyle(Palette.textSecondary)
+                    .fixedSize()
+            }
+        }
+        .foregroundStyle(Palette.textPrimary)
+        .lineLimit(1)
+        .fixedSize(horizontal: !truncates, vertical: true)
+        .padding(.leading, 8)
+        .padding(.trailing, 12)
+        .frame(height: 34)
+        .background {
+            TagShape(tail: tail, width: 12, depth: Self.tailDepth(onMap: true))
+                .fill(Palette.mapTagRim)
+                .overlay {
+                    Capsule()
+                        .fill(Palette.mapTag)
+                        .padding(1)
+                }
         }
         .environment(\.colorScheme, .light)
         .dynamicTypeSize(.large)

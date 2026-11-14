@@ -44,6 +44,7 @@ struct RootView: View {
     /// The wrap page to open at launch, if any.
     private let opensWrapAt: WrapPage?
     private let opensInsight: Insight.ID?
+    private let opensVisitEdit: VisitID?
 
     /// - Parameter open: a page to start on, for reviewing it (`DWELL_OPEN=places ./scripts/run.sh`).
     init(open: LaunchPage? = nil) {
@@ -60,11 +61,15 @@ struct RootView: View {
             opensWrapAt = nil
         }
         opensInsight = open == .insight ? SampleData.officeInsightID : nil
+        // Monday's morning at Kestriva Labs, 9:14 AM to 12:38 PM.
+        opensVisitEdit = open == .visitEdit ? VisitID("10-26-3") : nil
     }
 
     var body: some View {
         TabView(selection: $tab) {
-            TodayScreen(openProfile: { tab = .you }, opensWrapAt: opensWrapAt, opensInsight: opensInsight)
+            TodayScreen(
+                openProfile: { tab = .you }, opensWrapAt: opensWrapAt, opensInsight: opensInsight,
+                opensVisitEdit: opensVisitEdit)
                 .tag(Tab.today)
                 .toolbar(.hidden, for: .tabBar)
             MapScreen()
@@ -128,6 +133,8 @@ nonisolated enum LaunchPage: Equatable {
     case setupStopped(SetupStop)
     /// Today with Set your tone over it, as onboarding hands over.
     case tone
+    /// Today with Visit edit over it, on Monday's morning at Kestriva Labs.
+    case visitEdit
     /// The returning user: Welcome back over My world.
     case welcomeBack
     /// Welcome back with Checking up, signing in straight away.
@@ -146,6 +153,7 @@ nonisolated enum LaunchPage: Equatable {
         case "under16": self = .setupStopped(.underSixteen)
         case "notInRegion": self = .setupStopped(.notInRegion)
         case "tone": self = .tone
+        case "visitEdit": self = .visitEdit
         case "welcomeBack": self = .welcomeBack
         case "checking": self = .checking
         case "reconsent": self = .reconsent

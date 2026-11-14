@@ -253,3 +253,20 @@ extension Art {
         }
     }
 }
+
+extension Art {
+    /// Pictures standing in for what code will draw.
+    public enum StandIn {
+        /// The Visit edit design's map (14 Nov), until MapKit draws the place's own map (the
+        /// user's call: "use just a map image, we'll replace it with MapKit afterwards"). The map
+        /// images from earlier chats never reached the repo, so it's cut from this design's
+        /// screenshot: 372 × 207 pt at 1.6x, so a little soft, with the cluster, the tag and
+        /// Barclays Center (no points of interest on any map) taken out. The cluster and tag
+        /// are drawn in code at `mapPlace`, so they stay when MapKit comes. [ASSET NEEDED]
+        public static let map = Image("map/standIn", bundle: .module)
+        /// Where the design's place sits on the picture: the middle of its cluster.
+        public static let mapPlace = UnitPoint(x: 0.5, y: 0.565)
+        /// The picture's size in pixels, for placing `mapPlace` once it's scaled to fill.
+        public static let mapSize = CGSize(width: 594, height: 331)
+    }
+}

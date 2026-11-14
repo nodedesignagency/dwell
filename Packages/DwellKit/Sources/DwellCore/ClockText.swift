@@ -55,6 +55,12 @@ public enum ClockText {
         return text.replacingOccurrences(of: "\u{202F}", with: "").replacingOccurrences(of: " ", with: "")
     }
 
+    /// "4 AM", "12 PM": an hour on a time track's axis, with the system's space before AM and
+    /// PM (Visit edit). Locales on a 24-hour clock get "04", "22".
+    public static func hourMark(_ date: Date, calendar: Calendar) -> String {
+        date.formatted(style(calendar).hour(.defaultDigits(amPM: .abbreviated)))
+    }
+
     /// "8:02 AM – 8:59 AM" for a finished stretch, "1:31 PM → now" while it is still going.
     public static func span(from start: Date, to end: Date?, calendar: Calendar) -> String {
         guard let end else { return "\(time(start, calendar: calendar)) → now" }

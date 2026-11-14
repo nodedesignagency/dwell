@@ -172,6 +172,22 @@ public enum Palette {
     public static let gold = Color("gold", bundle: .module)
     /// Time: the track under the range control (Day / Week / Month / Year) and the Weekday / Weekend toggle. Read from the screenshot
     public static let segmentTrack = Color("segmentTrack", bundle: .module)
+    /// Visit edit: the day's track behind the visit's time. Read from the screenshot (14 Nov)
+    public static let spanTrack = Color("spanTrack", bundle: .module)
+    /// Visit edit: the visit's time on the day's track, white times on it. Read from the screenshot (14 Nov)
+    public static let span = Color("span", bundle: .module)
+    /// Visit edit: the lighter blue the visit's time takes at its two ends, where it's dragged. Read from the screenshot (14 Nov)
+    public static let spanEdge = Color("spanEdge", bundle: .module)
+    /// A sheet's grab handle (Visit edit). Read from the screenshot (14 Nov)
+    public static let grabber = Color("grabber", bundle: .module)
+    /// A button that removes something: Visit edit's Delete. Read from the screenshot (14 Nov)
+    public static let destructive = Color("destructive", bundle: .module)
+    /// Visit edit: the cluster of cells round a work place, the middle two rings. Read from the screenshot (14 Nov); other categories derive theirs
+    public static let visitCellDeep = Color("visitCellDeep", bundle: .module)
+    /// Visit edit: the cluster round a work place, the third ring. Read from the screenshot (14 Nov)
+    public static let visitCellMid = Color("visitCellMid", bundle: .module)
+    /// Visit edit: the cluster round a work place, the outer ring. Read from the screenshot (14 Nov)
+    public static let visitCellLight = Color("visitCellLight", bundle: .module)
     /// Time: a box set into a card (Worth noticing). Read from the screenshot
     public static let insetSurface = Color("insetSurface", bundle: .module)
     /// Time: the yours bars in Work and yours (work's are the Work colour). Read from the screenshot
@@ -312,6 +328,7 @@ public nonisolated enum Radius {
     public static let l: CGFloat = 16
     public static let xl: CGFloat = 20
     public static let xxl: CGFloat = 32
+    public static let track: CGFloat = 10
 }
 
 extension SkyPhase {

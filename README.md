@@ -35,6 +35,7 @@ DWELL_OPEN=time ./scripts/run.sh    # open the Time tab
 DWELL_OPEN=wrap ./scripts/run.sh    # open last week's wrap over Today
 DWELL_OPEN=wrap3 ./scripts/run.sh   # open the wrap on one of its pages, 1 to 7 (3 Weekends, 4 Where you spent the most time, 6 Explorer week, 7 the postcard)
 DWELL_OPEN=insight ./scripts/run.sh # open the Insights page (Today → the office-time insight)
+DWELL_OPEN=visitEdit ./scripts/run.sh # open Visit edit over Today (Monday morning at Kestriva Labs); in the app, hold a visit in "Your day"
 DWELL_OPEN=onboarding ./scripts/run.sh  # first run: My world, Your places, See where it all goes, Start my day
 DWELL_OPEN=onboarding2 ./scripts/run.sh # onboarding on one of its pages, 1 to 4 (2 Your places, 4 Start my day)
 DWELL_OPEN=onboarding5 ./scripts/run.sh # account setup over Start my day: 5 Save your world, 6 the birthday, 7 One last thing

@@ -241,6 +241,23 @@ public struct DemoRepository: DwellRepository {
     }
 
     /// Holds or fails every load, as the mode says.
+    /// Saving fails as loading does: offline, or the engine unavailable.
+    public func saveVisit(_ draft: VisitDraft) async throws {
+        try failIfDown()
+    }
+
+    public func deleteVisit(_ id: VisitID) async throws {
+        try failIfDown()
+    }
+
+    private func failIfDown() throws {
+        switch mode {
+        case .failed: throw LoadError(.unavailable)
+        case .offline: throw LoadError(.offline)
+        default: return
+        }
+    }
+
     private func gate() async throws {
         switch mode {
         case .loading: try await Task.sleep(for: .seconds(24 * 3600))
